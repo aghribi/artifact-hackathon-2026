@@ -1,7 +1,7 @@
 # Challenge: Optimisation (CLEAR / CLARA — double case)
 
-**Co-case owners:** Amelia, Antonio Gilardi
-**Team captains:** Amelia, Antonio Gilardi _(to be confirmed)_
+**Co-case owners:** Amelia Pollard, Antonio Gilardi
+**Team captains:** Amelia Pollard, Antonio Gilardi
 **Challenge coordinator (organizing team):** Barbara Dalena (backup: Adnan Ghribi)
 
 ## Overview
