@@ -41,6 +41,14 @@ Compute environments (Singularity container, DALIA @ IDRIS) will be documented h
 - Organization: Adnan Ghribi (GANIL) — adnan.ghribi@ganil.fr
 - Technical support: Sabrina Lecerf (GANIL)
 
+## Funding & Support
+
+This hackathon is supported by:
+
+- **[AISSAI](https://aissai.cnrs.fr)** — AI for Science, Science for AI Institute (CNRS)
+- **European Physical Society (EPS)**
+- **Région Normandie**
+
 ## License
 
 _TBD_
