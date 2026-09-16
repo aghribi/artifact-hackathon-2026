@@ -1,0 +1,6 @@
+# Placeholder requirements — to be finalized by the challenge coordinator
+numpy
+pandas
+scikit-learn
+matplotlib
+jupyter
