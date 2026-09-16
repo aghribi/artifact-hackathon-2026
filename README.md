@@ -29,10 +29,11 @@ See each challenge folder for its specific objectives and starter material.
 
 Each challenge folder is self-contained and includes:
 - `README.md` — challenge description and case holder(s)
+- `scientific_case.md` — background and motivation
+- `objectives.md` — easy / medium / hard objectives (bullet points only)
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — a starter notebook to get you going
 - `data/` — dataset description, ontologies/schemas
-- `objectives.md` — easy / medium / hard objectives
 
 Compute environments (Singularity container, DALIA @ IDRIS) will be documented here closer to the event.
 

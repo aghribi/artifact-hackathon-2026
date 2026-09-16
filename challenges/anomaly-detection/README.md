@@ -12,10 +12,11 @@ Working hypothesis: anomaly detection on LLRF (low-level RF) time-series wavefor
 
 ## Structure
 
+- `scientific_case.md` — background and motivation
+- `objectives.md` — easy / medium / hard objectives (bullet points only)
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — starter notebook
 - `data/` — dataset description & ontologies (placeholder)
-- `objectives.md` — easy / medium / hard objectives
 
 ## Getting help
 

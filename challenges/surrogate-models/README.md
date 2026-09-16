@@ -12,10 +12,11 @@ Working hypothesis: surrogate models for PALLAS laser-plasma acceleration simula
 
 ## Structure
 
+- `scientific_case.md` — background and motivation
+- `objectives.md` — easy / medium / hard objectives (bullet points only)
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — starter notebook
 - `data/` — dataset description & ontologies (placeholder)
-- `objectives.md` — easy / medium / hard objectives
 
 ## Getting help
 

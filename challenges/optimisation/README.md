@@ -16,10 +16,11 @@ Working hypothesis: multi-objective optimisation / tuning, surrogate-assisted di
 
 ## Structure
 
+- `scientific_case.md` — background and motivation
+- `objectives.md` — easy / medium / hard objectives (bullet points only)
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — starter notebook
 - `data/` — dataset description & ontologies, split into `clear/` and `clara/` (placeholders)
-- `objectives.md` — easy / medium / hard objectives
 
 ## Getting help
 

@@ -1,5 +1,7 @@
 # Challenge Objectives — Optimisation (CLEAR / CLARA)
 
+Objectives only — see [`scientific_case.md`](scientific_case.md) for background and motivation.
+
 ## 🟢 Easy
 
 _TBD_
