@@ -1,0 +1,24 @@
+name: aissai-lecture-02
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - jupyter
+  - jupyterlab
+  - numpy
+  - scipy
+  - scikit-learn
+  - scikit-optimize
+  - matplotlib
+  - plotly
+  - pandas
+  - tqdm
+  - pip
+  - pip:
+      - torch
+      - cheetah-accelerator
+      - botorch
+      - gpytorch
+      - nbformat
+      - ipywidgets
