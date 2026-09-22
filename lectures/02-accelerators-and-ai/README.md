@@ -82,12 +82,12 @@ jupyter lab
 - Kaiser et al., *Phys. Rev. Accel. Beams* **27**, 054601 (2024) — Cheetah simulator
 - Tennant et al., *PRAB* **23**, 114601 (2020) — SRF fault classification at JLab
 - Duris et al., *PRL* **124**, 124801 (2020) — Bayesian optimisation at LCLS
-- Ghribi et al., *Europhysics News* **56**(1), 15–19 (2025) — ARTIFACT / KARA −30% result
+- Ghribi et al., *Europhysics News* **56**(1), 15–19 (2025)
 - AccML living review: https://aghribi.github.io/acc-ml-living-review
 
 ## Additional resources
 
-- Ghribi, *ARTIFACT: From AI History to Federated Infrastructures* — GANIL Physics Seminar, March 2026 (state-of-the-art material adapted for slides on AI's physics lineage and the 2026 technology-maturity snapshot)
+- Ghribi, *ARTIFACT: From AI History to Federated Infrastructures* — GANIL Physics Seminar, March 2026 (state-of-the-art material adapted for slides on AI's physics lineage)
 
 ## License
 
