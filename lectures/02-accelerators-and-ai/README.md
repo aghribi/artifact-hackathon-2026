@@ -11,9 +11,9 @@ A 60-minute tour of AI applied to the accelerator itself — from the physics ro
 
 | | |
 |---|---|
-| **Notebook 01** — RF fault detection | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb) → preview of **Anomaly Detection** (ESS) |
-| **Notebook 02** — Beam tuning with Cheetah + BO | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb) → preview of **Optimisation** (CLEAR/CLARA) |
-| **Notebook 03** — Neural network surrogate | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb) → preview of **Surrogate Models** (PALLAS) |
+| **Notebook 01** — RF fault detection | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/master/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb) → preview of **Anomaly Detection** (ESS) |
+| **Notebook 02** — Beam tuning with Cheetah + BO | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/master/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb) → preview of **Optimisation** (CLEAR/CLARA) |
+| **Notebook 03** — Neural network surrogate | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/master/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb) → preview of **Surrogate Models** (PALLAS) |
 
 Live slides: [aghribi.github.io/artifact-hackathon-2026/lectures/02-accelerators-and-ai/](https://aghribi.github.io/artifact-hackathon-2026/lectures/02-accelerators-and-ai/)
 
