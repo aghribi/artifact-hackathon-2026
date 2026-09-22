@@ -46,8 +46,23 @@ $code-bg:               rgba(34, 211, 238, 0.06);
   a { color: $link-color; text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  // Slide number
-  .slide-number { color: #475569; font-size: 0.7em; }
+  // Slide number — reveal's own built-in counter is fully disabled (see
+  // .custom-slide-number below); it races with the split main/backup
+  // numbering script since both used to write to this same element.
+  .slide-number { display: none !important; }
+
+  // Custom slide-number counter — owns its own element, never shared with
+  // reveal.js's built-in plugin, so there is nothing to race with.
+  .custom-slide-number {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 31;
+    color: #475569;
+    font-size: 0.7em;
+    line-height: 1;
+    pointer-events: none;
+  }
 
   // Footer
   .footer { color: #475569; font-size: 0.65em; }
@@ -295,8 +310,14 @@ $code-bg:               rgba(34, 211, 238, 0.06);
 }
 
 // ── Full-screen iframe slides (no footer / no slide number) ──────────────────
-.reveal:has(.present.no-footer) .footer,
-.reveal:has(.present.no-footer) .slide-number {
+// Scoped to `section.present.no-footer` specifically (the actual slide),
+// not just `.present.no-footer` — reveal.js keeps a parallel
+// `.slide-background` div per slide that mirrors its classes, and that
+// div's own `.present` state can go stale after navigating away from a
+// no-footer slide, which was matching this selector and hiding the counter
+// on every later slide.
+.reveal:has(section.present.no-footer) .footer,
+.reveal:has(section.present.no-footer) .custom-slide-number {
   opacity: 0 !important;
   pointer-events: none;
 }

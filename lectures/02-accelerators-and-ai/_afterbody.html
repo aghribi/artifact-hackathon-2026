@@ -186,11 +186,30 @@ window.__getPlotly = function (cb) {
   }
 
   var cachedISum = -1, cachedIBk = -1;
-  var lastSetText = null;
+
+  // Reveal.js's own built-in c/t counter writes to .slide-number on the same
+  // events this script listens to, and the two raced (whichever ran last on
+  // a given tick won, so the counter would intermittently show the raw
+  // slide count or go blank). Disabled .slide-number entirely in CSS and
+  // render into a dedicated element this script fully owns instead, so
+  // there is nothing left to race with.
+  var counterEl = null;
+  function getCounterEl() {
+    if (counterEl && counterEl.isConnected) return counterEl;
+    var reveal = document.querySelector('.reveal');
+    if (!reveal) return null;
+    counterEl = reveal.querySelector('.custom-slide-number');
+    if (!counterEl) {
+      counterEl = document.createElement('div');
+      counterEl.className = 'custom-slide-number';
+      reveal.appendChild(counterEl);
+    }
+    return counterEl;
+  }
 
   function relabel(retriesLeft) {
     if (retriesLeft === undefined) retriesLeft = 5;
-    var el = document.querySelector('.slide-number');
+    var el = getCounterEl();
     if (!el || typeof Reveal === 'undefined' || !Reveal.getCurrentSlide) return;
     var all = allSlidesStatic();
     var curEl = Reveal.getCurrentSlide();
@@ -210,31 +229,15 @@ window.__getPlotly = function (cb) {
     if (iBk >= 0 && cur >= iBk)       txt = 'Backup ' + (cur - iBk + 1) + ' / ' + (all.length - iBk);
     else if (iSum >= 0 && cur > iSum) txt = 'Appendix';
     else                              txt = (cur + 1) + ' / ' + (iSum >= 0 ? iSum + 1 : all.length);
-    lastSetText = txt;
     el.textContent = txt;
   }
-  function later() { setTimeout(relabel, 0); }   // run after Reveal's own slide-number update
+  function later() { setTimeout(relabel, 0); }
   if (typeof Reveal !== 'undefined') {
     Reveal.on('ready', later);
     Reveal.on('slidechanged', later);
     Reveal.on('fragmentshown', later);
     Reveal.on('fragmenthidden', later);
   }
-
-  // Belt-and-braces: Reveal's own built-in c/t counter also writes to this
-  // same element and can race with the logic above during rapid navigation
-  // (briefly showing the raw slide count instead of the split main/backup
-  // count, or nothing at all). Watch the element directly and correct any
-  // value that isn't the one we last set, regardless of who wrote it or when.
-  function watchSlideNumber() {
-    var el = document.querySelector('.slide-number');
-    if (!el) { setTimeout(watchSlideNumber, 200); return; }
-    var mo = new MutationObserver(function () {
-      if (el.textContent !== lastSetText) relabel();
-    });
-    mo.observe(el, { childList: true, characterData: true, subtree: true });
-  }
-  watchSlideNumber();
 })();
 
 // ── Laser pointer — hold Q (keyboard) or toggle button (tablet) ──────────────

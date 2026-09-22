@@ -803,70 +803,24 @@ Edelen et al., *IEEE TNS* 63 (2016) · Duris et al., *PRL* 124 (2020) · Kaiser 
 
 ### A partial view of tools and projects already in production
 
-<div style="display:flex; align-items:flex-end; justify-content:center; gap:1.1em; margin-top:1.3em;">
+::: {.r-stack}
 
-<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
-<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/3_auton.png" style="width:100%; display:block; border-radius:3px;"></div>
-<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Autonomous accelerators — RL control loop (DESY ARES, courtesy J. Kaiser)</div>
-</div>
+![](assets/3_auton.png){.fragment .fade-in-then-semi-out .r-frame .absolute width=480 top=150 right=10}
+![](assets/15_badger.png){.fragment .fade-in-then-semi-out .r-frame .absolute width=440 top=195 right=260}
+![](assets/13_geoff.png){.fragment .fade-in-then-semi-out .r-frame .absolute width=400 top=240 right=490}
+![](assets/14_xopt.png){.fragment .fade-in-then-semi-out .r-frame .absolute width=370 top=285 right=700}
+![](assets/16_mlp.png){.fragment .fade-in-then-semi-out .r-frame .absolute width=340 top=330 right=880}
 
-<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
-<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/15_badger.png" style="width:100%; display:block; border-radius:3px;"></div>
-<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Badger — open-source optimisation toolbox (SLAC)</div>
-</div>
+:::
 
-<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
-<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/13_geoff.png" style="width:100%; display:block; border-radius:3px;"></div>
-<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">GEOFF — harmonic-correction optimiser in production (CERN)</div>
-</div>
-
-<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
-<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/14_xopt.png" style="width:100%; display:block; border-radius:3px;"></div>
-<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Xopt — facility-agnostic optimisation API (SLAC)</div>
-</div>
-
-<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
-<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/16_mlp.png" style="width:100%; display:block; border-radius:3px;"></div>
-<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">A facility ML platform — training registry &amp; deployment pipeline</div>
-</div>
-
-</div>
-
-::: {.fragment .key-result style="margin-top:0.9em; font-size:0.76em;"}
+<div class="fragment" style="position:absolute; bottom:0.4em; left:5%; width:90%; text-align:center;">
+<div style="background:#0d3b3f; border:1px solid rgba(34,211,238,0.4); border-radius:8px; padding:0.5em 1em; font-size:0.72em; color:#e2e8f0;">
 Despite the success stories, most of this is still built and rebuilt per facility — few shared data standards, few benchmarks. That fragmentation is exactly why this hackathon exists.
-:::
+</div>
+</div>
 
 ::: notes
-~1 min, point don't read. Five real, in-production examples spanning autonomous control, optimisation toolboxes, and ML platform infrastructure — deliberately not the three methods this lecture teaches, to show the field is bigger than today's three use cases. Close on the fragmentation point: every one of these was built independently, facility by facility, with no shared standard — that is the gap the hackathon's shared datasets and cross-facility challenges are chipping away at.
-:::
-
----
-
-## Who's doing it
-
-<div style="display:flex; align-items:center; gap:1.5em; margin-top:0.3em;">
-
-<div style="flex:0 0 34%;">
-<img src="assets/papergraph.png" style="width:100%; max-height:52vh; display:block; margin:0 auto; border-radius:8px; object-fit:contain;">
-</div>
-
-<div style="flex:1; font-size:0.78em; line-height:1.7;">
-A co-citation map of 375 publications in AI for accelerators — each node a paper, edges linking works that share citations.
-
-::: {.fragment .highlight-box style="margin-top:0.6em; font-size:0.88em;"}
-Dense clusters around a handful of groups (SLAC/Edelen, DESY/Kaiser, KIT/Scheinker) — the field is real, but still concentrated in a few hubs, not yet broadly distributed.
-:::
-
-</div>
-
-</div>
-
-::: {.slide-ref}
-Citation network generated with ResearchRabbit — [aghribi.github.io/acc-ml-living-review](https://aghribi.github.io/acc-ml-living-review)
-:::
-
-::: notes
-~30 s. This is the same "breadth of the field" point from a different angle — not tools this time, but people and papers. The clustering matters: a handful of groups (visible as the dense hubs) account for a disproportionate share of the work. That is an opportunity, not just a limitation — plenty of room, and plenty of open problems, for new groups including everyone in this room this week.
+~1 min, point don't read. Five real, in-production examples spanning autonomous control (DESY ARES, courtesy J. Kaiser), optimisation toolboxes (Badger/SLAC, GEOFF/CERN, Xopt/SLAC), and ML platform infrastructure — deliberately not the three methods this lecture teaches, to show the field is bigger than today's three use cases. Close on the fragmentation point: every one of these was built independently, facility by facility, with no shared standard — that is the gap the hackathon's shared datasets and cross-facility challenges are chipping away at.
 :::
 
 ---
