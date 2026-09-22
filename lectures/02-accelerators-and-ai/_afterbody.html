@@ -165,21 +165,52 @@ window.__getPlotly = function (cb) {
 // References / Glossary / Thank-you read "Appendix"; the Backup section restarts
 // at "Backup 1 / N". Uses Reveal's linear slide list so nested sections are handled.
 (function () {
-  function relabel() {
+  // Reveal.getSlides() is not reliably complete in the first moments after
+  // load (it can under-report the slide count right after 'ready'), which
+  // made this counter briefly show the wrong total or nothing at all. Build
+  // the slide list straight from the static DOM instead — every slide is
+  // already present in the document (nothing here is lazy-loaded), so this
+  // is correct from the very first call.
+  function allSlidesStatic() {
+    var out = [];
+    document.querySelectorAll('.reveal .slides > section').forEach(function (h) {
+      var children = h.querySelectorAll(':scope > section');
+      if (children.length) {
+        // h is an empty stack wrapper — only its children are real slides.
+        children.forEach(function (c) { out.push(c); });
+      } else {
+        out.push(h);
+      }
+    });
+    return out;
+  }
+
+  var cachedISum = -1, cachedIBk = -1;
+  var lastSetText = null;
+
+  function relabel(retriesLeft) {
+    if (retriesLeft === undefined) retriesLeft = 5;
     var el = document.querySelector('.slide-number');
-    if (!el || typeof Reveal === 'undefined' || !Reveal.getSlides || !Reveal.getCurrentSlide) return;
-    var all = Reveal.getSlides();
-    var cur = all.indexOf(Reveal.getCurrentSlide());
-    if (cur < 0) return;
-    var iSum = -1, iBk = -1;
-    for (var i = 0; i < all.length; i++) {
-      if (all[i].id === 'summary') iSum = i;
-      if (all[i].id === 'backup')  iBk  = i;
+    if (!el || typeof Reveal === 'undefined' || !Reveal.getCurrentSlide) return;
+    var all = allSlidesStatic();
+    var curEl = Reveal.getCurrentSlide();
+    var cur = curEl ? all.indexOf(curEl) : -1;
+    if (cur < 0) {
+      // Mid-transition or Reveal still settling — retry shortly rather than
+      // leaving the counter blank.
+      if (retriesLeft > 0) setTimeout(function () { relabel(retriesLeft - 1); }, 60);
+      return;
     }
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].id === 'summary') cachedISum = i;
+      if (all[i].id === 'backup')  cachedIBk  = i;
+    }
+    var iSum = cachedISum, iBk = cachedIBk;
     var txt;
     if (iBk >= 0 && cur >= iBk)       txt = 'Backup ' + (cur - iBk + 1) + ' / ' + (all.length - iBk);
     else if (iSum >= 0 && cur > iSum) txt = 'Appendix';
     else                              txt = (cur + 1) + ' / ' + (iSum >= 0 ? iSum + 1 : all.length);
+    lastSetText = txt;
     el.textContent = txt;
   }
   function later() { setTimeout(relabel, 0); }   // run after Reveal's own slide-number update
@@ -189,6 +220,21 @@ window.__getPlotly = function (cb) {
     Reveal.on('fragmentshown', later);
     Reveal.on('fragmenthidden', later);
   }
+
+  // Belt-and-braces: Reveal's own built-in c/t counter also writes to this
+  // same element and can race with the logic above during rapid navigation
+  // (briefly showing the raw slide count instead of the split main/backup
+  // count, or nothing at all). Watch the element directly and correct any
+  // value that isn't the one we last set, regardless of who wrote it or when.
+  function watchSlideNumber() {
+    var el = document.querySelector('.slide-number');
+    if (!el) { setTimeout(watchSlideNumber, 200); return; }
+    var mo = new MutationObserver(function () {
+      if (el.textContent !== lastSetText) relabel();
+    });
+    mo.observe(el, { childList: true, characterData: true, subtree: true });
+  }
+  watchSlideNumber();
 })();
 
 // ── Laser pointer — hold Q (keyboard) or toggle button (tablet) ──────────────
