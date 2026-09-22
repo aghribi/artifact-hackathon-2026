@@ -1,4 +1,18 @@
 <script>
+// ── Plotly reference resolver ─────────────────────────────────────────────────
+// This document also loads RequireJS (reveal.js plugins), which makes Plotly's
+// UMD bundle register itself as an AMD module instead of attaching to
+// window.Plotly. Resolve it either way so the rest of this file can call
+// window.__getPlotly(fn) instead of assuming a bare `Plotly` global exists.
+window.__getPlotly = function (cb) {
+  if (window.Plotly) { cb(window.Plotly); return; }
+  if (window.require) {
+    window.require(['plotly'], function (P) { window.Plotly = window.Plotly || P; cb(P); });
+    return;
+  }
+  setTimeout(function () { window.__getPlotly(cb); }, 200);
+};
+
 // ── Callout overlay — navigation pass-through ─────────────────────────────────
 // backdrop-filter on iOS/WebKit absorbs touch events even with pointer-events:none.
 // We removed backdrop-filter from CSS; this JS block provides a belt-and-braces fix:
@@ -40,8 +54,10 @@
 (function () {
   function resizePlotsIn(slide) {
     if (!slide) return;
-    slide.querySelectorAll('.js-plotly-plot').forEach(function (el) {
-      Plotly.Plots.resize(el);
+    var els = slide.querySelectorAll('.js-plotly-plot');
+    if (!els.length) return;
+    window.__getPlotly(function (Plotly) {
+      els.forEach(function (el) { Plotly.Plots.resize(el); });
     });
   }
 
@@ -49,8 +65,10 @@
   Reveal.on('slidechanged', function (e) { resizePlotsIn(e.currentSlide); });
   Reveal.on('fragmentshown', function (e) { resizePlotsIn(e.fragment.closest('.reveal-slide, section')); });
   Reveal.on('resize',       function ()  {
-    document.querySelectorAll('.js-plotly-plot').forEach(function (el) {
-      Plotly.Plots.resize(el);
+    window.__getPlotly(function (Plotly) {
+      document.querySelectorAll('.js-plotly-plot').forEach(function (el) {
+        Plotly.Plots.resize(el);
+      });
     });
   });
 
@@ -103,8 +121,11 @@
 
   function redraw(slide) {
     var el = slide ? slide.querySelector('.js-plotly-plot') : null;
-    if (!el || !el._fullData || !el._fullData[0]) return;
-    Plotly.restyle(el, { 'marker.color': [barStates.map(stateColor)] });
+    if (!el) return;
+    window.__getPlotly(function (Plotly) {
+      if (!el._fullData || !el._fullData[0]) return;
+      Plotly.restyle(el, { 'marker.color': [barStates.map(stateColor)] });
+    });
   }
 
   Reveal.on('fragmentshown', function (e) {

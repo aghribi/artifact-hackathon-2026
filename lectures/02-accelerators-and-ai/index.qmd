@@ -116,88 +116,57 @@ Three live notebooks — the code on the slides is the code in those notebooks, 
 
 ---
 
-## Disclaimer — scope & slide guide
+## Slide Guide
 
 <div class="more-corner"><a class="more-link" href="#/backup" title="Jump to the backup deep-dives"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg>click me to know more</a></div>
 
-::: {.col-left style="font-size:0.88em;"}
+<div style="font-size:0.58em; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.10em; margin-bottom:0.7em;">Slide elements you will encounter</div>
 
-**In scope — accelerator side**
-
-::: {style="margin-left:0.5em; line-height:1.9;"}
-- RF fault detection
-- Beam tuning & daily startup
-- Surrogate models for beam physics
-- Digital twins
-:::
-
-**Out of scope today**
-
-::: {style="margin-left:0.5em; line-height:1.9; color:#94a3b8;"}
-- Facility-specific deep dives (ESS LLRF, CLEAR/CLARA lattices, PALLAS plasma physics)
-- Reinforcement learning & agentic orchestration in depth
-:::
-
-::: {style="font-size:0.62em; color:#64748b; font-style:italic; margin-top:0.45em;"}
-→ facility specifics covered by the case holders this afternoon (14:50).
-:::
-
-:::
-
-::: {.col-right}
-
-<div style="font-size:0.50em; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.10em; margin-bottom:0.5em;">Slide elements you will encounter</div>
-
-<div style="display:flex; flex-direction:column; gap:0.5em;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9em 2em;">
 
 <div>
-<div style="font-size:0.46em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.15em;">① Code block — executable companion notebook</div>
-<pre style="background:#111f30; border:1px solid rgba(34,211,238,0.22); border-radius:6px; padding:0.28em 0.7em; font-size:0.58em; margin:0; font-family:'IBM Plex Mono',monospace; color:#67e8f9; white-space:pre;">model.fit(X_train)
+<div style="font-size:0.54em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.2em;">① Code block — executable companion notebook</div>
+<pre style="background:#111f30; border:1px solid rgba(34,211,238,0.22); border-radius:6px; padding:0.4em 0.9em; font-size:0.68em; margin:0; font-family:'IBM Plex Mono',monospace; color:#67e8f9; white-space:pre;">model.fit(X_train)
 anomaly_scores = model.predict(X_test)</pre>
 </div>
 
 <div>
-<div style="font-size:0.46em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.15em;">② Concept box — key physics or ML idea</div>
+<div style="font-size:0.54em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.2em;">② Concept box — key physics or ML idea</div>
 <div style="background:#140c00; border:2px solid #fbbf24; border-radius:8px; overflow:hidden;">
-<div style="background:rgba(251,191,36,0.16); padding:0.2em 0.8em; border-bottom:1px solid rgba(251,191,36,0.38); font-size:0.44em; font-weight:700; color:#fbbf24; letter-spacing:0.10em; text-transform:uppercase;">CONCEPT</div>
-<div style="padding:0.2em 0.8em 0.3em; font-size:0.50em; color:#e2e8f0;">Langevin dynamics ≡ stochastic gradient descent</div>
+<div style="background:rgba(251,191,36,0.16); padding:0.25em 0.9em; border-bottom:1px solid rgba(251,191,36,0.38); font-size:0.52em; font-weight:700; color:#fbbf24; letter-spacing:0.10em; text-transform:uppercase;">CONCEPT</div>
+<div style="padding:0.3em 0.9em 0.4em; font-size:0.62em; color:#e2e8f0;">Langevin dynamics ≡ stochastic gradient descent</div>
 </div>
 </div>
 
 <div>
-<div style="font-size:0.46em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.15em;">③ Article references — bottom of slide</div>
-<div style="font-size:0.52em; color:#475569; font-style:italic; border-left:2px solid rgba(71,85,105,0.4); padding-left:0.5em;">Kaiser et al., PRAB 27 (2024) · Duris et al., PRL 124 (2020)</div>
+<div style="font-size:0.54em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.2em;">③ Article references — bottom of slide</div>
+<div style="font-size:0.62em; color:#475569; font-style:italic; border-left:2px solid rgba(71,85,105,0.4); padding-left:0.6em;">Kaiser et al., PRAB 27 (2024) · Duris et al., PRL 124 (2020)</div>
 </div>
 
 <div>
-<div style="font-size:0.46em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.15em;">④ GitHub — slides, notebooks & living review</div>
-<div style="font-size:0.60em; color:#22d3ee;">
+<div style="font-size:0.54em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.2em;">④ GitHub — slides, notebooks &amp; living review</div>
+<div style="font-size:0.70em; color:#22d3ee;">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" style="width:0.85em;height:0.85em;fill:#22d3ee;vertical-align:-0.12em;margin-right:0.25em;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
 aghribi/artifact-hackathon-2026
 </div>
 </div>
 
-<div>
-<div style="font-size:0.46em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.15em;">⑤ Colab notebook — open in browser, zero install</div>
-<div style="display:flex; align-items:center; gap:0.5em; font-size:0.56em;">
-<span style="background:#F9AB00; color:#000; border-radius:3px; padding:0.1em 0.45em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap;">▶ Open in Colab</span>
+<div style="grid-column:1 / -1;">
+<div style="font-size:0.54em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.2em;">⑤ Colab notebook — open in browser, zero install</div>
+<div style="display:flex; align-items:center; gap:0.6em; font-size:0.66em;">
+<span style="background:#F9AB00; color:#000; border-radius:3px; padding:0.12em 0.55em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap;">▶ Open in Colab</span>
 <span style="color:#94a3b8;">01_fault_detection · 02_beam_tuning · 03_surrogate</span>
 </div>
 </div>
 
 </div>
 
-::: {style="font-size:0.50em; color:#64748b; font-style:italic; margin-top:0.7em; border-top:1px solid rgba(71,85,105,0.3); padding-top:0.45em;"}
-A **glossary** of acronyms is at the end of the deck, before the backup slides.
-:::
-
-:::
-
-::: {.clearfix}
+::: {style="font-size:0.58em; color:#64748b; font-style:italic; margin-top:0.9em; border-top:1px solid rgba(71,85,105,0.3); padding-top:0.5em;"}
+A **glossary** of acronyms is at the end of the deck, before the backup slides. Facility-specific deep dives (ESS LLRF, CLEAR/CLARA, PALLAS) are covered by the case holders this afternoon (14:50).
 :::
 
 ::: notes
-Orientation slide — two minutes at most. Left: what's in and out of scope. Right: the five visual elements students will see throughout the lecture. After this: Part 1 Introduction.
+Orientation slide — under a minute. The five visual elements the audience will see throughout the lecture. After this: Part 1 Introduction.
 :::
 
 ---
@@ -730,41 +699,34 @@ Reference detail for questions: the SGD–Langevin connection was formalised by 
 
 ## Physics metaphors that became real algorithms
 
-:::: {.columns style="margin-top:0.2em;"}
+:::: {.columns style="margin-top:0.3em;"}
 ::: {.column width="52%"}
 
-::: {style="font-size:0.78em; line-height:1.7;"}
+::: {style="font-size:0.76em; line-height:1.6;"}
 
 - **Simulated annealing** [Kirkpatrick 1983] — slow cooling from metallurgy → global optimisation
 - **Renormalisation group** [Mehta & Schwab 2014] — layer-by-layer coarse-graining → deep-net feature hierarchies
 - **Langevin dynamics → diffusion models** (2020) — score-based generative models = controlled Brownian motion
-- **Double descent & grokking** — phase-transition-like behaviour in model capacity and training time
 
 :::
 
 :::
 ::: {.column width="48%"}
 
-::: {.highlight-box style="font-size:0.74em;"}
+::: {.highlight-box style="font-size:0.72em;"}
 **2017–2024 — physics tools enter production**
 
 - Transformers (2017) — attention as a learnable kernel
 - Score-based diffusion (2020–22) — Langevin sampling at scale
 - AlphaFold2 (2021) — protein fold physics learned, not derived
-- GNoME (2023) — 2.2M new crystal structures
-- GraphCast (2023) — 10-day weather forecast in 60 s
+- GNoME &amp; GraphCast (2023) — 2.2M crystal structures · 10-day forecast in 60 s
 :::
 
 :::
 ::::
 
-<div style="margin:0.7em auto 0; max-width:92%; background:#140c00; border:2px solid #fbbf24; border-radius:10px; overflow:hidden; text-align:center;">
-<div style="background:rgba(251,191,36,0.16); padding:0.18em 0.8em; border-bottom:1px solid rgba(251,191,36,0.38); font-size:0.52em; font-weight:700; color:#fbbf24; letter-spacing:0.14em; text-transform:uppercase;">Nobel Prize in Chemistry 2024</div>
-<div style="padding:0.4em 1em 0.5em; font-size:0.68em; color:#e2e8f0;">Baker, Hassabis &amp; Jumper — <em>computational protein design and protein structure prediction</em>. Physics built AI's mathematics; AI now solves problems physics could not tackle analytically.</div>
-</div>
-
-::: {.slide-ref}
-Kirkpatrick et al., *Science* 220 (1983) · Mehta &amp; Schwab, arXiv:1410.3831 (2014) · Vaswani et al., *NeurIPS* (2017) · Jumper et al., *Nature* 596 (2021) · Merchant et al., *Nature* 624 (2023) · Lam et al., *Science* 382 (2023)
+::: {.key-result style="margin-top:0.7em; font-size:0.78em;"}
+**Nobel Chemistry 2024** — Baker, Hassabis &amp; Jumper (AlphaFold2). Physics built AI's mathematics; AI now solves problems physics could not tackle analytically.
 :::
 
 ::: notes
@@ -833,6 +795,78 @@ Edelen et al., *IEEE TNS* 63 (2016) · Duris et al., *PRL* 124 (2020) · Kaiser 
 
 ::: notes
 30 years from first NNs to production AI systems. The earliest applications are Mead et al. (1992, adaptive NN control of an ion source) and Bozoki & Friedman (1994, NN orbit correction in storage rings) — then two dormant decades limited by compute, before project funding revived the field around 2016 (Edelen+2016). By 2020, BO was in production at LCLS (Duris+2020), with ML-based model-independent stabilisation demonstrated at ALS (Leemann+2019, PRL 123:194801) and differentiable simulation via Cheetah (Kaiser+2024, PRAB). Reinforcement learning entered control with sample-efficient RL at CERN (Kain+2020, PRAB 23:124801) and online RL+BO tuning at DESY (Kaiser+2023). KARA result is not a simulation — measured on the real machine. Last row is home turf: at GANIL/SPIRAL2, unsupervised DBSCAN clustering separates RF-fault signatures on the LLRF system, and a small NN predicts SRF cavity heat-load dissipation sub-watt, ahead of the physical response (credit: C. Lassalle) — the same two families of method (anomaly detection, fast surrogates) you'll meet in Use Cases 1 and 3 today.
+:::
+
+---
+
+## The breadth of the field
+
+### A partial view of tools and projects already in production
+
+<div style="display:flex; align-items:flex-end; justify-content:center; gap:1.1em; margin-top:1.3em;">
+
+<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
+<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/3_auton.png" style="width:100%; display:block; border-radius:3px;"></div>
+<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Autonomous accelerators — RL control loop (DESY ARES, courtesy J. Kaiser)</div>
+</div>
+
+<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
+<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/15_badger.png" style="width:100%; display:block; border-radius:3px;"></div>
+<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Badger — open-source optimisation toolbox (SLAC)</div>
+</div>
+
+<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
+<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/13_geoff.png" style="width:100%; display:block; border-radius:3px;"></div>
+<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">GEOFF — harmonic-correction optimiser in production (CERN)</div>
+</div>
+
+<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
+<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/14_xopt.png" style="width:100%; display:block; border-radius:3px;"></div>
+<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">Xopt — facility-agnostic optimisation API (SLAC)</div>
+</div>
+
+<div class="fragment fade-in-then-semi-out" style="text-align:center; width:20%;">
+<div style="background:#f8fafc; border-radius:8px; padding:0.4em; border:1px solid rgba(148,163,184,0.3);"><img src="assets/16_mlp.png" style="width:100%; display:block; border-radius:3px;"></div>
+<div style="font-size:0.44em; color:#94a3b8; margin-top:0.4em;">A facility ML platform — training registry &amp; deployment pipeline</div>
+</div>
+
+</div>
+
+::: {.fragment .key-result style="margin-top:0.9em; font-size:0.76em;"}
+Despite the success stories, most of this is still built and rebuilt per facility — few shared data standards, few benchmarks. That fragmentation is exactly why this hackathon exists.
+:::
+
+::: notes
+~1 min, point don't read. Five real, in-production examples spanning autonomous control, optimisation toolboxes, and ML platform infrastructure — deliberately not the three methods this lecture teaches, to show the field is bigger than today's three use cases. Close on the fragmentation point: every one of these was built independently, facility by facility, with no shared standard — that is the gap the hackathon's shared datasets and cross-facility challenges are chipping away at.
+:::
+
+---
+
+## Who's doing it
+
+<div style="display:flex; align-items:center; gap:1.5em; margin-top:0.3em;">
+
+<div style="flex:0 0 34%;">
+<img src="assets/papergraph.png" style="width:100%; max-height:52vh; display:block; margin:0 auto; border-radius:8px; object-fit:contain;">
+</div>
+
+<div style="flex:1; font-size:0.78em; line-height:1.7;">
+A co-citation map of 375 publications in AI for accelerators — each node a paper, edges linking works that share citations.
+
+::: {.fragment .highlight-box style="margin-top:0.6em; font-size:0.88em;"}
+Dense clusters around a handful of groups (SLAC/Edelen, DESY/Kaiser, KIT/Scheinker) — the field is real, but still concentrated in a few hubs, not yet broadly distributed.
+:::
+
+</div>
+
+</div>
+
+::: {.slide-ref}
+Citation network generated with ResearchRabbit — [aghribi.github.io/acc-ml-living-review](https://aghribi.github.io/acc-ml-living-review)
+:::
+
+::: notes
+~30 s. This is the same "breadth of the field" point from a different angle — not tools this time, but people and papers. The clustering matters: a handful of groups (visible as the dense hubs) account for a disproportionate share of the work. That is an opportunity, not just a limitation — plenty of room, and plenty of open problems, for new groups including everyone in this room this week.
 :::
 
 ---
@@ -1007,38 +1041,20 @@ This lecture covers the first three in depth with runnable code.
 
 ## 2026 snapshot — where is AI mature?
 
-<div style="background:#f8fafc; border-radius:12px; padding:0.6em 0.8em 0.3em; max-width:94%; margin:0.3em auto 0;">
-<img src="assets/maturity_snapshot_2026.png" style="width:100%; display:block; border-radius:6px;">
+<div style="background:#f8fafc; border-radius:10px; padding:0.5em 0.7em 0.25em; max-width:80%; margin:0.2em auto 0;">
+<img src="assets/maturity_snapshot_2026.png" style="width:100%; max-height:38vh; display:block; border-radius:6px; object-fit:contain;">
 </div>
 
-:::: {.columns style="margin-top:0.5em;"}
-::: {.column width="34%"}
-::: {.fragment .fade-in-then-semi-out style="font-size:0.68em;"}
-**Optimisation** — high maturity almost everywhere, colliders to future RI
-:::
-:::
-::: {.column width="33%"}
-::: {.fragment .fade-in-then-semi-out style="font-size:0.68em;"}
-**Classification** — solid at light sources &amp; LINACs, earlier elsewhere
-:::
-:::
-::: {.column width="33%"}
-::: {.fragment .fade-in-then-semi-out style="font-size:0.68em;"}
-**Modelling / surrogates** — emerging outside LINAC &amp; light sources
-:::
-:::
-::::
-
-::: {.fragment .highlight-box style="margin-top:0.4em; font-size:0.72em;"}
+::: {.fragment .highlight-box style="margin-top:0.6em; font-size:0.76em; max-width:88%; margin-left:auto; margin-right:auto;"}
 This week's 3 challenges sit at exactly these frontiers: **Anomaly Detection** (ESS) in the classification band, **Optimisation** (CLEAR/CLARA) in the mature band, **Surrogate Models** (PALLAS, LWFA) at the least-mature cell in the whole matrix.
 :::
 
 ::: {.slide-ref}
-Snapshot of ML technology maturity in particle accelerators, Jan 2026 [Ghribi+2026-ongoing] — from the AccML living review.
+ML technology maturity in particle accelerators, Jan 2026 [Ghribi+2026-ongoing].
 :::
 
 ::: notes
-Rows are task type (optimisation / classification / modelling), each bar segmented by facility type and ordered left→right by maturity stage (day-to-day operation → social barriers). Read it as: optimisation is the most solved problem across almost every facility type — that's why BO/GP is the classical-ML star of this lecture. Modelling — surrogates and fast simulation — is the least mature column, concentrated at LINAC/light sources and barely emerging at LWFA and future RIs. That is not a coincidence: PALLAS is exactly an LWFA facility, so the Surrogate Models challenge this week is tackling one of the genuinely open frontiers on this map, not a solved problem. Use this to set honest expectations for the harder challenge before the case holders speak.
+Rows are task type (optimisation / classification / modelling), each bar segmented by facility type and ordered left→right by maturity stage (day-to-day operation → social barriers). Read it as: optimisation is the most solved problem across almost every facility type — that's why BO/GP is the classical-ML star of this lecture. Modelling — surrogates and fast simulation — is the least mature row, concentrated at LINAC/light sources and barely emerging at LWFA and future RIs. That is not a coincidence: PALLAS is exactly an LWFA facility, so the Surrogate Models challenge this week is tackling one of the genuinely open frontiers on this map, not a solved problem. Use this to set honest expectations for the harder challenge before the case holders speak.
 :::
 
 # Practical Foundations {.section-divider background-color="#e2e8f0" data-background-transition="zoom"}
