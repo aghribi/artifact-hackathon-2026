@@ -2311,7 +2311,7 @@ Two code ideas to highlight. First, we train only on normal pulses — the y==0 
 <div class="stepper"><span>① Problem</span> · <span>② Method</span> · <span>③ Results</span> · <span class="on">④ Notebook</span></div>
 
 <div style="text-align:center; margin:0.1em 0 0.45em;">
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 01_fault_detection in Colab</a>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 01_fault_detection in Colab</a>
 </div>
 
 <iframe src="notebooks_rendered/01_fault_detection.html"
@@ -2851,7 +2851,7 @@ What the code does
 <div class="stepper"><span>① Problem</span> · <span>② Method</span> · <span>③ Results</span> · <span class="on">④ Notebook</span></div>
 
 <div style="text-align:center; margin:0.1em 0 0.45em;">
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 02_beam_tuning in Colab</a>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 02_beam_tuning in Colab</a>
 </div>
 
 <iframe src="notebooks_rendered/02_beam_tuning.html"
@@ -3086,7 +3086,7 @@ Concrete numbers. A tiny MLP — 2 → 128 → 128 → 128 → 2 with Tanh activ
 <div class="stepper"><span>① Problem</span> · <span>② Method</span> · <span>③ Results</span> · <span class="on">④ Notebook</span></div>
 
 <div style="text-align:center; margin:0.1em 0 0.45em;">
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 03_surrogate_model in Colab</a>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb" target="_blank" style="background:#F9AB00; color:#000; border-radius:4px; padding:0.2em 0.75em; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap; text-decoration:none; font-size:0.72em;">▶ Open 03_surrogate_model in Colab</a>
 </div>
 
 <iframe src="notebooks_rendered/03_surrogate_model.html"
@@ -3394,9 +3394,9 @@ Hopfield, *PNAS* **79**, 2554 (1982)
 
 ::: {.highlight-box style="padding:0.45em 0.7em; margin-bottom:0.35em;"}
 **Notebooks on Colab**<br>
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb" style="color:#22d3ee;">01 · RF Fault Detection</a><br>
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb" style="color:#22d3ee;">02 · Beam Tuning</a><br>
-<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/main/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb" style="color:#22d3ee;">03 · Surrogate Model</a>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/01_fault_detection/notebook.ipynb" style="color:#22d3ee;">01 · RF Fault Detection</a><br>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/02_beam_tuning/notebook.ipynb" style="color:#22d3ee;">02 · Beam Tuning</a><br>
+<a href="https://colab.research.google.com/github/aghribi/artifact-hackathon-2026/blob/lecture_02/lectures/02-accelerators-and-ai/notebooks/03_surrogate_model/notebook.ipynb" style="color:#22d3ee;">03 · Surrogate Model</a>
 :::
 
 ::: {.highlight-box style="padding:0.45em 0.7em;"}
