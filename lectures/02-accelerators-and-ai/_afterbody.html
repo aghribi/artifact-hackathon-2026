@@ -1,0 +1,332 @@
+<script>
+// ── Plotly reference resolver ─────────────────────────────────────────────────
+// This document also loads RequireJS (reveal.js plugins), which makes Plotly's
+// UMD bundle register itself as an AMD module instead of attaching to
+// window.Plotly. Resolve it either way so the rest of this file can call
+// window.__getPlotly(fn) instead of assuming a bare `Plotly` global exists.
+window.__getPlotly = function (cb) {
+  if (window.Plotly) { cb(window.Plotly); return; }
+  if (window.require) {
+    window.require(['plotly'], function (P) { window.Plotly = window.Plotly || P; cb(P); });
+    return;
+  }
+  setTimeout(function () { window.__getPlotly(cb); }, 200);
+};
+
+// ── Callout overlay — navigation pass-through ─────────────────────────────────
+// backdrop-filter on iOS/WebKit absorbs touch events even with pointer-events:none.
+// We removed backdrop-filter from CSS; this JS block provides a belt-and-braces fix:
+// 1. Force pointer-events:none as inline style (overrides any CSS specificity issue).
+// 2. If an overlay somehow intercepts a touch, forward it as Reveal.next().
+(function () {
+  function patchOverlays() {
+    document.querySelectorAll('.slide-callout-overlay').forEach(function (el) {
+      el.style.pointerEvents = 'none';
+      el.querySelectorAll('*').forEach(function (child) {
+        child.style.pointerEvents = 'none';
+      });
+      // Touch fallback: if a tap lands here despite the above, advance the slide
+      el.addEventListener('touchend', function (e) {
+        e.stopPropagation();
+        Reveal.next();
+      }, { passive: false });
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        Reveal.next();
+      });
+    });
+  }
+  // Run once DOM is ready and again after Reveal initialises (fragments are in DOM)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', patchOverlays);
+  } else {
+    patchOverlays();
+  }
+  if (typeof Reveal !== 'undefined') {
+    Reveal.on('ready', patchOverlays);
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof Reveal !== 'undefined') Reveal.on('ready', patchOverlays);
+    });
+  }
+})();
+
+(function () {
+  function resizePlotsIn(slide) {
+    if (!slide) return;
+    var els = slide.querySelectorAll('.js-plotly-plot');
+    if (!els.length) return;
+    window.__getPlotly(function (Plotly) {
+      els.forEach(function (el) { Plotly.Plots.resize(el); });
+    });
+  }
+
+  Reveal.on('ready',        function (e) { resizePlotsIn(e.currentSlide); });
+  Reveal.on('slidechanged', function (e) { resizePlotsIn(e.currentSlide); });
+  Reveal.on('fragmentshown', function (e) { resizePlotsIn(e.fragment.closest('.reveal-slide, section')); });
+  Reveal.on('resize',       function ()  {
+    window.__getPlotly(function (Plotly) {
+      document.querySelectorAll('.js-plotly-plot').forEach(function (el) {
+        Plotly.Plots.resize(el);
+      });
+    });
+  });
+
+  // Yellow-highlight first 3 boxes when the trigger fragment is shown
+  Reveal.on('fragmentshown', function (e) {
+    if (e.fragment && e.fragment.id === 'lecture-focus-trigger') {
+      ['box-fault', 'box-tuning', 'box-surrogate'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('lecture-highlight');
+      });
+    }
+  });
+
+  Reveal.on('fragmenthidden', function (e) {
+    if (e.fragment && e.fragment.id === 'lecture-focus-trigger') {
+      ['box-fault', 'box-tuning', 'box-surrogate'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('lecture-highlight');
+      });
+    }
+  });
+})();
+
+// ── Five-ways slide — full bar state machine ──────────────────────────────────
+// Bar states: 0 = invisible, 1 = dim cyan, 2 = bright cyan (current), 3 = amber (lecture focus)
+// Fragments run most→least mature: fragment 0 = Fault detection (top, bar 4)
+//                                   fragment 4 = Digital twins  (bottom, bar 0)
+// barIndex(fi) = N-1-fi reverses fragment index to chart bar index
+// Fragment 5 = invisible trigger that turns bars 2,3,4 amber
+(function () {
+  var SLIDE_ID    = 'five-ways-ai-helps-accelerators-today';
+  var N           = 5;
+  var INVIS       = 'rgba(0,0,0,0)';
+  var DIM_CYAN    = 'rgba(34,211,238,0.28)';
+  var BRIGHT_CYAN = 'rgba(34,211,238,0.85)';
+  var BRIGHT_YEL  = 'rgba(251,191,36,0.85)';
+  var YELLOW_BARS = [2, 3, 4];  // bar indices: Surrogate models, Beam tuning, Fault detection
+
+  var barStates   = Array(N).fill(0);
+  var currentFrag = -1;
+
+  function bi(fi) { return N - 1 - fi; }   // fragment index → bar index
+
+  function stateColor(s) {
+    if (s === 1) return DIM_CYAN;
+    if (s === 2) return BRIGHT_CYAN;
+    if (s === 3) return BRIGHT_YEL;
+    return INVIS;
+  }
+
+  function redraw(slide) {
+    var el = slide ? slide.querySelector('.js-plotly-plot') : null;
+    if (!el) return;
+    window.__getPlotly(function (Plotly) {
+      if (!el._fullData || !el._fullData[0]) return;
+      Plotly.restyle(el, { 'marker.color': [barStates.map(stateColor)] });
+    });
+  }
+
+  Reveal.on('fragmentshown', function (e) {
+    var slide = e.fragment.closest && e.fragment.closest('section');
+    if (!slide || slide.id !== SLIDE_ID) return;
+    var fi = +(e.fragment.getAttribute('data-fragment-index') || 0);
+    if (fi < N) {
+      if (currentFrag >= 0) barStates[bi(currentFrag)] = 1;
+      barStates[bi(fi)] = 2;
+      currentFrag = fi;
+    } else {
+      YELLOW_BARS.forEach(function (i) { barStates[i] = 3; });
+    }
+    redraw(slide);
+  });
+
+  Reveal.on('fragmenthidden', function (e) {
+    var slide = e.fragment.closest && e.fragment.closest('section');
+    if (!slide || slide.id !== SLIDE_ID) return;
+    var fi = +(e.fragment.getAttribute('data-fragment-index') || 0);
+    if (fi >= N) {
+      // Going back from the trigger: restore yellow bars to cyan states
+      YELLOW_BARS.forEach(function (i) {
+        barStates[i] = (i === bi(currentFrag)) ? 2 : 1;
+      });
+    } else {
+      barStates[bi(fi)] = 0;
+      currentFrag = fi - 1;
+      if (currentFrag >= 0) barStates[bi(currentFrag)] = 2;
+    }
+    redraw(slide);
+  });
+})();
+
+// ── Split slide numbering — main 1..Summary, then Appendix, then Backup k / N ──
+// Main talk is counted up to and including the Summary slide (id="summary").
+// References / Glossary / Thank-you read "Appendix"; the Backup section restarts
+// at "Backup 1 / N". Uses Reveal's linear slide list so nested sections are handled.
+(function () {
+  // Reveal.getSlides() is not reliably complete in the first moments after
+  // load (it can under-report the slide count right after 'ready'), which
+  // made this counter briefly show the wrong total or nothing at all. Build
+  // the slide list straight from the static DOM instead — every slide is
+  // already present in the document (nothing here is lazy-loaded), so this
+  // is correct from the very first call.
+  function allSlidesStatic() {
+    var out = [];
+    document.querySelectorAll('.reveal .slides > section').forEach(function (h) {
+      var children = h.querySelectorAll(':scope > section');
+      if (children.length) {
+        // h is an empty stack wrapper — only its children are real slides.
+        children.forEach(function (c) { out.push(c); });
+      } else {
+        out.push(h);
+      }
+    });
+    return out;
+  }
+
+  var cachedISum = -1, cachedIBk = -1;
+
+  // Reveal.js's own built-in c/t counter writes to .slide-number on the same
+  // events this script listens to, and the two raced (whichever ran last on
+  // a given tick won, so the counter would intermittently show the raw
+  // slide count or go blank). Disabled .slide-number entirely in CSS and
+  // render into a dedicated element this script fully owns instead, so
+  // there is nothing left to race with.
+  var counterEl = null;
+  function getCounterEl() {
+    if (counterEl && counterEl.isConnected) return counterEl;
+    var reveal = document.querySelector('.reveal');
+    if (!reveal) return null;
+    counterEl = reveal.querySelector('.custom-slide-number');
+    if (!counterEl) {
+      counterEl = document.createElement('div');
+      counterEl.className = 'custom-slide-number';
+      reveal.appendChild(counterEl);
+    }
+    return counterEl;
+  }
+
+  function relabel(retriesLeft) {
+    if (retriesLeft === undefined) retriesLeft = 5;
+    var el = getCounterEl();
+    if (!el || typeof Reveal === 'undefined' || !Reveal.getCurrentSlide) return;
+    var all = allSlidesStatic();
+    var curEl = Reveal.getCurrentSlide();
+    var cur = curEl ? all.indexOf(curEl) : -1;
+    if (cur < 0) {
+      // Mid-transition or Reveal still settling — retry shortly rather than
+      // leaving the counter blank.
+      if (retriesLeft > 0) setTimeout(function () { relabel(retriesLeft - 1); }, 60);
+      return;
+    }
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].id === 'summary') cachedISum = i;
+      if (all[i].id === 'backup')  cachedIBk  = i;
+    }
+    var iSum = cachedISum, iBk = cachedIBk;
+    var txt;
+    if (iBk >= 0 && cur >= iBk)       txt = 'Backup ' + (cur - iBk + 1) + ' / ' + (all.length - iBk);
+    else if (iSum >= 0 && cur > iSum) txt = 'Appendix';
+    else                              txt = (cur + 1) + ' / ' + (iSum >= 0 ? iSum + 1 : all.length);
+    el.textContent = txt;
+  }
+  function later() { setTimeout(relabel, 0); }
+  if (typeof Reveal !== 'undefined') {
+    Reveal.on('ready', later);
+    Reveal.on('slidechanged', later);
+    Reveal.on('fragmentshown', later);
+    Reveal.on('fragmenthidden', later);
+  }
+})();
+
+// ── Laser pointer — hold Q (keyboard) or toggle button (tablet) ──────────────
+(function () {
+  // Shared dot element
+  var dot = document.createElement('div');
+  dot.style.cssText =
+    'position:fixed;width:20px;height:20px;border-radius:50%;' +
+    'background:rgba(248,113,113,0.92);' +
+    'box-shadow:0 0 10px 5px rgba(248,113,113,0.55),0 0 2px 1px rgba(248,113,113,0.9);' +
+    'pointer-events:none;z-index:99999;' +
+    'transform:translate(-50%,-50%);display:none;';
+  document.body.appendChild(dot);
+
+  // ── Keyboard (mouse/trackpad) ─────────────────────────────────────────────
+  window.addEventListener('mousemove', function (e) {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+  }, true);
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'q' || e.key === 'Q') && !e.repeat)
+      dot.style.display = 'block';
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'q' || e.key === 'Q')
+      dot.style.display = 'none';
+  });
+
+  // ── Tablet toggle button ──────────────────────────────────────────────────
+  var btn = document.createElement('button');
+  // SVG crosshair icon
+  btn.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"' +
+    ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+    '<circle cx="12" cy="12" r="9"/>' +
+    '<line x1="12" y1="3"  x2="12" y2="7"/>' +
+    '<line x1="12" y1="17" x2="12" y2="21"/>' +
+    '<line x1="3"  y1="12" x2="7"  y2="12"/>' +
+    '<line x1="17" y1="12" x2="21" y2="12"/>' +
+    '<circle cx="12" cy="12" r="2" fill="currentColor"/>' +
+    '</svg>';
+  btn.title = 'Laser pointer (tap to toggle)';
+  btn.style.cssText =
+    'position:fixed;top:0.7em;right:0.7em;z-index:99998;' +
+    'width:2.6em;height:2.6em;border-radius:50%;' +
+    'display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(13,27,42,0.75);border:2px solid #22d3ee;' +
+    'color:#22d3ee;cursor:pointer;transition:background 0.2s,border-color 0.2s,color 0.2s;' +
+    'touch-action:manipulation;';
+  document.body.appendChild(btn);
+
+  var touchActive = false;
+
+  function setTouchMode(on) {
+    touchActive = on;
+    btn.style.background    = on ? 'rgba(248,113,113,0.85)' : 'rgba(13,27,42,0.75)';
+    btn.style.borderColor   = on ? '#f87171' : '#22d3ee';
+    btn.style.color         = on ? '#fff'    : '#22d3ee';
+    if (!on) dot.style.display = 'none';
+  }
+
+  btn.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+  });
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setTouchMode(!touchActive);
+  });
+
+  window.addEventListener('touchstart', function (e) {
+    if (!touchActive) return;
+    var t = e.touches[0];
+    dot.style.left    = t.clientX + 'px';
+    dot.style.top     = t.clientY + 'px';
+    dot.style.display = 'block';
+  }, true);
+
+  window.addEventListener('touchmove', function (e) {
+    if (!touchActive) return;
+    var t = e.touches[0];
+    dot.style.left = t.clientX + 'px';
+    dot.style.top  = t.clientY + 'px';
+  }, { capture: true, passive: true });
+
+  window.addEventListener('touchend', function () {
+    if (!touchActive) return;
+    dot.style.display = 'none';
+  }, true);
+})();
+
+</script>
