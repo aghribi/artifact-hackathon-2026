@@ -1,0 +1,974 @@
+{
+ "what": "every column of the PALLAS hackathon pack, with its type, unit and meaning",
+ "generated_by": "experiments/data_analysis/hackathon_data_review/hackathon_build_v3_challenge.py",
+ "note": "generated from the shipped files; the row counts here are what actually ships",
+ "files": {
+  "campaign_A.parquet": {
+   "format": "parquet",
+   "rows": 13604,
+   "columns": {
+    "scan": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "which Campaign A scan the row came from: random, or uniform on a grid"
+    },
+    "draw": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "the source's index within its own scan, kept so a row is traceable to its simulation directory; it repeats across sub-scans and is NOT a key"
+    },
+    "sub_scan": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "which stacked sub-scan a Campaign A row came from; 0 and 1 share their a_0 draw, with p_1, c_N2 and x_of redrawn"
+    },
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "row_id": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "a readable provenance label, scan:draw:sub_scan -- no longer a join key, use config"
+    },
+    "p_1": {
+     "dtype": "double",
+     "unit": "mbar",
+     "meaning": "injection-region pressure -- Campaign A knob"
+    },
+    "a_0": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "laser amplitude, normalised vector potential -- knob"
+    },
+    "c_N2": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "nitrogen concentration, fraction -- Campaign A knob"
+    },
+    "x_of": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    },
+    "dE_std": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "relative energy spread, standard deviation over mean"
+    },
+    "dE_mad": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "relative energy spread, median absolute deviation over median"
+    },
+    "z_avg": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "mean longitudinal position of the bunch"
+    },
+    "sigma_x": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "transverse bunch size, x"
+    },
+    "sigma_y": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "transverse bunch size, y"
+    },
+    "sigma_z": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch length"
+    },
+    "i_peak": {
+     "dtype": "double",
+     "unit": "A",
+     "meaning": "peak current"
+    },
+    "q_end": {
+     "dtype": "double",
+     "unit": "C",
+     "meaning": "bunch charge -- a 3 pC cut is 3e-12"
+    },
+    "n_emit_x": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised RMS emittance, phase space, x"
+    },
+    "n_emit_y": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised RMS emittance, phase space, y"
+    },
+    "n_emitTS_x": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised trace-space emittance, x -- what div_rms uses"
+    },
+    "n_emitTS_y": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised trace-space emittance, y -- what div_rms uses"
+    },
+    "alpha_x": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "Twiss alpha, x"
+    },
+    "beta_x": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "Twiss beta, x"
+    },
+    "gamma_x": {
+     "dtype": "double",
+     "unit": "1/mm",
+     "meaning": "Twiss gamma, x"
+    },
+    "alpha_y": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "Twiss alpha, y"
+    },
+    "beta_y": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "Twiss beta, y"
+    },
+    "gamma_y": {
+     "dtype": "double",
+     "unit": "1/mm",
+     "meaning": "Twiss gamma, y"
+    },
+    "div_rms": {
+     "dtype": "double",
+     "unit": "mrad",
+     "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
+    },
+    "E_med_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "median electron energy"
+    },
+    "E_mean_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "mean electron energy"
+    },
+    "q_pC": {
+     "dtype": "double",
+     "unit": "pC",
+     "meaning": "bunch charge"
+    },
+    "injected": {
+     "dtype": "bool",
+     "unit": null,
+     "meaning": "the pack's single injection flag, q_pC >= 3.0, identical in all campaigns"
+    },
+    "ener_axis_MeV": {
+     "dtype": "list<element: float>",
+     "unit": "MeV",
+     "meaning": "this row's own spectrum axis, 200 points"
+    },
+    "spec": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "spectrum on this row's own axis, charge per bin"
+    },
+    "spec_common": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "spectrum resampled onto common_energy_grid_MeV, charge-preserving"
+    },
+    "x_p": {
+     "dtype": "list<element: float>",
+     "unit": "um",
+     "meaning": "position axis of the gas density profile, 2000 points; the profile ends at L_inj + 3.2 mm"
+    },
+    "n_e_p": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "gas density profile on x_p, 2000 points"
+    }
+   }
+  },
+  "campaign_B.parquet": {
+   "format": "parquet",
+   "rows": 4886,
+   "columns": {
+    "draw": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "the source's index within its own scan, kept so a row is traceable to its simulation directory; it repeats across sub-scans and is NOT a key"
+    },
+    "sub_scan": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "which stacked sub-scan a Campaign A row came from; 0 and 1 share their a_0 draw, with p_1, c_N2 and x_of redrawn"
+    },
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "row_id": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "a readable provenance label, scan:draw:sub_scan -- no longer a join key, use config"
+    },
+    "a_0": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "laser amplitude, normalised vector potential -- knob"
+    },
+    "x_of": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    },
+    "P_max": {
+     "dtype": "double",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "dE_std": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "relative energy spread, standard deviation over mean"
+    },
+    "dE_mad": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "relative energy spread, median absolute deviation over median"
+    },
+    "z_avg": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "mean longitudinal position of the bunch"
+    },
+    "sigma_x": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "transverse bunch size, x"
+    },
+    "sigma_y": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "transverse bunch size, y"
+    },
+    "sigma_z": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch length"
+    },
+    "i_peak": {
+     "dtype": "double",
+     "unit": "A",
+     "meaning": "peak current"
+    },
+    "q_end": {
+     "dtype": "double",
+     "unit": "C",
+     "meaning": "bunch charge -- a 3 pC cut is 3e-12"
+    },
+    "n_emit_x": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised RMS emittance, phase space, x"
+    },
+    "n_emit_y": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised RMS emittance, phase space, y"
+    },
+    "n_emitTS_x": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised trace-space emittance, x -- what div_rms uses"
+    },
+    "n_emitTS_y": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised trace-space emittance, y -- what div_rms uses"
+    },
+    "alpha_x": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "Twiss alpha, x"
+    },
+    "beta_x": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "Twiss beta, x"
+    },
+    "gamma_x": {
+     "dtype": "double",
+     "unit": "1/mm",
+     "meaning": "Twiss gamma, x"
+    },
+    "alpha_y": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "Twiss alpha, y"
+    },
+    "beta_y": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "Twiss beta, y"
+    },
+    "gamma_y": {
+     "dtype": "double",
+     "unit": "1/mm",
+     "meaning": "Twiss gamma, y"
+    },
+    "div_rms": {
+     "dtype": "double",
+     "unit": "mrad",
+     "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
+    },
+    "E_med_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "median electron energy"
+    },
+    "E_mean_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "mean electron energy"
+    },
+    "q_pC": {
+     "dtype": "double",
+     "unit": "pC",
+     "meaning": "bunch charge"
+    },
+    "injected": {
+     "dtype": "bool",
+     "unit": null,
+     "meaning": "the pack's single injection flag, q_pC >= 3.0, identical in all campaigns"
+    },
+    "ener_axis_MeV": {
+     "dtype": "list<element: float>",
+     "unit": "MeV",
+     "meaning": "this row's own spectrum axis, 200 points"
+    },
+    "spec": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "spectrum on this row's own axis, charge per bin"
+    },
+    "spec_common": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "spectrum resampled onto common_energy_grid_MeV, charge-preserving"
+    },
+    "x_p": {
+     "dtype": "list<element: float>",
+     "unit": "um",
+     "meaning": "position axis of the gas density profile, 2000 points; the profile ends at L_inj + 3.2 mm"
+    },
+    "n_e_p": {
+     "dtype": "list<element: float>",
+     "unit": null,
+     "meaning": "gas density profile on x_p, 2000 points"
+    }
+   }
+  },
+  "campaign_B_moments.parquet": {
+   "format": "parquet",
+   "rows": 195360,
+   "columns": {
+    "n_stored": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "macro-particles stored by the diagnostic"
+    },
+    "n_raw": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "macro-particles before selection"
+    },
+    "n_used": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "macro-particles entering the moment sums"
+    },
+    "present_frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "fraction of the bunch the diagnostic actually saw"
+    },
+    "q_tot_pC": {
+     "dtype": "double",
+     "unit": "pC",
+     "meaning": "total charge of the stored macro-particles"
+    },
+    "q_raw_pC": {
+     "dtype": "double",
+     "unit": "pC",
+     "meaning": "charge before the diagnostic's own selection"
+    },
+    "injection": {
+     "dtype": "bool",
+     "unit": null,
+     "meaning": "the moments table's own flag; NOT the pack's -- they differ on 8 configurations"
+    },
+    "xa0_mm": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "position of the laser amplitude peak"
+    },
+    "ts_lo": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "lower simulation timestep of the interpolation bracket"
+    },
+    "ts_hi": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "upper simulation timestep of the interpolation bracket"
+    },
+    "frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "interpolation weight between ts_lo and ts_hi"
+    },
+    "interp": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "how the plane was reached: interpolated or exact"
+    },
+    "ref_plane_mm": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "the stored plane the moments row was interpolated from"
+    },
+    "w_sum": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "sum of macro-particle weights"
+    },
+    "ess": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "effective sample size of the weighted moment estimate"
+    },
+    "charge_closure": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "charge consistency check of the moment reconstruction"
+    },
+    "mean_zeta_um": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch centroid, longitudinal, relative to the laser"
+    },
+    "mean_y_um": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch centroid, transverse y"
+    },
+    "mean_z_um": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch centroid, transverse z -- z is TRANSVERSE in this table"
+    },
+    "mean_ux": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "mean normalised momentum, x"
+    },
+    "mean_uy": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "mean normalised momentum, y"
+    },
+    "mean_uz": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "mean normalised momentum, z, the propagation direction"
+    },
+    "cov_00": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,0) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_01": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,1) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_02": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,2) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_03": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,3) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_04": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,4) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_05": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (0,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_11": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (1,1) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_12": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (1,2) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_13": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (1,3) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_14": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (1,4) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_15": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (1,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_22": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (2,2) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_23": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (2,3) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_24": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (2,4) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_25": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (2,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_33": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (3,3) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_34": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (3,4) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_35": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (3,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_44": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (4,4) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_45": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (4,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "cov_55": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "element (5,5) of the bunch's 6x6 covariance in (zeta, y, z, ux, uy, uz)"
+    },
+    "E_mean_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "mean electron energy"
+    },
+    "E_med_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "median electron energy"
+    },
+    "E_p16_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "16th percentile of the energy distribution"
+    },
+    "E_p84_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "84th percentile of the energy distribution"
+    },
+    "E_std_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "standard deviation of the energy distribution"
+    },
+    "E_mad_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "median absolute deviation of the energy distribution"
+    },
+    "sim_id": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "the moments table's own id, the string 'Config_<config>'"
+    },
+    "plane_mm": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "position along the accelerator -- the moments table's axis"
+    },
+    "group": {
+     "dtype": "string",
+     "unit": null,
+     "meaning": "which corpus the moments row belongs to"
+    },
+    "x_of": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    },
+    "P_max": {
+     "dtype": "double",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    }
+   }
+  },
+  "campaign_B_trajectories.parquet": {
+   "format": "parquet",
+   "rows": 277415,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "z_mm": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "position along the accelerator"
+    },
+    "x_of": {
+     "dtype": "float",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    },
+    "P_max": {
+     "dtype": "float",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "E_MeV": {
+     "dtype": "float",
+     "unit": "MeV",
+     "meaning": "median electron energy along the trajectory"
+    },
+    "q_pC": {
+     "dtype": "float",
+     "unit": "pC",
+     "meaning": "bunch charge"
+    },
+    "dE_pct": {
+     "dtype": "float",
+     "unit": "%",
+     "meaning": "relative energy spread along the trajectory"
+    },
+    "emit_um": {
+     "dtype": "float",
+     "unit": "um",
+     "meaning": "normalised emittance along the trajectory, all particles"
+    },
+    "div_mrad": {
+     "dtype": "float",
+     "unit": "mrad",
+     "meaning": "RMS divergence along the trajectory"
+    },
+    "sigz_um": {
+     "dtype": "float",
+     "unit": "um",
+     "meaning": "bunch length along the trajectory"
+    }
+   }
+  },
+  "common_energy_grid_MeV.npy": {
+   "format": "npy",
+   "what": "the shared spectrum axis, MeV, 200 bins"
+  },
+  "pack_reference.json": {
+   "format": "json",
+   "what": "everything you need to make your number comparable to the published ones: the id lists each axis is defined on, and the scores themselves"
+  },
+  "test_direct.parquet": {
+   "format": "parquet",
+   "rows": 714,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "P_max": {
+     "dtype": "double",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "x_of": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    }
+   }
+  },
+  "test_inverse.parquet": {
+   "format": "parquet",
+   "rows": 1915,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "E_med_MeV": {
+     "dtype": "double",
+     "unit": "MeV",
+     "meaning": "median electron energy"
+    },
+    "dE_mad": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "relative energy spread, median absolute deviation over median"
+    },
+    "q_end": {
+     "dtype": "double",
+     "unit": "C",
+     "meaning": "bunch charge -- a 3 pC cut is 3e-12"
+    },
+    "i_peak": {
+     "dtype": "double",
+     "unit": "A",
+     "meaning": "peak current"
+    },
+    "sigma_z": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "bunch length"
+    },
+    "div_rms": {
+     "dtype": "double",
+     "unit": "mrad",
+     "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
+    },
+    "n_emit_x": {
+     "dtype": "double",
+     "unit": "mm.mrad",
+     "meaning": "normalised RMS emittance, phase space, x"
+    },
+    "beta_x": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "Twiss beta, x"
+    }
+   }
+  },
+  "test_moments_planes.parquet": {
+   "format": "parquet",
+   "rows": 6426,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "plane_mm": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "position along the accelerator -- the moments table's axis"
+    },
+    "P_max": {
+     "dtype": "double",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "double",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "double",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "x_of": {
+     "dtype": "double",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    }
+   }
+  },
+  "test_trajectory.parquet": {
+   "format": "parquet",
+   "rows": 80682,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "z_mm": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "position along the accelerator"
+    },
+    "P_max": {
+     "dtype": "float",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "x_of": {
+     "dtype": "float",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    }
+   }
+  },
+  "test_trajectory_ood.parquet": {
+   "format": "parquet",
+   "rows": 60568,
+   "columns": {
+    "config": {
+     "dtype": "int64",
+     "unit": null,
+     "meaning": "ONE SIMULATION -- unique in every scan, and the key every test file joins on. Campaign A's random scan folds its sub-scan into it (sub_scan * 2401 + draw + 1, so 1..12005); the uniform scan's are offset by 100000; Campaign B's are its own source index"
+    },
+    "z_mm": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "position along the accelerator"
+    },
+    "P_max": {
+     "dtype": "float",
+     "unit": "Pa",
+     "meaning": "peak pressure of the gas density profile -- Campaign B knob"
+    },
+    "cN2_max": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "peak nitrogen concentration -- Campaign B knob"
+    },
+    "L_inj": {
+     "dtype": "float",
+     "unit": "mm",
+     "meaning": "length of the injection region -- Campaign B knob; the plasma ends at L_inj + 3.2 mm"
+    },
+    "dip_frac": {
+     "dtype": "float",
+     "unit": null,
+     "meaning": "depth of the dip in the density profile, as a fraction -- Campaign B knob"
+    },
+    "x_of": {
+     "dtype": "float",
+     "unit": "um",
+     "meaning": "laser focal position offset -- knob"
+    }
+   }
+  }
+ }
+}

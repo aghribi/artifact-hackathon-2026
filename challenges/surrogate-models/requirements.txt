@@ -1,6 +1,14 @@
-# Placeholder requirements — to be finalized by the challenge coordinator
-numpy
-pandas
-scikit-learn
-matplotlib
+# Python dependencies for the PALLAS surrogate-models challenge.
+# Install with:  pip install -r requirements.txt
+#
+# pyarrow is NOT optional: every data table in the pack is Parquet.
+# torch is needed only from the Medium objectives onward; the kickoff
+# notebook runs on numpy, pandas, pyarrow and scikit-learn alone.
+
+numpy>=1.24
+pandas>=2.0
+pyarrow>=14.0
+scikit-learn>=1.3
+matplotlib>=3.7
 jupyter
+torch>=2.0
