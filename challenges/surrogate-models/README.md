@@ -38,22 +38,26 @@ be compared against.
 
 ## What you get
 
-A public data pack of about 200 MB: three simulation campaigns of the PALLAS accelerator, the
-beam's trajectory along it, the bunch's full phase-space moments at twenty planes, five held-out
-test sets with their targets removed, and the scorer the organisers will run. See
+A public data pack of about 200 MB: two simulation campaigns of the PALLAS accelerator, the
+beam's trajectory along it, the bunch's full phase-space moments at twenty planes, six held-out
+test files with their targets removed, and the scorer the organisers will run. See
 [`data/README.md`](data/README.md) for the files, the units and the splits.
 
-**The data pack is not in this repository** — it is too large for git. `data/README.md` says
-where to download it and where to unpack it.
+**The full data pack is not in this repository** — it is too large for git. `data/README.md` says
+where to download it and where to unpack it. A **10 % random sample** (22 MB, the same tables and
+columns) sits in `data/sample/`, so both notebooks run straight from a clone; train and report
+on the full pack, since every number differs on the sample.
 
 ## Structure
 
 - `scientific_case.md` — background and motivation
-- `objectives.md` — easy / medium / hard objectives (bullet points only)
+- `objectives.md` — easy / medium / hard objectives, short: what to predict, how it is scored
+- `objectives_detailed.md` — the same objectives with the physics, the traps and the reference numbers
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — starter notebook: from the raw pack to a scored submission
+- `kickoff_notebook_detailed.ipynb` — the longer starter notebook: the same path, with every step explained and more plots
 - `pallas_score.py` — the scorer, imported by the kickoff notebook
-- `data/` — dataset description and schema
+- `data/` — dataset description and schema; `data/sample/` holds the 10 % sample
 
 The kickoff notebook runs on a laptop CPU in a few minutes and ends with a valid submission
 file. Do that first; it also walks through the pack's id conventions and its single injection

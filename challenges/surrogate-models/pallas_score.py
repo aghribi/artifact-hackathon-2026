@@ -12,7 +12,7 @@ import pandas as pd
 
 # Submit PHYSICAL values. The scale each target is scored on is applied here, so
 # nobody has to remember which quantities are logged -- and so every submission is
-# scored the way the published reference numbers were.
+# scored the way the reference numbers were.
 #   (log10, floor in the target's own unit, factor applied before the floor)
 SCALES = {
     "E_med_MeV": (False, None, 1.0),
@@ -77,21 +77,29 @@ def align(submission, key):
     sub = pd.read_csv(submission) if isinstance(submission, str) else submission.copy()
     ans = pd.read_csv(key) if isinstance(key, str) else key.copy()
 
-    join = [c for c in KEY_COLUMNS if c in ans.columns and c in sub.columns]
+    # L_inj rides along in the position-dependent keys to locate the plasma end; in
+    # test_inverse_B it is one of the four targets.
+    positional = any(c in ans.columns for c in POSITION_COLUMNS)
+    key_columns = KEY_COLUMNS if positional else tuple(c for c in KEY_COLUMNS if c != "L_inj")
+    join = [c for c in key_columns if c in ans.columns and c in sub.columns]
     if not join:
-        raise ValueError(f"submission has no join column; expected one of {KEY_COLUMNS}")
-    targets = [c for c in ans.columns if c not in KEY_COLUMNS]
-    extra = [c for c in sub.columns if c not in ans.columns and c not in KEY_COLUMNS]
+        raise ValueError(f"submission has no join column; expected one of {key_columns}")
+    targets = [c for c in ans.columns if c not in key_columns]
+    extra = [c for c in sub.columns if c not in ans.columns and c not in key_columns]
     missing = [c for c in targets if c not in sub.columns]
     if missing:
         raise ValueError(f"submission is missing target column(s) {missing}")
 
+    exact = {}                           # the key's own positions, for the zone test
     for c in join:                       # a CSV round trip must not break the join
         if c in POSITION_COLUMNS:
+            exact[c] = ans[c].astype(float).to_numpy()
             ans[c], sub[c] = ans[c].astype(float).round(3), sub[c].astype(float).round(3)
     merged = ans.merge(sub[join + targets + extra], on=join, suffixes=("", "_pred"))
     if len(merged) != len(ans):
         raise ValueError(f"submission covers {len(merged)} of {len(ans)} rows")
+    for c, values in exact.items():      # an inner merge keeps the key's row order
+        merged[c] = values
     return merged, join, targets
 
 
@@ -128,7 +136,7 @@ def r2(true, pred):
     """R2 on values already carried to the scored scale, against the global mean.
 
     Used for the tasks with no position axis. For the position-dependent tasks see
-    r2_per_z, which is the baseline the published anchors use.
+    r2_per_z, which is the baseline the reference anchors use.
     """
     resid = np.sum((true - pred) ** 2)
     spread = np.sum((true - true.mean()) ** 2)
@@ -136,14 +144,14 @@ def r2(true, pred):
 
 
 def r2_per_z(true, pred, position):
-    """R2 for a position-dependent task, against the PER-Z MEAN (Mykyta/Chat1, 2026-09-10).
+    """R2 for a position-dependent task, against the PER-Z MEAN.
 
     The denominator is the spread across CONFIGURATIONS at each position, summed over
     positions -- not the spread over every cell at once. On a trajectory most of the
     total variance is the z-trend itself, and a global-mean denominator credits a model
     for reproducing the average curve shape, which is trivial. This baseline asks the
     question a surrogate is for: at this position, can you tell the configurations
-    apart? It is also what every published phase30 curve_r2 uses.
+    apart? It is also what every reference number in the pack uses.
 
     In zone mode the mean is taken over the configurations that are IN THIS ZONE at
     this z, and with a per-config plasma end that membership changes across
@@ -406,6 +414,74 @@ def score_particles(submission_dir, key_dir, seed=0):
             "n_rows": int(len(table)), "n_config": int(table.config.nunique()),
             "n_rows_no_bunch": skipped, "n_rows_sparse": sparse}, table
 
+
+FIELD_NAMES = ("ex", "rho_e", "laser")
+# Truth and prediction are both averaged over this length along the box before the error
+# is taken, so a sharp feature (the density spike at the bubble's back wall) placed a
+# cell or two off counts as nearly right instead of being punished twice. 0 = raw maps.
+FIELD_SMOOTH_UM = float(os.environ.get("FIELD_SMOOTH_UM", 1.0))
+FIELD_DX_UM = 0.2003                      # spacing of the shipped field grid, um
+
+
+def smooth_along_box(maps, smooth_um=None):
+    """Running mean over `smooth_um` along the last axis, edges padded with the end value."""
+    smooth_um = FIELD_SMOOTH_UM if smooth_um is None else smooth_um
+    width = int(round(smooth_um / FIELD_DX_UM))
+    if width < 2:
+        return maps
+    pad = [(0, 0)] * (maps.ndim - 1) + [(width // 2, width - 1 - width // 2)]
+    padded = np.pad(maps, pad, mode="edge")
+    csum = np.cumsum(padded, axis=-1)
+    csum = np.concatenate([np.zeros_like(csum[..., :1]), csum], axis=-1)
+    return (csum[..., width:] - csum[..., :-width]) / width
+
+
+def load_field_dir(path):
+    """config ids and {field: (N, dumps, points) float32} from a folder laid out like the download."""
+    with np.load(os.path.join(path, "field_axes.npz")) as z:
+        configs = np.asarray(z["config"], dtype=np.int64)
+    fields = {name: np.load(os.path.join(path, f"field_{name}.npy"), mmap_mode="r")
+              for name in FIELD_NAMES}
+    return configs, fields
+
+
+def score_field(submission_dir, key_dir, smooth_um=None):
+    """Median over configurations of the per-map relative L2 error, one number per field.
+
+    Both folders hold `field_axes.npz` (with `config`) and `field_<name>.npy` of shape
+    (configs, dumps, points), the download's layout. Rows are matched by config; a
+    missing configuration or a shape mismatch is an error, not a skip. Both maps are
+    first smoothed over FIELD_SMOOTH_UM along the box (smooth_um=0 scores raw maps).
+    """
+    key_cfg, key = load_field_dir(key_dir)
+    sub_cfg, sub = load_field_dir(submission_dir)
+    where = {int(c): i for i, c in enumerate(sub_cfg)}
+    missing = [int(c) for c in key_cfg if int(c) not in where]
+    if missing:
+        raise ValueError(f"submission is missing {len(missing)} configurations, e.g. {missing[:5]}")
+    rows = []
+    for k, c in enumerate(key_cfg):
+        row = {"config": int(c)}
+        for name in FIELD_NAMES:
+            truth = np.asarray(key[name][k], dtype=np.float64)
+            pred = np.asarray(sub[name][where[int(c)]], dtype=np.float64)
+            if pred.shape != truth.shape:
+                raise ValueError(f"Config_{c} {name}: shape {pred.shape}, key {truth.shape}")
+            truth, pred = smooth_along_box(truth, smooth_um), smooth_along_box(pred, smooth_um)
+            row[name] = float(np.linalg.norm(pred - truth) / np.linalg.norm(truth))
+        rows.append(row)
+    table = pd.DataFrame(rows)
+    summary = {f"median_rel_l2_{name}": float(table[name].median()) for name in FIELD_NAMES}
+    summary["smooth_um"] = FIELD_SMOOTH_UM if smooth_um is None else float(smooth_um)
+    summary["n_config"] = int(len(table))
+    return summary, table
+
+
+if os.environ.get("FIELD_SUBMISSION") and os.environ.get("FIELD_KEY"):
+    summary, _ = score_field(os.environ["FIELD_SUBMISSION"], os.environ["FIELD_KEY"])
+    for key_name, value in summary.items():
+        print(f"{key_name:22s}  {value:.4f}" if isinstance(value, float)
+              else f"{key_name:22s}  {value}")
 
 if os.environ.get("PARTICLES_SUBMISSION") and os.environ.get("PARTICLES_KEY"):
     summary, _ = score_particles(os.environ["PARTICLES_SUBMISSION"], os.environ["PARTICLES_KEY"])

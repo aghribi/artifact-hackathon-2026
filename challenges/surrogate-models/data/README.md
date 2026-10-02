@@ -23,6 +23,7 @@ Unpack it so that the folder `pallas_hackathon_data/` sits inside this `data/` d
 ```
 challenges/surrogate-models/
 ├── kickoff_notebook.ipynb
+├── kickoff_notebook_detailed.ipynb
 ├── pallas_score.py
 └── data/
     └── pallas_hackathon_data/     <- unpack here
@@ -34,35 +35,44 @@ challenges/surrogate-models/
 The kickoff notebook finds it there by itself. If you keep the pack somewhere else, set
 `PALLAS_PACK` to its path before starting Jupyter.
 
+### The sample in `data/sample/`
+
+Until the full pack is unpacked, both notebooks fall back on `data/sample/`: a 10 % random
+sample (22 MB) with the same tables and columns. Campaign A keeps 1,307 of 13,073 simulations
+(the same share of each scan); Campaign B keeps 529 of 5,286 simulations (286 of them produced
+a bunch), with their trajectories and moments. The six `test_*` input files and the energy grid
+are copied whole (the test inputs carry no targets), and `pack_reference.json` is included. The sample is
+for checking that the code runs. Its baselines and scores differ from the full pack's, and the
+row counts in the table below are the full pack's.
+
 ## Files
 
 | file | rows | what it is |
 |---|---|---|
-| `campaign_A.parquet` | 13,604 | Campaign A — four scalar knobs, both scans in one table; `scan` is `random` (9,816 simulations) or `uniform` (3,788 on a grid) |
-| `campaign_B.parquet` | 4,886 | Campaign B — laser fixed, the gas density profile varied and shipped as a 2000-point curve |
-| `campaign_B_trajectories.parquet` | 277,415 | the bunch along the accelerator: 2,455 configurations × 113 positions |
-| `campaign_B_moments.parquet` | 195,360 | the bunch's full 6×6 covariance at 20 planes, twice: `group` = `all` (every electron; the answer key) and `cohort` (a sub-population) |
+| `campaign_A.parquet` | 13,073 | Campaign A — four scalar knobs, both scans in one table; `scan` is `random` (9,285 simulations) or `uniform` (3,788 on a grid) |
+| `campaign_B.parquet` | 5,286 | Campaign B — laser fixed, the gas density profile varied and shipped as a 2000-point curve |
+| `campaign_B_trajectories.parquet` | 322,615 | the bunch along the accelerator: 2,855 configurations × 113 positions |
+| `campaign_B_moments.parquet` | 211,360 | the bunch's full 6×6 covariance at 20 planes, twice: `group` = `all` (every electron; what the scorer compares against) and `cohort` (a sub-population) |
 | `common_energy_grid_MeV.npy` | 200 bins | the shared spectrum axis, 25.8–510.3 MeV |
-| `test_direct.parquet` | 714 | held-out inputs: settings → bunch |
-| `test_inverse.parquet` | 1,915 | held-out inputs: bunch → settings |
-| `test_trajectory.parquet` | 80,682 | held-out inputs: settings + position → bunch |
-| `test_trajectory_ood.parquet` | 60,568 | the same, at unseen plasma densities (536 configurations) |
-| `test_moments_planes.parquet` | 6,426 | held-out inputs: settings + plane → the bunch's moments |
-| `pack_reference.json` | — | **one file for everything you need to be comparable**: five id lists in its `sections`, and every reference number in its `scores` |
+| `test_direct.parquet` | 357 | held-out inputs: settings → bunch |
+| `test_inverse.parquet` | 1,915 | held-out inputs: bunch + focal position `x_of` → `p_1`, `a_0`, `c_N2` (Campaign A) |
+| `test_inverse_B.parquet` | 357 | held-out inputs: bunch + focal position `x_of` → the four density-profile settings (Campaign B) |
+| `test_trajectory.parquet` | 40,341 | held-out inputs: settings + position → bunch |
+| `test_trajectory_ood.parquet` | 15,368 | the 136 configurations of `test_trajectory` above the density cut, on their own |
+| `test_moments_planes.parquet` | 3,213 | held-out inputs: settings + plane → the bunch's moments |
+| `pack_reference.json` | — | **one file for everything you need to be comparable**: three id lists in its `sections`, and every reference number in its `scores` |
 | `DATA_CARD.md` | — | the pack's own detailed card |
 
-`pack_reference.json` replaces the six split files and the separate score file earlier drafts
-shipped. Read it once and index it by name:
+Read `pack_reference.json` once and index it by name:
 
 ```python
 ref = json.load(open(f"{PACK}/pack_reference.json"))
 SPLITS, SCORES = ref["sections"], ref["scores"]
-SPLITS["participant_split"]["holdout"]      # the 603 configs you score yourself on
-SCORES["direct_published_emulator"]         # what our internal forward model reaches
+SPLITS["ood_split"]["train"]                # the 2,277 configs below the density cut
+SCORES["direct_reference_emulator"]         # what our internal forward model reaches
 ```
 
-Its `sections` are `reference_split`, `ood_split`, `participant_split`,
-`participant_ood_split` and `plane_holdout`; each carries its own `what` line saying what it is
+Its `sections` are `reference_split`, `ood_split` and `plane_holdout`; each carries its own `what` line saying what it is
 for. Every id list is a list of `config` values.
 
 The two campaigns **do not share a knob set**, which is why they are two files. Campaign A
@@ -72,19 +82,19 @@ varies the shape of the gas density profile (`P_max`, `cN2_max`, `L_inj`, `dip_f
 The hidden inverse test set is drawn from the random scan only.
 
 **No target column appears in any shipped test file.** This is checked on every build of the
-pack. The answer keys are held by the organisers.
+pack. The hidden true values are held by the organisers.
 
-## Particle clouds (a separate download)
+## Level 5 — particle clouds (a separate download, `level5/`)
 
 Not in the pack itself, because of its size: Campaign B's bunch as individual electrons, for the
 Hard objective "Predict the bunch as particles". Up to 2,000 tracked electrons per simulation (a
-few configurations with a small bunch have fewer), the same electrons followed along the accelerator, for the 4,882 Campaign B configurations that are in no
+few configurations with a small bunch have fewer), the same electrons followed along the accelerator, for the 5,282 Campaign B configurations that are in no
 test file. One `Config_<id>.npz` per configuration, the same `config` as everywhere else.
 
 | part | what | size |
 |---|---|---|
-| `planes20/` | the twenty planes of `campaign_B_moments.parquet`; start here | 4.9 GB |
-| full set | every snapshot from the bunch's first (1.5–2.1 mm) to 7.04 mm, every 22.5 µm — 222 to 247 per configuration; same keys | 50.0 GB |
+| `planes20/` | the twenty planes of `campaign_B_moments.parquet`; start here | 5.3 GB |
+| full set | every snapshot from the bunch's first (1.5–2.1 mm) to 7.04 mm, every 22.5 µm — 222 to 247 per configuration; same keys | 54.2 GB |
 
 The keys that matter:
 
@@ -110,6 +120,35 @@ The moments computed from these clouds are close to, but not identical to,
 `campaign_B_moments.parquet`: the moment table was computed from every simulated electron, and
 the clouds are a sample of up to 2,000 of them.
 
+## Level 6 — the laser and plasma fields (a separate download, `level6/`)
+
+Not in the pack itself, because of its size: the fields on the laser axis, for the optional
+objective "Predict the wake itself". `level6/README_level6.md` and `level6/load_level6.py`
+sit beside the maps. For each of the 5,286 configurations of
+`campaign_B.parquet` (none of them a test configuration), three maps of 157 snapshots × 320
+points, 1.6 GB in all, float16.
+
+| file | what | unit |
+|---|---|---|
+| `field_ex.npy` | longitudinal electric field on axis | GV/m |
+| `field_rho_e.npy` | plasma electron density on axis (electron charge, so ≤ 0) | critical density n_c |
+| `field_laser.npy` | laser envelope amplitude | a₀ (normalised vector potential) |
+| `field_axes.npz` | the axes below | |
+
+Each `.npy` is configurations × snapshots × points, rows in the order of `config`; open it with
+`np.load(path, mmap_mode="r")` to avoid reading 530 MB at once. `field_axes.npz` holds:
+
+- `config`: the configuration of each row, the same id as everywhere else.
+- `x_window_um` (320): the position inside the window, 0 to 63.9 µm, every 0.2 µm, counted from
+  the window's back edge — the laser sits in the front half, the wake behind it.
+- `x_moved_um` (configurations × 157): the absolute position of the window's back edge along the
+  accelerator at each snapshot, 0 to 7,020 µm, every 45 µm. It is the same for every
+  configuration.
+- `x_a0_um` (configurations × 157): the absolute position of the laser's envelope peak.
+- `ts` (configurations × 157): the simulation step of each snapshot.
+
+The rounding to float16 changes no value by more than about 0.025 % of its field's peak.
+
 ## Units
 
 Units are the thing people get wrong here, so each column carries one.
@@ -128,36 +167,31 @@ Units are the thing people get wrong here, so each column carries one.
 
 1. **Energy units harmonised** — MeV everywhere, native columns dropped.
 2. **Spectra resampled** onto one shared 200-bin grid. Each row's native axis is kept as
-   `ener_axis_MeV`, and `spec` on it is charge per MeV (it integrates to `q_pC`). **In this pack
-   version `spec_common` is not charge per bin:** each row is off by the width of its own native
-   bin, so multiply it by `np.diff(ener_axis_MeV).mean()` of the same row to get pC per shared
-   bin. The shape is unaffected. The next pack version ships it corrected.
-3. **One injection flag** — `injected` is `q_pC >= 3.0`, computed identically for all three
+   `ener_axis_MeV`, and `spec` on it is charge per MeV (it integrates to `q_pC`). `spec_common`
+   is the charge in pC in each shared bin, and it sums to `q_pC` on every injected row.
+3. **One injection flag** — `injected` is `q_pC >= 3.0`, computed identically for both
    campaigns. The source files' own labels are not shipped; they were produced under different
    rules and were not comparable.
 4. **273 unphysical runs deleted**, not flagged — runs whose laser envelope oscillates (seven or
    more turning points at 5 % depth or more). They are simply absent; there is no column to filter.
+5. **Envelope flag** — Campaign A carries `envelope_validated`, True when `p_1` ≤ 73.9 mbar.
+   Campaign A was simulated with a laser envelope solver. Full-wave reruns of five of its runs
+   reproduce the beam up to that pressure and not above it, so the runs above it are kept but
+   flagged: their end-state energy is the least trustworthy number in the row. Filter on it,
+   weight by it, or ignore it, and say which you did.
 
 ## Two id conventions
 
 - **`config` is one simulation, everywhere.** It is unique in both Campaign A scans and in
   Campaign B, it is the column every test file joins on, and it is what every submission is keyed
-  by. Campaign A's random scan stacks five sub-scans that each numbered their draws from zero, so
-  its id folds the two together as `sub_scan * 2401 + draw + 1`, running 1 to 12005; the uniform
-  scan's start at 100000; Campaign B's source index was already one per simulation and is
-  unchanged. Because one row is one simulation, an ordinary row-wise split is already a split on
-  simulations — there is nothing to group.
-  Two columns beside it are **not** keys: `draw` is the index the source scan gave a run and
-  repeats across sub-scans, and `row_id` is a readable provenance label, `scan:draw:sub_scan`.
-  Five rows sharing a `draw` are five different settings, not one setting five times — between
-  sub-scans 0 and 1 only `a_0` is repeated, while `p_1` differs by up to 10 mbar, `c_N2` across
-  its whole range and `x_of` by 300 µm.
+  by. It is the only id in the pack. Because one row is one simulation, an ordinary row-wise
+  split is already a split on simulations — there is nothing to group.
 - **The moments table spells the id differently.** It names the simulation in `sim_id` as the
   string `"Config_1001"`; everywhere else in the pack, `test_moments_planes.parquet` included, the
   same id is the integer `1001`. Strip the prefix before joining:
   `mom["config"] = mom.sim_id.str.removeprefix("Config_").astype(int)`.
 - **The moments table spells three centroids differently too.** It stores them as `mean_zeta_um`,
-  `mean_y_um` and `mean_z_um`; the scorer and the answer key call them `mean_zeta`, `mean_y` and
+  `mean_y_um` and `mean_z_um`; the scorer and the hidden true values call them `mean_zeta`, `mean_y` and
   `mean_z`, in the same µm. Rename before you submit, or the scorer stops on a missing column.
 
 ## Splits, and the three axes beyond accuracy
@@ -168,24 +202,29 @@ an **id list** inside `pack_reference.json`, not as a pre-cut training file: the
 here, and the section says which configurations a comparable model may train on. A team that
 trains on everything simply stops being comparable.
 
-- **Your own fold** (`participant_split`) — 603 configurations held out of the training corpus,
-  leaving a pool of 1,852. Score yourself here.
-- **Data budget** (`participant_split`'s `pool`) — train at 100, 300 and 1,000 configurations and on
-  the whole pool, all scored on the same fold. **No subsets ship: you choose which configurations
-  make up each size**, and choosing them well is part of the task. Our reference curve is the mean
-  and spread over ten random draws of each size, so compare your choice with random draws too.
-- **Out of distribution, density** (`participant_ood_split`) — train on 1,714 configurations below
-  6,528.6 Pa of `P_max`, then score **one** model on two held-out sets: 563 configurations inside
-  that range and 178 above it. Neither is trained on, so the gap between the two numbers is
-  extrapolation and nothing else.
+- **Your own validation set** — no fold ships. Every public configuration is yours to train on;
+  hold some out yourself to check your model before you submit. Comparable numbers across teams
+  come from the organisers, who score every submission on the hidden test.
+- **Data budget** — train at 100, 300 and 1,000 configurations and on all 2,855 public
+  configurations with trajectories, and submit one `test_trajectory` prediction per size; the
+  organisers score all four on the same hidden configurations. **No subsets ship: you choose which
+  configurations make up each size**, and choosing them well is part of the task. Our reference
+  curve is the mean and spread over ten random draws of each size, so compare your choice with
+  random draws too.
+- **Out of distribution, density** (`ood_split`) — train on its `train` list, the 2,277 public
+  configurations below 6,528.6 Pa of `P_max`, then submit **one** model's `test_trajectory`
+  predictions; the organisers score it on two hidden sets, 221 configurations inside that range
+  and 136 above it. Neither is trained on, so the gap between the two numbers is extrapolation
+  and nothing else.
 - **Out of distribution, position** (`plane_holdout`) — train on 11 planes and predict the bunch at
   9 it has never seen (2.1, 2.3, 2.5, 2.7, 2.9, 3.1, 3.3, 3.5, 5.0 mm). **Read 3.5 and 5.0 apart
   from the rest:** the other seven are interpolated across a 0.2 mm gap, those two across 0.6 mm
   and 2.0 mm.
 
-The `reference_split` and `ood_split` sections are the folds the internal reference numbers were scored on.
-They are listed for reference: their test configurations are not in the public tables, so **the
-internal reference numbers are a target to aim at, not a number you can reproduce.**
+The `reference_split` section is the fold the internal reference models were trained on; its test
+configurations are the hidden test and are not in the public tables, so **the internal reference
+numbers are a target to aim at, not a number you can reproduce** — the organisers' score of your
+submission is what goes beside them.
 
 ## Scoring
 

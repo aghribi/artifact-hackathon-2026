@@ -39,7 +39,7 @@ model actually gives up.** Three things are worth knowing before anyone puts a s
   here. An energy-gain law integrated along the density profile misses most of the variation
   between configurations, because beam loading (the bunch's own charge weakening the
   accelerating field) sets the gain more than the density does, and past the point where the
-  bunch outruns the wave (dephasing) the gain stops. The Hard objectives give our numbers;
+  bunch outruns the wave (dephasing) the gain stops. The optional objective "Find the physics that helps" gives our numbers;
   finding the physics that *does* help is open. See Esarey *et al.* (below) for both effects.
 - **The data the approach needs.** Every training sample is a cluster job. A model that reaches
   a useful score on 300 simulations is a different proposition from one that needs 3000, and the
@@ -62,8 +62,9 @@ work that followed it.
 
 - **Forward surrogate (settings → bunch).** Our internal PCA plus gradient-boosting emulator
   (not published) reaches R² 0.9744 on median energy and 0.9420 on charge on the frozen
-  test split. Scored along the whole trajectory on this pack's own grid and scorer, the same
-  model reaches a mean R² of 0.9069 inside the plasma and 0.8840 in the drift after it.
+  test split. Scored along the whole trajectory on this pack's own grid and scorer, on the 357
+  hidden configurations your trajectory submission is scored on, the same model reaches a mean R²
+  of 0.8960 inside the plasma and 0.8704 in the drift after it.
 - **Inverse model (bunch → settings).** Our five-member mixture-density ensemble (in review)
   reaches a mean
   R² of 0.9100 against an oracle ceiling of 0.9909. On about 63 % of shots the reference
@@ -76,7 +77,7 @@ work that followed it.
   reaches 0.9744 on median energy and 0.9420 on charge, but only 0.8036 on the energy spread —
   so the forward direction is scored there, on the `test_direct` set.
 
-All reference numbers quoted here are shipped inside the data pack, in the `scores` section of
+The R² reference numbers quoted here are shipped inside the data pack, in the `scores` section of
 `pack_reference.json`; the notebook quotes the same numbers, so a team can check each one against
 the file.
 
