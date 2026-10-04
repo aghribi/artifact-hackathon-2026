@@ -73,7 +73,7 @@ SCORES["direct_reference_emulator"]         # what our internal forward model re
 ```
 
 Its `sections` are `reference_split`, `ood_split` and `plane_holdout`; each carries its own `what` line saying what it is
-for. Every id list is a list of `config` values.
+for. Every id list is a list of `config` values, except `plane_holdout`, which lists planes in mm.
 
 The two campaigns **do not share a knob set**, which is why they are two files. Campaign A
 varies four scalars (`p_1`, `a_0`, `c_N2`, `x_of`) and sampled them twice — once at random and
@@ -174,7 +174,7 @@ Units are the thing people get wrong here, so each column carries one.
    rules and were not comparable.
 4. **273 unphysical runs deleted**, not flagged — runs whose laser envelope oscillates (seven or
    more turning points at 5 % depth or more). They are simply absent; there is no column to filter.
-5. **Envelope flag** — Campaign A carries `envelope_validated`, True when `p_1` ≤ 73.9 mbar.
+5. **Envelope flag** — Campaign A carries `envelope_validated`, True when `p_1` ≤ 73.888 mbar.
    Campaign A was simulated with a laser envelope solver. Full-wave reruns of five of its runs
    reproduce the beam up to that pressure and not above it, so the runs above it are kept but
    flagged: their end-state energy is the least trustworthy number in the row. Filter on it,
@@ -182,8 +182,9 @@ Units are the thing people get wrong here, so each column carries one.
 
 ## Two id conventions
 
-- **`config` is one simulation, everywhere.** It is unique in both Campaign A scans and in
-  Campaign B, it is the column every test file joins on, and it is what every submission is keyed
+- **`config` is one simulation within its campaign.** It is unique in both Campaign A scans and
+  in Campaign B, but the same number can name one simulation in A and another in B, so never join
+  across campaigns. It is the column every test file joins on, and what every submission is keyed
   by. It is the only id in the pack. Because one row is one simulation, an ordinary row-wise
   split is already a split on simulations — there is nothing to group.
 - **The moments table spells the id differently.** It names the simulation in `sim_id` as the
@@ -193,6 +194,19 @@ Units are the thing people get wrong here, so each column carries one.
 - **The moments table spells three centroids differently too.** It stores them as `mean_zeta_um`,
   `mean_y_um` and `mean_z_um`; the scorer and the hidden true values call them `mean_zeta`, `mean_y` and
   `mean_z`, in the same µm. Rename before you submit, or the scorer stops on a missing column.
+- **A run that produced no bunch has no beam numbers.** On every row where `injected` is False,
+  `q_pC`, the energies, the spread and `spec_common` are NaN (2,404 such rows in Campaign B).
+- **`group` in the moments table:** `all` is every stored macro-particle; `cohort` is a selected
+  sub-population. Use `all`: the hidden answers are built from it.
+- **Seven moments columns describe how each plane was reconstructed**, not the bunch:
+  `ref_plane_mm`, `ts_lo`, `ts_hi`, `frac`, `interp`, `ess`, `charge_closure`. You can ignore
+  them; `data/ontologies/pack_schema.json` says what each one is.
+- **Some moments rows are empty.** 2,637 of the 105,720 `group == "all"` rows have `q_tot_pC = 0`
+  and NaN in every moment: at that plane the bunch has not formed yet (most are at 2.0–2.5 mm),
+  or the simulation never formed one (4 configurations, every plane). Drop them before training.
+- **Four centroids are close to zero by symmetry.** `mean_y`, `mean_z`, `mean_uy` and `mean_uz`
+  are transverse offsets of a bunch that sits on axis, so they are mostly simulation noise and an
+  R² near 0 on them is expected; `mean_ux` is the momentum along the beam (median about 217).
 
 ## Splits, and the three axes beyond accuracy
 
@@ -240,12 +254,13 @@ denominator would reward reproducing the average curve shape, which is trivial. 
 asks whether configurations can be told apart at each position, and it is the baseline every
 reference number here uses.
 
-**Every trajectory score is reported twice**, inside the plasma and in the drift after it, split
+**Every trajectory score is ranked inside the plasma only**; the scorer reports the drift after it
+for information (free-space transport, not the physics the simulation is run for). The split is
 at each configuration's own plasma end, `L_inj + 3.2` mm — the shipped density profile's own
 support, not a flat plane. Because that boundary moves with `L_inj`, a position is not wholly one
 zone or the other: 44 positions are scored in-plasma and 77 in the drift, and they overlap. Most
-of the stored range is drift, where the beam is coasting, so **a single pooled number is mostly a
-score on the easy part.** A position carrying fewer than 30 configurations of a zone is dropped
+of the stored range is drift, so **a single pooled number would mostly score the beam after the
+physics is over** — the scorer's default is therefore the in-plasma zone. A position carrying fewer than 30 configurations of a zone is dropped
 from that zone's sum, and the scorer reports how many it scored and dropped.
 
 Two of the six quantities, `emit_um` and `div_mrad`, are scored **in-plasma only**. Past the

@@ -59,7 +59,7 @@ on the full pack, since every number differs on the sample.
 - `pallas_score.py` — the scorer, imported by the kickoff notebook
 - `data/` — dataset description and schema; `data/sample/` holds the 10 % sample
 
-The kickoff notebook runs on a laptop CPU in a few minutes and ends with a valid submission
+The kickoff notebook runs on a laptop CPU in under a minute and ends with a valid submission
 file. Do that first; it also walks through the pack's id conventions and its single injection
 flag, which are what a join or a quoted rate gets wrong.
 

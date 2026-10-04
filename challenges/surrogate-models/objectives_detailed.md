@@ -16,10 +16,12 @@ Score yourself at any point with `pallas_score.py`. A submission is keyed by `co
 Two rules run through every scored objective here, because a surrogate can look good by
 accident under either one.
 
-- **Every trajectory score is read twice, never pooled.** Inside the plasma the bunch is being
-  accelerated; after the plasma ends it simply coasts, and predicting a coasting beam is easy.
-  So each score is reported once for the in-plasma part and once for the drift, split at each
-  configuration's own plasma end, `L_inj + 3.2` mm.
+- **Only the in-plasma score is ranked, and it is never pooled with the drift.** Inside the
+  plasma the bunch is being accelerated — the physics the simulation is run for. After the plasma
+  ends, at each configuration's own `L_inj + 3.2` mm, the beam drifts through vacuum: free-space
+  transport, which the scorer reports for information but which does not count. Every ranked
+  trajectory number in these objectives — the bar, the out-of-distribution gap, the data-budget
+  curve — is the in-plasma one.
 - **A position-dependent score is measured against the per-position mean.** R² is computed at
   each position along the accelerator and then summed over positions, not over every cell at
   once. Most of the variation along a trajectory is the trend with distance, so a single global
@@ -56,18 +58,22 @@ sequence is done, or instead of a step you are stuck on.
   direct — except that the reference was measured with realistic measurement noise on the beam
   columns and the test file is noise-free, which makes your task the easier of the two.
   The reference number was trained on the uniform scan of Campaign A and tested on the random
-  scan of Campaign A — all 9,846 of its configurations, of which the hidden test set is 1,915.
+  scan of Campaign A as it stood in that study, 9,846 simulations that produced a bunch. The
+  pack's copy of that scan is smaller after the cleaning in `DATA_CARD.md`; the hidden test set
+  is 1,915 of its simulations.
   **Signature:** `E_med_MeV, dE_mad, q_end, i_peak, n_emit_x, sigma_z, sigma_y, div_rms` + `x_of` →
   `p_1, a_0, c_N2`
 - Write a valid `submission_direct.csv` from the same notebook, the machine read forwards: in go
   Campaign B's five density-profile settings, out comes the bunch at the end of the accelerator
   (`E_med_MeV`, `dE_mad`, `q_end`), scored by R² per quantity. The notebook's linear baseline
   reaches about 0.94, 0.26 and 0.81 — that is the reference to beat, and the energy spread is
-  where the room is.
+  where the room is. Our internal forward model's 0.974 / 0.804 / 0.942
+  (`direct_reference_emulator`) is a stretch target, not the bar: it was trained on our own split.
   **Signature:** `P_max, cN2_max, L_inj, dip_frac, x_of` → `E_med_MeV, dE_mad, q_end`
 - Know the warm-up that is *not* scored: the same forward question on Campaign A's four settings.
   This is the one published reference in the pack — Kane et al., MLST 7, 030502 (2026), trained
-  on Campaign A's uniform scan and tested on all 9,846 configurations of its random scan, report
+  on Campaign A's uniform scan and tested on the 9,846 simulations of its random scan that produced
+  a bunch in that study (the pack's copy is smaller after cleaning), report
   R² on median energy, energy spread, charge and vertical emittance of 0.99 / 0.96 / 0.99 / 0.95
   with a neural network, 0.99 / 0.95 / 0.99 / 0.90 with a Gaussian process and 0.97 / 0.88 /
   0.96 / 0.78 with gradient boosting. Kane quotes the energy spread in percent; the pack's
@@ -135,6 +141,8 @@ sequence is done, or instead of a step you are stuck on.
   organisers score it separately on the 221 hidden configurations inside the trained range
   (`test_indist`) and the 136 above it (`test_ood`, also shipped on their own as
   `test_trajectory_ood.parquet`), and the gap between the two numbers is your result.
+  `test_trajectory_ood.parquet` is not submitted on its own: its rows are a subset of
+  `test_trajectory.parquet`, shipped so you can see which hidden configurations lie above the cut.
   **Signature:** unchanged from the scored task; what changes is which configurations you may
   train on, and that one model is scored on two held-out sets rather than one.
 
@@ -154,7 +162,7 @@ sequence is done, or instead of a step you are stuck on.
 - Predict the bunch as particles, not as moments: for a configuration and a plane, generate a
   cloud of electrons whose full six-dimensional distribution matches the simulation's — not only
   its means and widths, but its shape: tails, skew, correlations beyond the covariance. Training
-  data is the separate particle download (see `data/README.md`, "Particle clouds"): up to 2,000
+  data is the separate particle download (see `data/README.md`, "Level 5 — particle clouds"): up to 2,000
   tracked, charge-weighted electrons per simulation for 5,282 configurations of Campaign B — none
   of them a test configuration — as `planes20/`, the twenty planes of the moment table (5.3 GB),
   and, optionally, the full path, a snapshot every 22.5 µm (54.2 GB). It is scored on the
@@ -228,7 +236,7 @@ sequence is done, or instead of a step you are stuck on.
   to choose — state the tolerance you used. Not scored; answered in your report.
 - Predict the whole energy spectrum on the shared 200-bin grid instead of its summary statistics:
   in Campaign B, on the rows where `injected` is true (the others carry no spectrum: their
-  `spec_common` is empty), in go the settings, out comes the charge in each energy bin — the
+  `spec_common` is all NaN), in go the settings, out comes the charge in each energy bin — the
   spectrum itself, not normalised. It is scored by two numbers, both on your own held-out fold,
   because `pallas_score.py` does not score this one and the organisers hold no hidden answers
   for it:

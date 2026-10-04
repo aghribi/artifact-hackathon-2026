@@ -13,7 +13,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "p_1": {
      "dtype": "double",
@@ -47,22 +47,22 @@
     },
     "z_avg": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "mean longitudinal position of the bunch"
     },
     "sigma_x": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, x"
     },
     "sigma_y": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, y"
     },
     "sigma_z": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "bunch length"
     },
     "i_peak": {
@@ -77,22 +77,22 @@
     },
     "n_emit_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, x"
     },
     "n_emit_y": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, y"
     },
     "n_emitTS_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised trace-space emittance, x -- what div_rms uses"
     },
     "n_emitTS_y": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised trace-space emittance, y -- what div_rms uses"
     },
     "alpha_x": {
@@ -102,12 +102,12 @@
     },
     "beta_x": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "Twiss beta, x"
     },
     "gamma_x": {
      "dtype": "double",
-     "unit": "1/mm",
+     "unit": "1/m",
      "meaning": "Twiss gamma, x"
     },
     "alpha_y": {
@@ -117,23 +117,23 @@
     },
     "beta_y": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "Twiss beta, y"
     },
     "gamma_y": {
      "dtype": "double",
-     "unit": "1/mm",
+     "unit": "1/m",
      "meaning": "Twiss gamma, y"
     },
     "div_rms": {
      "dtype": "double",
-     "unit": "mrad",
+     "unit": "rad",
      "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
     },
     "envelope_validated": {
      "dtype": "bool",
      "unit": null,
-     "meaning": "Campaign A: True iff p_1 <= 73.9 mbar. Up to that pressure the envelope solver's beam matched full-wave reruns; above it the checked runs did not, so treat the beam energy of a False row with care"
+     "meaning": "Campaign A: True iff p_1 <= 73.888 mbar. Up to that pressure the envelope solver's beam matched full-wave reruns; above it the checked runs did not, so treat the beam energy of a False row with care"
     },
     "E_med_MeV": {
      "dtype": "double",
@@ -189,7 +189,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "a_0": {
      "dtype": "double",
@@ -233,22 +233,22 @@
     },
     "z_avg": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "mean longitudinal position of the bunch"
     },
     "sigma_x": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, x"
     },
     "sigma_y": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, y"
     },
     "sigma_z": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "bunch length"
     },
     "i_peak": {
@@ -263,22 +263,22 @@
     },
     "n_emit_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, x"
     },
     "n_emit_y": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, y"
     },
     "n_emitTS_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised trace-space emittance, x -- what div_rms uses"
     },
     "n_emitTS_y": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised trace-space emittance, y -- what div_rms uses"
     },
     "alpha_x": {
@@ -288,12 +288,12 @@
     },
     "beta_x": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "Twiss beta, x"
     },
     "gamma_x": {
      "dtype": "double",
-     "unit": "1/mm",
+     "unit": "1/m",
      "meaning": "Twiss gamma, x"
     },
     "alpha_y": {
@@ -303,17 +303,17 @@
     },
     "beta_y": {
      "dtype": "double",
-     "unit": "mm",
+     "unit": "m",
      "meaning": "Twiss beta, y"
     },
     "gamma_y": {
      "dtype": "double",
-     "unit": "1/mm",
+     "unit": "1/m",
      "meaning": "Twiss gamma, y"
     },
     "div_rms": {
      "dtype": "double",
-     "unit": "mrad",
+     "unit": "rad",
      "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
     },
     "E_med_MeV": {
@@ -465,7 +465,7 @@
     "mean_ux": {
      "dtype": "double",
      "unit": null,
-     "meaning": "mean normalised momentum, x"
+     "meaning": "mean normalised momentum, x, the propagation direction"
     },
     "mean_uy": {
      "dtype": "double",
@@ -475,7 +475,7 @@
     "mean_uz": {
      "dtype": "double",
      "unit": null,
-     "meaning": "mean normalised momentum, z, the propagation direction"
+     "meaning": "mean normalised momentum, z, transverse"
     },
     "cov_00": {
      "dtype": "double",
@@ -661,7 +661,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "z_mm": {
      "dtype": "float",
@@ -740,7 +740,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "P_max": {
      "dtype": "double",
@@ -776,7 +776,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "E_med_MeV": {
      "dtype": "double",
@@ -800,22 +800,22 @@
     },
     "n_emit_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, x"
     },
     "sigma_z": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "bunch length"
     },
     "sigma_y": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, y"
     },
     "div_rms": {
      "dtype": "double",
-     "unit": "mrad",
+     "unit": "rad",
      "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
     },
     "x_of": {
@@ -832,7 +832,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "E_med_MeV": {
      "dtype": "double",
@@ -856,22 +856,22 @@
     },
     "n_emit_x": {
      "dtype": "double",
-     "unit": "mm.mrad",
+     "unit": "m.rad",
      "meaning": "normalised RMS emittance, phase space, x"
     },
     "sigma_z": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "bunch length"
     },
     "sigma_y": {
      "dtype": "double",
-     "unit": "um",
+     "unit": "m",
      "meaning": "transverse bunch size, y"
     },
     "div_rms": {
      "dtype": "double",
-     "unit": "mrad",
+     "unit": "rad",
      "meaning": "RMS divergence, sqrt(emit_x/beta_x + emit_y/beta_y), no (1+alpha^2) factor"
     },
     "x_of": {
@@ -888,7 +888,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "plane_mm": {
      "dtype": "double",
@@ -929,7 +929,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "z_mm": {
      "dtype": "float",
@@ -970,7 +970,7 @@
     "config": {
      "dtype": "int64",
      "unit": null,
-     "meaning": "ONE SIMULATION -- unique in both campaigns' files, the id every test file joins on and every submission is keyed by"
+     "meaning": "ONE SIMULATION -- unique within each campaign's file (not across campaigns), the id every test file joins on and every submission is keyed by"
     },
     "z_mm": {
      "dtype": "float",

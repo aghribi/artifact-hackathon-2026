@@ -9,11 +9,17 @@ Each objective gives a **signature** (the literal pack columns in → out), a **
 `z_mm` or `plane_mm` where the task has a position.
 
 Three rules for every trajectory score:
-- **In-plasma and drift are scored separately, never pooled**, split at each configuration's
-  plasma end `L_inj + 3.2` mm. The drift is easy; the plasma is where the physics is.
+- **Only the in-plasma score is ranked**, split at each configuration's plasma end
+  `L_inj + 3.2` mm. After that the beam drifts through vacuum: free-space transport, not the
+  plasma physics the simulation is run for. The scorer reports the drift too, for information
+  only, and never pools the two.
 - **R² is taken per position, then summed**, so reproducing the average curve earns nothing.
 - **`emit_um` and `div_mrad` are scored inside the plasma only**: past the plasma end the
   diagnostic stops describing the beam.
+
+## Hand-in and scoring
+
+_TBD — announced by the organisers._
 
 ## How the week runs
 
@@ -40,7 +46,8 @@ The **optional objectives** sit outside the sequence: take one once you are done
 - **Direct B — read it forwards.** Write `submission_direct.csv` from the same notebook.
   **Signature:** `P_max, cN2_max, L_inj, dip_frac, x_of` → `E_med_MeV, dE_mad, q_end`
   **Score:** R² per quantity. **Bar:** the notebook's linear baseline, about 0.94 / 0.26 / 0.81;
-  the room is in the energy spread.
+  the room is in the energy spread. A stretch target, not the bar: our internal forward model
+  reaches 0.974 / 0.804 / 0.942 (`direct_reference_emulator`), trained on our own split.
 - **Warm-up, not scored — Campaign A forwards.** The one published reference in the pack
   (Kane et al., MLST 7, 030502 (2026)): R² 0.99 / 0.96 / 0.99 / 0.95 on energy, spread, charge,
   vertical emittance with a neural network. Kane's spread is in percent, `dE_mad` is a fraction.
@@ -49,7 +56,10 @@ The **optional objectives** sit outside the sequence: take one once you are done
   your own held-out split; the organisers then score you on `test_trajectory.parquet`.
   **Signature:** `P_max, cN2_max, L_inj, dip_frac, x_of` + `z_mm` →
   `E_MeV, q_pC, dE_pct, emit_um, div_mrad, sigz_um`
-  **Score:** R² per quantity, in-plasma and drift separately.
+  **Score:** R² per quantity, inside the plasma (the drift is reported, not ranked).
+  The hidden test leans to high density: 136 of its 357 configurations (38 %) lie above the
+  out-of-distribution cut, against 20 % of the public ones, so a random holdout of your own
+  reads optimistic.
 
 ## 🟡 Medium
 
@@ -72,14 +82,18 @@ The **optional objectives** sit outside the sequence: take one once you are done
   **Signature:** `P_max, cN2_max, L_inj, dip_frac, x_of` + `plane_mm` →
   `mean_zeta, mean_y, mean_z, mean_ux, mean_uy, mean_uz`,
   `sigma_zeta, sigma_y, sigma_z, sigma_ux, sigma_uy, sigma_uz`, `q_tot_pC`
-  **Score:** R² per column.
+  **Score:** R² per column, over every test plane, 5.0 mm included. The hidden answers have a
+  bunch at every test plane; drop the empty rows of the training table (`data/README.md`).
+  Name the centroids `mean_zeta, mean_y, mean_z` — the table's own names end in `_um`.
 
 ## 🔴 Hard
 
 - **Out of distribution in density.** Train only on the 2,277 configurations in `ood_split.train`
   of `pack_reference.json` (`P_max` < 6,528.6 Pa) — you must drop the 578 public ones above the
   cut yourself. One model predicts `test_trajectory.parquet`; the organisers score it on the 221
-  hidden configurations inside the range and the 136 above it (`test_trajectory_ood.parquet`).
+  hidden configurations inside the range and the 136 above it. `test_trajectory_ood.parquet` is
+  not submitted on its own: it holds the rows of `test_trajectory` for those 136, so you can see
+  which ones lie above the cut.
   **Signature:** unchanged from the trajectory task.
   **Deliverable: the gap between the two scores, honestly measured.** This is extrapolation:
   every out-of-range configuration lies above the highest trained pressure (6,532.5–6,999.1 Pa

@@ -1,11 +1,13 @@
 """Score a PALLAS hackathon submission against an answer key.
 
 Run: SUBMISSION=sub.csv KEY=key.csv /path/to/python pallas_score.py
-Design: reports/hackathon/CHALLENGE1_REVIEW.md; scales and baselines in DATA_CARD.md.
+Scoring rules in full: data/README.md; scales and baselines: DATA_CARD.md in the data pack.
 A position-dependent task is scored against the PER-Z MEAN, not the global mean.
 """
 
 import os
+import warnings
+from collections import namedtuple
 
 import numpy as np
 import pandas as pd
@@ -13,35 +15,37 @@ import pandas as pd
 # Submit PHYSICAL values. The scale each target is scored on is applied here, so
 # nobody has to remember which quantities are logged -- and so every submission is
 # scored the way the reference numbers were.
-#   (log10, floor in the target's own unit, factor applied before the floor)
+# A target is multiplied by `multiply_by`, raised to `floor`, then logged if `log10`.
+Scale = namedtuple("Scale", ["log10", "floor", "multiply_by"])
+LINEAR = Scale(log10=False, floor=None, multiply_by=1.0)
 SCALES = {
-    "E_med_MeV": (False, None, 1.0),
-    "E_mean_MeV": (False, None, 1.0),
-    "dE_mad": (True, 1e-3, 100.0),      # scored as dE_pct, percent
-    "q_end": (True, 0.1, 1e12),         # scored as log10 of charge in pC
-    "p_1": (False, None, 1.0),
-    "a_0": (False, None, 1.0),
-    "c_N2": (False, None, 1.0),
-    "E_MeV": (False, None, 1.0),
-    "q_pC": (True, 0.1, 1.0),
-    "dE_pct": (True, 1e-3, 1.0),
-    "emit_um": (True, 1e-4, 1.0),
-    "div_mrad": (True, 1e-3, 1.0),
-    "sigz_um": (True, 1e-3, 1.0),
-    "q_tot_pC": (True, 0.1, 1.0),
+    "E_med_MeV": LINEAR,
+    "E_mean_MeV": LINEAR,
+    "dE_mad": Scale(log10=True, floor=1e-3, multiply_by=100.0),   # fraction -> percent
+    "q_end": Scale(log10=True, floor=0.1, multiply_by=1e12),      # coulomb -> pC
+    "p_1": LINEAR,
+    "a_0": LINEAR,
+    "c_N2": LINEAR,
+    "E_MeV": LINEAR,
+    "q_pC": Scale(log10=True, floor=0.1, multiply_by=1.0),
+    "dE_pct": Scale(log10=True, floor=1e-3, multiply_by=1.0),
+    "emit_um": Scale(log10=True, floor=1e-4, multiply_by=1.0),
+    "div_mrad": Scale(log10=True, floor=1e-3, multiply_by=1.0),
+    "sigz_um": Scale(log10=True, floor=1e-3, multiply_by=1.0),
+    "q_tot_pC": Scale(log10=True, floor=0.1, multiply_by=1.0),
 }
-# The moment targets of the plane-holdout file: six bunch widths on log, six
+# The moment targets of test_moments_planes: six bunch widths on log, six
 # centroids on their own linear scale. sigma_* are RMS widths, mean_* centroids;
 # zeta/y/z are lengths in um, u_* are normalised momenta (dimensionless).
 for _coord, _unit in (("zeta", "um"), ("y", "um"), ("z", "um"),
                       ("ux", ""), ("uy", ""), ("uz", "")):
-    SCALES[f"sigma_{_coord}"] = (True, 1e-6, 1.0)
-    SCALES[f"mean_{_coord}"] = (False, None, 1.0)
+    SCALES[f"sigma_{_coord}"] = Scale(log10=True, floor=1e-6, multiply_by=1.0)
+    SCALES[f"mean_{_coord}"] = LINEAR
 
 KEY_COLUMNS = ("row_id", "config", "z_mm", "plane_mm", "L_inj")   # anything not a target
 
 PLASMA_END_OFFSET_MM = float(os.environ.get("PLASMA_END_OFFSET_MM", 3.2))
-# The plasma ends at L_inj + 3.2 mm, PER CONFIGURATION (Mykyta, 2026-09-10): that
+# The plasma ends at L_inj + 3.2 mm, PER CONFIGURATION: that
 # expression is the shipped density profile's own support, measured, and it runs from
 # 3.601 to 3.999 mm across the corpus. A key or submission carrying L_inj is split on
 # its own end; the flat fallback below is only for a table that carries no L_inj, and
@@ -50,7 +54,7 @@ PLASMA_END_MM = float(os.environ.get("PLASMA_END_MM", 3.8))
 
 ZONES = ("pooled", "in_plasma", "drift")
 
-# Scored INSIDE THE PLASMA ONLY (Mykyta, 2026-09-10). Past the plasma end these two
+# Scored INSIDE THE PLASMA ONLY. Past the plasma end these two
 # columns measure a definition rather than the beam: div_mrad is
 # sqrt(emit_g/beta_x + emit_g/beta_y), a waist-proxy that falls as beta grows through
 # the drift, and emit_um is n_emit_x, which falls as the halo leaves the diagnostic.
@@ -59,17 +63,28 @@ IN_PLASMA_ONLY = ("emit_um", "div_mrad")
 
 # A position must carry at least this many configurations of the zone to be scored;
 # below it the per-z mean is a mean over a handful of rows and the position is dropped
-# from both sums. 30 is the floor this project already uses for a stratum.
+# from both sums.
 MIN_ZONE_MEMBERS = int(os.environ.get("MIN_ZONE_MEMBERS", 30))
 
 POSITION_COLUMNS = ("z_mm", "plane_mm")
 
 
-def to_scored_scale(name, values):
-    """Physical values on the scale the leaderboard scores them on."""
-    use_log, floor, factor = SCALES.get(name, (False, None, 1.0))
-    values = np.asarray(values, float) * factor
-    return np.log10(np.maximum(values, floor)) if use_log else values
+def physical_to_normalised(name, values):
+    """Physical values on the scale R2 is computed on: log10 for the quantities that span
+    decades, unchanged otherwise. Not mean/std scaling."""
+    scale = SCALES.get(name, LINEAR)
+    values = np.asarray(values, float) * scale.multiply_by
+    return np.log10(np.maximum(values, scale.floor)) if scale.log10 else values
+
+
+def normalised_to_physical(name, values):
+    """The inverse of physical_to_normalised: normalised values back to physical units."""
+    scale = SCALES.get(name, LINEAR)
+    values = np.asarray(values, float)
+    return (10 ** values if scale.log10 else values) / scale.multiply_by
+
+
+to_scored_scale = physical_to_normalised   # the old name, kept for scripts written against it
 
 
 def align(submission, key):
@@ -81,23 +96,36 @@ def align(submission, key):
     # test_inverse_B it is one of the four targets.
     positional = any(c in ans.columns for c in POSITION_COLUMNS)
     key_columns = KEY_COLUMNS if positional else tuple(c for c in KEY_COLUMNS if c != "L_inj")
-    join = [c for c in key_columns if c in ans.columns and c in sub.columns]
+    # L_inj only locates the plasma end: it is read from the key, never joined on (a float32
+    # column does not survive a CSV round trip)
+    join = [c for c in key_columns if c != "L_inj" and c in ans.columns and c in sub.columns]
     if not join:
         raise ValueError(f"submission has no join column; expected one of {key_columns}")
     targets = [c for c in ans.columns if c not in key_columns]
     extra = [c for c in sub.columns if c not in ans.columns and c not in key_columns]
     missing = [c for c in targets if c not in sub.columns]
     if missing:
-        raise ValueError(f"submission is missing target column(s) {missing}")
+        raise ValueError(f"submission is missing target column(s) {missing}. Every key column "
+                         f"other than {key_columns} counts as a target: build a key from the "
+                         f"id columns and the targets only")
 
     exact = {}                           # the key's own positions, for the zone test
     for c in join:                       # a CSV round trip must not break the join
         if c in POSITION_COLUMNS:
             exact[c] = ans[c].astype(float).to_numpy()
             ans[c], sub[c] = ans[c].astype(float).round(3), sub[c].astype(float).round(3)
+    repeated = int(sub.duplicated(join).sum())
+    if repeated:
+        raise ValueError(f"submission repeats {repeated} key row(s) on {join}")
     merged = ans.merge(sub[join + targets + extra], on=join, suffixes=("", "_pred"))
     if len(merged) != len(ans):
-        raise ValueError(f"submission covers {len(merged)} of {len(ans)} rows")
+        raise ValueError(f"submission covers {len(merged)} of {len(ans)} rows, joined on {join}"
+                         + (" (positions are matched at 1 um: write them with 6 decimals)"
+                            if any(c in POSITION_COLUMNS for c in join) else ""))
+    for c in targets:                    # a NaN prediction would turn the score into NaN
+        holes = int((merged[f"{c}_pred"].isna() & merged[c].notna()).sum())
+        if holes:
+            raise ValueError(f"submission has {holes} NaN prediction(s) in {c}")
     for c, values in exact.items():      # an inner merge keeps the key's row order
         merged[c] = values
     return merged, join, targets
@@ -111,7 +139,20 @@ def plasma_end(frame):
     """
     if "L_inj" in frame.columns:
         return frame["L_inj"].to_numpy() + PLASMA_END_OFFSET_MM
+    warnings.warn(f"the key has no L_inj column: every plasma end is taken as {PLASMA_END_MM} mm; "
+                  "add L_inj to the key for each configuration's own end")
     return np.full(len(frame), PLASMA_END_MM)
+
+
+def resolve_zone(frame, zone):
+    """The default zone, None: inside the plasma for a trajectory (z_mm), every row otherwise.
+
+    The moments planes (plane_mm) keep every plane: 5.0 mm lies past every plasma end and is
+    read on its own, not dropped.
+    """
+    if zone is not None:
+        return zone
+    return "in_plasma" if "z_mm" in frame.columns else "pooled"
 
 
 def zone_mask(frame, zone):
@@ -122,7 +163,11 @@ def zone_mask(frame, zone):
     if position not in frame.columns:
         raise ValueError(f"zone {zone!r} needs a z_mm or plane_mm column")
     inside = frame[position].to_numpy() <= plasma_end(frame)
-    return inside if zone == "in_plasma" else ~inside
+    if zone == "in_plasma":
+        return inside
+    if zone == "drift":
+        return ~inside
+    raise ValueError(f"unknown zone {zone!r}; use one of {ZONES}")
 
 
 def scored_targets(targets, zone):
@@ -133,10 +178,10 @@ def scored_targets(targets, zone):
 
 
 def r2(true, pred):
-    """R2 on values already carried to the scored scale, against the global mean.
+    """R2 on values already carried to the normalised scale, against the global mean.
 
     Used for the tasks with no position axis. For the position-dependent tasks see
-    r2_per_z, which is the baseline the reference anchors use.
+    r2_per_z, which is what the reference numbers use.
     """
     resid = np.sum((true - pred) ** 2)
     spread = np.sum((true - true.mean()) ** 2)
@@ -175,7 +220,7 @@ def r2_per_z(true, pred, position):
     return float(1.0 - resid / spread), scored, dropped
 
 
-def score_submission(submission, key, zone="pooled"):
+def score_submission(submission, key, zone=None):
     """R2 per target and the mean, on the agreed scale.
 
     `submission` and `key` are paths or DataFrames. They are joined on whichever of
@@ -184,6 +229,7 @@ def score_submission(submission, key, zone="pooled"):
     side of the plasma end for the position-dependent tasks.
     """
     merged, _, targets = align(submission, key)
+    zone = resolve_zone(merged, zone)
     keep = zone_mask(merged, zone)
     if not keep.any():
         raise ValueError(f"zone {zone!r} selects no rows")
@@ -193,8 +239,8 @@ def score_submission(submission, key, zone="pooled"):
 
     out, scored, dropped = {}, None, None
     for name in targets:
-        true = to_scored_scale(name, merged[name])
-        pred = to_scored_scale(name, merged[f"{name}_pred"])
+        true = physical_to_normalised(name, merged[name])
+        pred = physical_to_normalised(name, merged[f"{name}_pred"])
         if at is None:
             out[name] = r2(true, pred)
         else:
@@ -211,6 +257,7 @@ def score_zones(submission, key):
 
     The three columns are the point of the trajectory task: a model that looks
     strong pooled and weak in-plasma has learned the coasting, not the acceleration.
+    Only in_plasma is ranked; the other two are for reading.
     """
     scored = {z: score_submission(submission, key, zone=z) for z in ZONES}
     _, _, targets = align(submission, key)
@@ -222,13 +269,13 @@ def score_zones(submission, key):
     return table
 
 
-def score_budget(submissions, key, zone="pooled", target=0.90):
+def score_budget(submissions, key, zone=None, target=0.90):
     """A data-budget curve: one submission per training-set size.
 
     `submissions` maps the number of training configs to a submission (path or
     frame). Returns the curve and the budget at which the mean score first reaches
     `target`, interpolated linearly between the two rungs that bracket it -- the
-    coordinator's number for "how much data does this approach need".
+    number for "how much data does this approach need".
     """
     budgets = sorted(submissions)
     rows = [{"n_train_configs": b,
@@ -249,7 +296,7 @@ def score_budget(submissions, key, zone="pooled", target=0.90):
     return table, budget_at
 
 
-def score_ood(in_dist, in_dist_key, ood, ood_key, zone="pooled"):
+def score_ood(in_dist, in_dist_key, ood, ood_key, zone=None):
     """One model on held-out configs inside its training range and beyond it.
 
     Both scores come from the SAME trained model; the drop is the answer to the
@@ -257,7 +304,7 @@ def score_ood(in_dist, in_dist_key, ood, ood_key, zone="pooled"):
     """
     a = score_submission(in_dist, in_dist_key, zone=zone)
     b = score_submission(ood, ood_key, zone=zone)
-    names = [k for k in a if k != "n_rows"]
+    names = [k for k in a if k not in ("n_rows", "n_z_scored", "n_z_dropped")]
     table = pd.DataFrame({"in_distribution": [a[k] for k in names],
                           "out_of_distribution": [b[k] for k in names]}, index=names)
     table["drop"] = table["in_distribution"] - table["out_of_distribution"]
@@ -265,15 +312,16 @@ def score_ood(in_dist, in_dist_key, ood, ood_key, zone="pooled"):
     return table, {"n_rows_in_distribution": a["n_rows"], "n_rows_ood": b["n_rows"]}
 
 
-def score_calibration(submission, key, level=0.9, zone="pooled"):
+def score_calibration(submission, key, level=0.9, zone=None):
     """Coverage and sharpness of predictive intervals, for the inverse task.
 
     The submission carries `<target>_lo` and `<target>_hi` beside each point
     prediction, an interval meant to hold the truth `level` of the time. Coverage
     alone is gameable -- an infinitely wide interval covers everything -- so the
-    mean width on the scored scale travels with it, and the two are read together.
+    mean width on the normalised scale travels with it, and the two are read together.
     """
     merged, _, targets = align(submission, key)
+    zone = resolve_zone(merged, zone)
     keep = zone_mask(merged, zone)
     merged = merged[keep]
     targets = scored_targets(targets, zone)
@@ -283,9 +331,9 @@ def score_calibration(submission, key, level=0.9, zone="pooled"):
         bounds = [f"{name}_lo", f"{name}_hi"]
         if any(b not in merged.columns for b in bounds):
             raise ValueError(f"submission is missing interval column(s) for {name}")
-        true = to_scored_scale(name, merged[name])
-        lo = to_scored_scale(name, merged[bounds[0]])
-        hi = to_scored_scale(name, merged[bounds[1]])
+        true = physical_to_normalised(name, merged[name])
+        lo = physical_to_normalised(name, merged[bounds[0]])
+        hi = physical_to_normalised(name, merged[bounds[1]])
         covered = (true >= np.minimum(lo, hi)) & (true <= np.maximum(lo, hi))
         rows.append({"target": name,
                      "coverage": float(covered.mean()),
@@ -296,8 +344,8 @@ def score_calibration(submission, key, level=0.9, zone="pooled"):
     return table, {"n_rows": int(len(merged))}
 
 
-# Particle clouds are scored by a sliced Wasserstein-1 distance, the one this
-# project's own particle models are judged by: both clouds are whitened on the TRUE
+# Particle clouds are scored by a sliced Wasserstein-1 distance, the one our own
+# particle models are judged by: both clouds are whitened on the TRUE
 # cloud (the six coordinates differ in scale by ~100x, so an unwhitened distance
 # measures uz and nothing else), the truth is charge-weighted, and the distance is
 # divided by the truth's own resolution floor -- two random halves of the true cloud,
@@ -396,7 +444,7 @@ def score_particles(submission_dir, key_dir, seed=0):
             raise ValueError(f"submission is missing {name}")
         truth, pred = load_cloud_file(os.path.join(key_dir, name)), load_cloud_file(sub_path)
         for plane, (X_true, w_true) in truth.items():
-            if len(X_true) < 2:          # the bunch is not injected yet at this plane
+            if len(X_true) == 0:         # the bunch is not injected yet at this plane
                 skipped += 1
                 continue
             if len(X_true) < MIN_TRUE_PARTICLES:
@@ -490,8 +538,9 @@ if os.environ.get("PARTICLES_SUBMISSION") and os.environ.get("PARTICLES_KEY"):
               else f"{key_name:13s}  {value}")
 
 if os.environ.get("SUBMISSION") and os.environ.get("KEY"):
-    result = score_submission(os.environ["SUBMISSION"], os.environ["KEY"],
-                              zone=os.environ.get("ZONE", "pooled"))
+    zone = os.environ.get("ZONE")      # unset: inside the plasma when the key has positions
+    result = score_submission(os.environ["SUBMISSION"], os.environ["KEY"], zone=zone)
+    print(f"zone: {zone or 'default (in_plasma for position-dependent keys)'}")
     width = max(len(k) for k in result)
     for key_name, value in result.items():
         print(f"{key_name:{width}s}  {value:.4f}" if isinstance(value, float)

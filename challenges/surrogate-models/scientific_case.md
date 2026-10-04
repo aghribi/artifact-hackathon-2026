@@ -64,7 +64,7 @@ work that followed it.
   (not published) reaches R² 0.9744 on median energy and 0.9420 on charge on the frozen
   test split. Scored along the whole trajectory on this pack's own grid and scorer, on the 357
   hidden configurations your trajectory submission is scored on, the same model reaches a mean R²
-  of 0.8960 inside the plasma and 0.8704 in the drift after it.
+  of 0.8960 inside the plasma, the ranked zone (0.8704 in the drift after it, reported only).
 - **Inverse model (bunch → settings).** Our five-member mixture-density ensemble (in review)
   reaches a mean
   R² of 0.9100 against an oracle ceiling of 0.9909. On about 63 % of shots the reference
