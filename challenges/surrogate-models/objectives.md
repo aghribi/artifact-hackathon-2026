@@ -29,9 +29,9 @@ Everyone goes Easy → Medium → Hard, so teams are compared on the same tasks.
 |---|---|
 | Monday, after the lectures | the first Easy objective (the kickoff notebook) |
 | Tuesday | the other three Easy objectives and the first Medium one |
-| Wednesday morning | the second Medium objective |
-| Thursday | the third Medium objective, then start on the Hard ones |
-| Friday | the two Hard objectives and the final ranking |
+| Wednesday morning | the second Medium objective (the afternoon is free) |
+| Thursday | the third Medium objective, then the first Hard one; the second Hard one if time remains. Keep the last hour for your slides |
+| Friday | presentations from 08:30 — no working time |
 
 The **optional objectives** sit outside the sequence: take one once you are done, or when stuck.
 
@@ -87,6 +87,8 @@ The **optional objectives** sit outside the sequence: take one once you are done
   Name the centroids `mean_zeta, mean_y, mean_z` — the table's own names end in `_um`.
 
 ## 🔴 Hard
+
+The first is for every team; the second is for teams with time left on Thursday.
 
 - **Out of distribution in density.** Train only on the 2,277 configurations in `ood_split.train`
   of `pack_reference.json` (`P_max` < 6,528.6 Pa) — you must drop the 578 public ones above the

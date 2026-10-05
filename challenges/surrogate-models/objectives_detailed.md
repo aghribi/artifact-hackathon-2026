@@ -41,9 +41,9 @@ the two teams of a group are compared on the same tasks. The suggested pace:
 |---|---|
 | Monday, after the lectures | the first Easy objective (the kickoff notebook) |
 | Tuesday | the other three Easy objectives and the first Medium one |
-| Wednesday morning | the second Medium objective |
-| Thursday | the third Medium objective, then start on the Hard ones |
-| Friday | the two Hard objectives and the final ranking |
+| Wednesday morning | the second Medium objective (the afternoon is free) |
+| Thursday | the third Medium objective, then the first Hard one; the second Hard one if time remains. Keep the last hour for your slides |
+| Friday | presentations from 08:30 — no working time |
 
 The **optional objectives** at the end sit outside that sequence: pick any of them once the
 sequence is done, or instead of a step you are stuck on.
@@ -131,6 +131,9 @@ sequence is done, or instead of a step you are stuck on.
   `sigma_zeta, sigma_y, sigma_z, sigma_ux, sigma_uy, sigma_uz`, `q_tot_pC`
 
 ## 🔴 Hard
+
+Thursday is the last working day, so the first Hard objective is for every team and the
+second is for teams with time left once the first is done.
 
 - Go out of distribution in density: train only on the 2,277 configurations listed in `train`
   of the `ood_split` section of `pack_reference.json` — every public configuration below the
