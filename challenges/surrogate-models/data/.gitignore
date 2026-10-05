@@ -1,0 +1,4 @@
+# The data pack is ~200 MB and must never enter a git repository. If this folder is
+# shipped with pallas_hackathon_data/ already unpacked in place, this line keeps it out
+# of the repository it is copied into. Delete nothing here.
+pallas_hackathon_data/
