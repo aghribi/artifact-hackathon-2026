@@ -4,9 +4,6 @@ Objectives only — see [`scientific_case.md`](scientific_case.md) for backgroun
 from the case holder) and [`GRADING.md`](../../GRADING.md) for how scoring and W&B logging
 work across all three challenges.
 
-**No confirmed fault labels exist for this dataset** (see `kickoff_notebook.ipynb`, section
-2–3): `trig_code` looks like a plausible weak label but is unconfirmed, and `Cmp0`/`Cmp1`
-don't behave like a standard I/Q pair. Every objective below is built around
 **reconstruction-error model quality**, which needs no labels, rather than a
 precision/recall score against a fault list.
 
