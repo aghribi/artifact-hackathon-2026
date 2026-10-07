@@ -19,7 +19,8 @@ Three rules for every trajectory score:
 
 ## Hand-in and scoring
 
-_TBD — announced by the organisers._
+See [`GRADING.md`](../../GRADING.md) for how this fits with the other challenges and how to
+log your score to the shared W&B project as you go.
 
 ## How the week runs
 
