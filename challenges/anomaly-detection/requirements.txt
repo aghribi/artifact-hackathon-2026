@@ -1,6 +1,9 @@
-# Placeholder requirements — to be finalized by the challenge coordinator
 numpy
 pandas
+pyarrow
 scikit-learn
+torch
+shap
+lime
 matplotlib
 jupyter
