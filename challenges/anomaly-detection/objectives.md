@@ -26,8 +26,12 @@ the shared W&B project (see `GRADING.md`) as `anomaly/holdout_mse` each run.
   account required — see the [access guide](../../access-guide.md); raw data at
   `/sps/m4cast/artifact_hackathon_2026/anomaly-detection/raw/`). More data, better features,
   a deeper model, or a better architecture are all fair game.
-- Pick one concrete thing to improve and report *why* it helped: feature set, latent
-  dimension, normalisation, architecture.
+- The notebook's pipeline (sections 4–7) is built to have its pieces swapped and tuned:
+  feature set, autoencoder architecture/latent dimension, Isolation Forest/LOF
+  hyperparameters, number of clusters. Change one piece, report the reconstruction-MSE
+  effect *and* whether it changes the cluster structure (section 7) or the
+  method-agreement numbers (section 6).
+- Pick one concrete thing to improve and report *why* it helped.
 
 ## 🔴 Hard / stretch goal
 
