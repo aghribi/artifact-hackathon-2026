@@ -35,7 +35,7 @@ Each challenge folder is self-contained and includes:
 - `kickoff_notebook.ipynb` — a starter notebook to get you going
 - `data/` — dataset description, ontologies/schemas
 
-Compute environments (Singularity container, DALIA @ IDRIS) will be documented here closer to the event.
+See the **[Participant Access Guide](access-guide.md)** for everything you need to set up before the event: GitHub, Agora chat, CC-IN2P3, eDARI, and DALIA @ IDRIS compute access. Start those steps as early as possible — some require approval and can take a few days.
 
 ## Contacts
 
