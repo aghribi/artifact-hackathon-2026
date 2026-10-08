@@ -6,9 +6,13 @@
 
 ## Overview
 
-_TBD — full challenge description to be added by the case holder._
-
-Working hypothesis: anomaly detection on LLRF (low-level RF) time-series waveform data.
+Study the raw LLRF and diagnostics waveforms from the ESS superconducting linac,
+supplemented by scalar data from different machine systems, and develop anomaly detection
+routines. The data covers nominal operation as well as a number of post-mortem datasets from
+various trips. The intent is to distinguish nominal from fault data, separate and classify
+different fault types, and ultimately identify precursors to predict fault development
+before it happens — see `scientific_case.md` for the full background and
+`objectives.md` for how this breaks into Easy/Medium/Hard.
 
 ## Structure
 
