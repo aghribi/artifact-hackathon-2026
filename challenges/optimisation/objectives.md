@@ -4,12 +4,12 @@ Objectives only — see [`scientific_case.md`](scientific_case.md) for backgroun
 
 ## 🟢 Easy
 
-Steering and focussing through a simulated section of the Cheetah lattice for a small range of starting beams
+Steering and focussing through a simulated section of the Cheetah lattice of CLARA for a small range of starting beams. The starting notebook shows how to do this simply with Bayesian Optimisation, but BO scales poorly with the number of parameters. 
 
 ## 🟡 Medium
 
-Steering and focussing through a simulated section of the Cheetah lattice for a small range of starting beams, with higher fidelity sim2real matching
+Steering and focussing through a larger simulated section of the Cheetah lattice of CLARA for a small range of starting beams, with higher fidelity sim2real matching **or** with a model that also runs on simulation of CLEAR.
 
 ## 🔴 Hard / stretch goal
 
-Steering and focussing through the whole Cheetah lattice, with higher fidelity sim2real matching. 
+Lattice agnostic steering and focussing through the whole of CLARA and CLEAR, with higher fidelity sim2real matching. Demonstration on the real CLEAR machine, with possibility for online learning.

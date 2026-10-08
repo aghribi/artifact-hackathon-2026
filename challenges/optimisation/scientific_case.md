@@ -1,3 +1,6 @@
+# TODO
+Antonio - please write some things about CLEAR as well
+
 # Scientific Case — Optimisation (CLEAR / CLARA)
 CLARA is a linear electron accelerator with a large number of diagnostics. The machine is frequently power cycled and modified for user experiments. Hysteresis and machine drift
 affect operating points and much time is spent tuning and optimising for requested user setups, which can involve a wide range of beam parameters.
