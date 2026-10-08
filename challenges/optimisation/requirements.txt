@@ -1,10 +1,7 @@
 numpy
 pandas
-pyarrow
 scikit-learn
-scipy
-torch
-scikit-optimize
-h5py
 matplotlib
 jupyter
+cheetah-accelerator
+scikit-optimize

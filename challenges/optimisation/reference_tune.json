@@ -1,0 +1,332 @@
+{
+ "_provenance": {
+  "source": "CLARA archiver row 17993, captured 2026-04-17T14:49:42Z (camera CLA-FEH-DIA-CAM-01)",
+  "built_by": "applying the archiver ':READI' values to CLARA_cheetah.json via data/clara/lattice_data/utils.update_cheetah_element",
+  "note": "Corrector angles are forced to zero. On the real machine they compensate misalignments that the ideal Cheetah lattice does not have, so replaying the captured currents (S01-HCOR-01 is at 7.3 mrad) steers the simulated beam ~130 mm off axis by FEBE. Quadrupole and sextupole strengths are taken as captured."
+ },
+ "elements": {
+  "cla_fea_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_hvcor_03": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_hvcor_04": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_hvcor_05": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_hvcor_06": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fea_mag_quad_01": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_02": {
+   "k1": 0.0022072631400078535
+  },
+  "cla_fea_mag_quad_03": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_04": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_05": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_06": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_07": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_08": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_09": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_10": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_11": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_12": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_13": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_14": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_quad_15": {
+   "k1": -0.004417480435222387
+  },
+  "cla_fea_mag_quad_16": {
+   "k1": 0.0
+  },
+  "cla_fea_mag_sext_01": {
+   "k2": -226.1719970703125
+  },
+  "cla_fea_mag_sext_02": {
+   "k2": 226.1719970703125
+  },
+  "cla_fed_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_fed_mag_quad_01": {
+   "k1": -0.019906358793377876
+  },
+  "cla_fed_mag_quad_02": {
+   "k1": -0.006630343850702047
+  },
+  "cla_fed_mag_quad_03": {
+   "k1": -0.0024976052809506655
+  },
+  "cla_feh_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_03": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_04": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_05": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_06": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_07": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_hvcor_08": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_feh_mag_quad_01": {
+   "k1": -0.001249039312824607
+  },
+  "cla_feh_mag_quad_02": {
+   "k1": -0.001248092856258154
+  },
+  "cla_feh_mag_quad_03": {
+   "k1": 3.42606520652771
+  },
+  "cla_feh_mag_quad_04": {
+   "k1": -6.269079208374023
+  },
+  "cla_feh_mag_quad_05": {
+   "k1": -0.0037492471747100353
+  },
+  "cla_feh_mag_quad_06": {
+   "k1": -0.0037485375069081783
+  },
+  "cla_feh_mag_quad_07": {
+   "k1": -0.0037449884694069624
+  },
+  "cla_feh_mag_quad_08": {
+   "k1": -0.003796458477154374
+  },
+  "cla_s01_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s01_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s02_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s02_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s02_mag_hvcor_03": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s02_mag_hvcor_04": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s02_mag_quad_01": {
+   "k1": 0.670155942440033
+  },
+  "cla_s02_mag_quad_02": {
+   "k1": -0.23554348945617676
+  },
+  "cla_s02_mag_quad_03": {
+   "k1": -1.4494984149932861
+  },
+  "cla_s02_mag_quad_04": {
+   "k1": -1.7316482067108154
+  },
+  "cla_s02_mag_quad_05": {
+   "k1": 1.9300662279129028
+  },
+  "cla_s03_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s03_mag_quad_01": {
+   "k1": -0.04637323319911957
+  },
+  "cla_s04_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s04_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s04_mag_hvcor_03": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s04_mag_hvcor_04": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s04_mag_hvcor_05": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s04_mag_quad_01": {
+   "k1": 0.6295070648193359
+  },
+  "cla_s04_mag_quad_02": {
+   "k1": -0.0308408010751009
+  },
+  "cla_s04_mag_quad_03": {
+   "k1": -0.030880821868777275
+  },
+  "cla_s04_mag_quad_04": {
+   "k1": -0.030993908643722534
+  },
+  "cla_s04_mag_quad_05": {
+   "k1": -0.009254129603505135
+  },
+  "cla_s04_mag_quad_06": {
+   "k1": -0.03699372336268425
+  },
+  "cla_s04_mag_quad_07": {
+   "k1": -0.027890101075172424
+  },
+  "cla_s04_mag_quad_08": {
+   "k1": 0.01237249281257391
+  },
+  "cla_s05_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s05_mag_quad_01": {
+   "k1": -0.027966508641839027
+  },
+  "cla_s05_mag_quad_02": {
+   "k1": -0.03105762042105198
+  },
+  "cla_s06_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s06_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s06_mag_quad_01": {
+   "k1": 0.20191551744937897
+  },
+  "cla_s06_mag_quad_02": {
+   "k1": -0.020191552117466927
+  },
+  "cla_s07_mag_hvcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_02": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_03": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_04": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_05": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_06": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_hvcor_07": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  },
+  "cla_s07_mag_quad_01": {
+   "k1": -1.3258661031723022
+  },
+  "cla_s07_mag_quad_02": {
+   "k1": -0.3016940951347351
+  },
+  "cla_s07_mag_quad_03": {
+   "k1": -0.7912853956222534
+  },
+  "cla_s07_mag_quad_04": {
+   "k1": -0.7277708649635315
+  },
+  "cla_s07_mag_quad_05": {
+   "k1": 3.1889595985412598
+  },
+  "cla_s07_mag_quad_06": {
+   "k1": 0.24347242712974548
+  },
+  "cla_s07_mag_quad_07": {
+   "k1": -2.3579776287078857
+  },
+  "cla_s07_mag_quad_08": {
+   "k1": 0.2129381000995636
+  },
+  "cla_s07_mag_quad_09": {
+   "k1": -2.2284412384033203
+  },
+  "cla_s07_mag_quad_10": {
+   "k1": -0.006676261778920889
+  },
+  "cla_vbc_mag_vcor_01": {
+   "horizontal_angle": 0.0,
+   "vertical_angle": 0.0
+  }
+ }
+}
