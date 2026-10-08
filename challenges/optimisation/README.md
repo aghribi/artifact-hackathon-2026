@@ -6,13 +6,19 @@
 
 ## Overview
 
-_TBD — full challenge description to be added by the case owners._
-
-This challenge is a **double case**, covering two accelerator facilities:
-- **CLEAR** (CERN Linear Electron Accelerator for Research)
+_Organiser draft — not yet reviewed by the case owners._ This is a **double case**, covering
+two accelerator facilities:
+- **CLEAR** (CERN Linear Electron Accelerator for Research) — data situation unexplored so far
 - **CLARA** (Compact Linear Accelerator for Research and Applications, Daresbury Laboratory)
+  — real beam-image + magnet-settings captures available (see `data/README.md`)
 
-Working hypothesis: multi-objective optimisation / tuning, surrogate-assisted digital twins for operations.
+The task: tune real machine settings to hit a beam-quality target (spot size), using a
+surrogate trained on real CLARA operational data standing in for a physics simulation (the
+real CLARA lattice isn't ready yet — see `data/clara/lattice_data/`). The actual subject is
+the **optimisation methods themselves** — classical (grid search, Nelder-Mead, Powell,
+gradient-based) through advanced (Bayesian Optimisation, reinforcement learning) — compared
+on the same real objective, continuing where Lecture 02's Bayesian-optimisation-with-Cheetah
+notebook leaves off. See `kickoff_notebook.ipynb` and `objectives.md`.
 
 ## Structure
 

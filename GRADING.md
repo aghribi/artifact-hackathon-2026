@@ -25,7 +25,7 @@ What the metric *is** differs by challenge, because the challenges differ:
 |---|---|---|
 | Surrogate models | R² per target (zone-aware), Wasserstein distance for particle clouds | Simulation campaigns with known ground truth — see `pallas_score.py` |
 | Anomaly detection | Reconstruction MSE on a fixed holdout split | No confirmed fault labels exist (see the challenge's `kickoff_notebook.ipynb`), so the score is model quality on unseen data, not a label match |
-| Optimisation | **TBD** — draft in `objectives.md`, pending the case owners | Real machine data; exact objective not yet defined |
+| Optimisation | Best objective value (mm, real CLARA spot size) found, *and* evaluations needed to reach it | Real machine data; cost-per-evaluation matters on a real machine, so efficiency is reported alongside the best value, not just the value alone — see `kickoff_notebook.ipynb` |
 
 ## Logging to Weights & Biases
 
@@ -43,7 +43,7 @@ collecting files.
   - Surrogate models: `pallas/mean_r2` for R²-based tasks, or the task-specific key
     (`pallas/median_ratio` for particle clouds, `pallas/median_rel_l2_*` for fields) —
     see `pallas_score.py`'s own output
-  - Optimisation: TBD alongside the metric itself
+  - Optimisation: `optim/best_mm` (lower is better) and `optim/n_evals`
 
 Logging is one or two lines around your existing scoring call:
 

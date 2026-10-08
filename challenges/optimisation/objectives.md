@@ -1,66 +1,60 @@
 # Challenge Objectives — Optimisation (CLEAR / CLARA)
 
-**⚠️ DRAFT — not written or reviewed by the case owners (Amelia Pollard, Antonio Gilardi).**
-This is a first pass from what the organisers could find in the data itself, so there's
-something concrete to react to instead of a blank page. Expect it to change.
+**⚠️ Organiser draft — not reviewed by the case owners (Amelia Pollard, Antonio Gilardi).**
+Grounded in real CLARA data, but expect corrections. CLEAR isn't covered — its data
+situation is still unexplored; if you're working CLEAR, the *methods* below still apply,
+but you'll need CLEAR's own equivalent of the real captures used here.
 
 Objectives only — see [`scientific_case.md`](scientific_case.md) (still TBD) and
 [`GRADING.md`](../../GRADING.md) for how scoring and W&B logging work across all three
 challenges.
 
-## What we found in the data (CLARA side only — CLEAR is still unexplored)
+**The subject of this challenge is the optimisation method, not the surrogate.**
+`kickoff_notebook.ipynb` builds one real-data surrogate (settings → real CLARA spot size)
+once, then runs six different optimisation methods against the same objective so they're
+directly comparable. **Score for every tier:** best objective value found (mm, lower is
+better) *and* evaluations needed to reach it — report both, since the cheapest method to a
+good-enough answer is usually more valuable than the single best number on a real machine,
+where every evaluation costs machine time. Log both to the shared W&B project (see
+`GRADING.md`) as `optim/best_mm` and `optim/n_evals` each run.
 
-- A live, already-working REST API over CLARA's archiver + diagnostic-camera database:
-  `http://apml1.dl.ac.uk:9876` (search/filter by PV, time window, camera; see
-  `data/clara/machine_data/image_db_examples.ipynb` for a full walkthrough — connecting,
-  listing PVs/cameras, filtered search, time series).
-- Several camera stations across CLARA's beamline (`CLA-S02-DIA-CAM-03`,
-  `CLA-S04-DIA-CAM-05`, `CLA-S07-DIA-CAM-04`, `CLA-LAS-DIA-CAM-04`, ...), each an HDF5 image
-  capture, timestamped, alongside magnet/RF archiver PVs (`MAG:...:SETI`, `...:getPhase`,
-  `...:getPower`) queryable at the same time window — i.e. (machine settings) ↔ (beam image)
-  pairs are there, just not pre-packaged into a training table the way PALLAS's data is.
-  A couple of months of this archive also sits raw at
-  `/sps/m4cast/artifact_hackathon_2026/optimisation/raw/` on CC-IN2P3 (~0.9TB,
-  reassemble with `cat archive.tar.gz.part_* | tar -xzf -`) if the API doesn't cover
-  something you need.
-- `data/clara/lattice_data/CLARA_cheetah.json` — **explicitly marked
-  `"info": "This is a placeholder lattice description"` inside the file itself.** Don't build
-  on it as if it were the real lattice yet.
-- Monday's Lecture 02 explicitly points here: its second notebook is "Beam tuning with
-  Bayesian optimisation and Cheetah" — this challenge is presumably that idea, for real.
+## 🟢 Easy — classical methods
 
-## Proposed shape (confirm with case owners)
+Run `kickoff_notebook.ipynb` to the end: four classical methods (grid search, Nelder-Mead
+simplex, Powell, gradient-based via autodiff through the surrogate) against the same 2-knob
+real objective.
 
-Everyone goes Easy → Medium → Hard, so teams are comparable, mirroring the surrogate-models
-challenge's structure.
+- **Bar:** reference run, all four converge to **6.366mm** at the edge of the explored
+  range; evaluations needed: gradient-based 6, Nelder-Mead 8, grid search 81, Powell 128
+  (reproduce with the notebook — no separate `score.py` yet, the notebook *is* the
+  reference run).
+- Try one of the cited-but-not-run classical methods (random search, simulated annealing,
+  a genetic algorithm) yourself and add it to the comparison table.
 
-## 🟢 Easy
+## 🟡 Medium — Bayesian Optimisation
 
-- Connect to the CLARA API, pull a dataset of (one or two magnet/RF settings) ↔ (a beam-size
-  or centroid statistic from one camera) for a time window with real variation, and fit a
-  baseline regression settings → beam property.
-  **Score:** R² on a held-out time split. **Bar:** _TBD — needs a reference run from the case
-  owners._
+Beat or match the Easy bar with Bayesian Optimisation (notebook section 6), in fewer
+evaluations than grid search needed.
 
-## 🟡 Medium
+- **Bar:** reference BO run, **6.366mm in 40 evaluations** (vs. grid search's 81).
+- Use the full raw archive instead of the 1,370-capture sample (CC-IN2P3 account required
+  — see the [access guide](../../access-guide.md); data at
+  `/sps/m4cast/artifact_hackathon_2026/optimisation/extracted/`, 2.4TB, ~20 camera
+  stations) to train a better surrogate, then re-run all methods against it.
+- Pick a different pair of magnets (or a 3rd dimension) and report whether BO's advantage
+  over grid search holds up.
 
-- Multi-camera / multi-section version of the Easy task, or the inverse direction (target
-  beam property → required settings).
-- A real lattice (once provided) opens up a simulation-informed baseline: compare a
-  data-driven model against a Cheetah prediction from the real CLARA lattice.
+## 🔴 Hard — beyond BO
 
-## 🔴 Hard / stretch goal
-
-- A genuine optimisation loop: use a trained surrogate (or Cheetah once the real lattice is
-  available) inside Bayesian optimisation to propose settings that minimise a beam-quality
-  objective, continuing where Lecture 02's second notebook leaves off.
-- Bring in CLEAR once its data/lattice situation is understood — currently unexplored by the
-  organisers.
-
-## Open questions for Amelia / Antonio
-
-- Is CLEAR data structured the same way (API + HDF5 images), or different?
-- What's the real CLARA lattice, to replace the placeholder Cheetah JSON?
-- Is there a specific beam-quality objective you want "optimisation" to mean here (spot
-  size? emittance? something else)?
-- Any existing reference numbers/baselines to set the bars?
+- Get reinforcement learning (notebook section 6) to *beat* BO, not just run — the
+  reference RL run (REINFORCE, 80 episodes) lands at 6.641mm, clearly behind BO's 6.366mm
+  in half the evaluations. Better policy, better reward shaping, a different RL algorithm
+  (CMA-ES as a derivative-free alternative is a reasonable stand-in if pure RL stays
+  uncompetitive) are all fair game — report what changed and why it helped.
+- Scale past 2 magnets to most/all of the real live settings in the sample (20 in the
+  provided sample, more in the full archive). Classical grid search becomes intractable
+  (`N^D`); this is where TuRBO-style trust-region BO (cited in the notebook) earns its
+  keep — implement it, or show concretely why vanilla GP-BO degrades as dimensions grow.
+- Once a real CLARA Cheetah lattice exists (currently a placeholder), compare this
+  learned surrogate against physics-based predictions, and build the hybrid digital-twin
+  surrogate described in the notebook's section 6.
