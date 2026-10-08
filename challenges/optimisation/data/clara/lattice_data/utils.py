@@ -1,0 +1,370 @@
+import math
+import cheetah
+import numpy as np
+import torch
+
+C_MEV_PER_T_M = 299.792458
+
+# Converts RF power (MW) to cavity voltage: V = sqrt(P * 1e6 * R)
+CAVITY_SHUNT_IMPEDANCE = 130_693_000.0
+
+# slope_tmm_per_a
+CORRECTOR_CAL = {
+    'CLA-S01-MAG-VCOR-01': 0.0237975668380952, 
+    'CLA-S01-MAG-HCOR-01': 0.0244928751619048, 
+    'CLA-S01-MAG-VCOR-02': 0.0234042553191489, 
+    'CLA-S01-MAG-HCOR-02': 0.0234042553191489, 
+    'CLA-S02-MAG-VCOR-01': 0.301118381065737, 
+    'CLA-S02-MAG-HCOR-01': 0.297642405189243, 
+    'CLA-S02-MAG-VCOR-02': 0.301118381065737, 
+    'CLA-S02-MAG-HCOR-02': 0.297642405189243, 
+    'CLA-S02-MAG-VCOR-03': 0.301118381065737, 
+    'CLA-S02-MAG-HCOR-03': 0.297642405189243, 
+    'CLA-C2V-MAG-VCOR-01': 0.145023501344444, 
+    'CLA-C2V-MAG-HCOR-01': 0.142060133625555, 
+    'CLA-S02-MAG-VCOR-04': 0.336561743341404, 
+    'CLA-S02-MAG-HCOR-04': 0.33641465830307, 
+    'CLA-S03-MAG-HCOR-01': 0.317268181818182, 
+    'CLA-S03-MAG-VCOR-01': 0.317465545454545, 
+    'CLA-S04-MAG-HCOR-01': 0.318228, 
+    'CLA-S04-MAG-VCOR-01': 0.318234181818182, 
+    'CLA-S04-MAG-HCOR-02': 0.318346545454545, 
+    'CLA-S04-MAG-VCOR-02': 0.318395, 
+    'CLA-S04-MAG-HCOR-03': 0.527323181818182, 
+    'CLA-S04-MAG-VCOR-03': 0.527611818181818, 
+    'CLA-S04-MAG-HCOR-04': 0.319680454545455, 
+    'CLA-S04-MAG-VCOR-04': 0.319479454545455, 
+    'CLA-S04-MAG-HCOR-05': 0.318552181818182, 
+    'CLA-S04-MAG-VCOR-05': 0.318012909090909, 
+    'CLA-S05-MAG-HCOR-01': 0.530889090909091, 
+    'CLA-S05-MAG-VCOR-01': 0.530947727272728, 
+    'CLA-VBC-MAG-HCOR-01': 0.151885421444324, 
+    'CLA-VBC-MAG-HCOR-02': 0.153169479313505, 
+    'CLA-VBC-MAG-VCOR-01': 0.299291909090909, 
+    'CLA-VBC-MAG-HCOR-03': 0.160502340337813, 
+    'CLA-VBC-MAG-HCOR-04': 0.158742088986594, 
+    'CLA-S06-MAG-HCOR-01': 0.528953636363637, 
+    'CLA-S06-MAG-VCOR-01': 0.528436363636363, 
+    'CLA-SP2-MAG-HCOR-01': 0.317728545454545, 
+    'CLA-SP2-MAG-VCOR-01': 0.318111181818181, 
+    'CLA-SP2-MAG-HCOR-02': 0.318073545454545, 
+    'CLA-SP2-MAG-VCOR-02': 0.318119727272726, 
+    'CLA-S06-MAG-HCOR-02': 0.528178636363636, 
+    'CLA-S06-MAG-VCOR-02': 0.528733636363637, 
+    'CLA-S07-MAG-HCOR-01': 0.317813272727273, 
+    'CLA-S07-MAG-VCOR-01': 0.318415999999999, 
+    'CLA-S07-MAG-HCOR-02': 0.318274090909091, 
+    'CLA-S07-MAG-VCOR-02': 0.318224181818182, 
+    'CLA-S07-MAG-HCOR-03': 0.527504090909091, 
+    'CLA-S07-MAG-VCOR-03': 0.528185, 
+    'CLA-S07-MAG-HCOR-04': 0.318345909090909, 
+    'CLA-S07-MAG-VCOR-04': 0.319019272727273, 
+    'CLA-S07-MAG-HCOR-05': 0.317560090909091, 
+    'CLA-S07-MAG-VCOR-05': 0.317900545454545, 
+    'CLA-SP3-MAG-VCOR-01': 0.299042, 
+    'CLA-S07-MAG-HCOR-06': 0.318245454545455, 
+    'CLA-S07-MAG-VCOR-06': 0.319469909090909, 
+    'CLA-S07-MAG-HCOR-07': 0.49664, 
+    'CLA-S07-MAG-VCOR-07': 0.54514, 
+    'CLA-FEA-MAG-HCOR-01': 0.317783454545455, 
+    'CLA-FEA-MAG-VCOR-01': 0.318387363636364, 
+    'CLA-FEA-MAG-HCOR-02': 0.318192363636364, 
+    'CLA-FEA-MAG-VCOR-02': 0.318367727272727, 
+    'CLA-FEA-MAG-HCOR-03': 0.317780727272727, 
+    'CLA-FEA-MAG-VCOR-03': 0.318104272727272, 
+    'CLA-FEA-MAG-HCOR-04': 0.318227363636364, 
+    'CLA-FEA-MAG-VCOR-04': 0.318574727272727, 
+    'CLA-FEA-MAG-HCOR-05': 0.250778325123153, 
+    'CLA-FEA-MAG-VCOR-05': 0.24951724137931, 
+    'CLA-FEA-MAG-HCOR-06': 0.502512077294686, 
+    'CLA-FEA-MAG-VCOR-06': 0.492995169082126, 
+    'CLA-FEH-MAG-HCOR-01': 0.330893333333333, 
+    'CLA-FEH-MAG-VCOR-01': 0.327903333333333, 
+    'CLA-FEH-MAG-HCOR-02': 0.331266666666667, 
+    'CLA-FEH-MAG-VCOR-02': 0.330013333333333, 
+    'CLA-FEH-MAG-HCOR-03': 0.332123333333333, 
+    'CLA-FEH-MAG-VCOR-03': 0.328123333333333, 
+    'CLA-FEH-MAG-HCOR-04': 0.331953333333333, 
+    'CLA-FEH-MAG-VCOR-04': 0.328973333333333, 
+    'CLA-FEH-MAG-HCOR-05': 0.330723333333333, 
+    'CLA-FEH-MAG-VCOR-05': 0.32935, 
+    'CLA-FEH-MAG-HCOR-06': 0.333126666666667, 
+    'CLA-FEH-MAG-VCOR-06': 0.327866666666667, 
+    'CLA-FEH-MAG-HCOR-07': 0.330656666666667, 
+    'CLA-FEH-MAG-VCOR-07': 0.327766666666667, 
+    'CLA-FEH-MAG-HCOR-08': 0.331126666666667, 
+    'CLA-FEH-MAG-VCOR-08': 0.32671, 
+    'CLA-FED-MAG-HCOR-01': 0.251443349753695, 
+    'CLA-FED-MAG-VCOR-01': 0.248837438423645, 
+    'CLA-S07-MAG-HCOR-08': 0.317386, 
+    'CLA-S07-MAG-VCOR-08': 0.31731009090909, 
+}
+
+beam_energy = {
+    "s01":4.2,
+    "s02":32.8,
+    "s03":120,
+    "s04":180,
+    "s05":196.6,
+    "vbc":196.6,
+    "s06":196.6,
+    "s07":250,
+    "fea":250,
+    "feh":250,
+    "fed":250
+}
+# Paste below your existing CORRECTOR_CAL / beam_energy / corrector_angle_from_current.
+# Requires: import math, and C_MEV_PER_T_M, CORRECTOR_CAL defined above.
+# Replace your stub quadrupole_k_from_current with everything here.
+
+# slope [T/A], threshold [A], f [T/A^3], a [T/A^2], I0 [A], d [T], magnetic length [mm]
+QUAD_CAL = {
+    'CLA-S02-MAG-QUAD-01': (0.025500836847330708, 15.575435287034225, 0.0, -1.3755963213967208e-05, 942.4766071889139, 12.215564413215553, 128.68477053001592),
+    'CLA-S02-MAG-QUAD-02': (0.025139656777227282, 12.998349154251741, 0.0, -1.2528113625923465e-05, 1016.3280413917056, 12.938456085033785, 126.81728724881934),
+    'CLA-S02-MAG-QUAD-03': (0.025223848791038787, 12.681313132212836, 0.0, -1.2308831954862775e-05, 1037.305293845255, 13.242351703507756, 127.24199482912586),
+    'CLA-S02-MAG-QUAD-04': (0.025146922213548865, 19.105643125676067, 0.0, -1.3241133469346397e-05, 968.6815337306878, 12.419903649974009, 127.4216649367578),
+    'CLA-C2V-MAG-QUAD-01': (0.0162943759336275, 107.995495949144, -5.900204924620006e-07, 0.00024278977899762656, 35.76372436292761, 1.236143726273713, 121.56727252539314),
+    'CLA-C2V-MAG-QUAD-02': (0.01627713405965778, 108.659229314258, -5.827471056141268e-07, 0.00023933307297089692, 35.16234321373377, 1.2234517080450789, 121.51190061007559),
+    'CLA-C2V-MAG-QUAD-03': (0.01628838332068358, 107.710147957427, -5.855932581578207e-07, 0.00024069379170826106, 35.38118700932737, 1.22699515812485, 121.55074982839577),
+    'CLA-S02-MAG-QUAD-05': (0.02509578857604508, 19.105643125676067, 0.0, -1.3214209008642575e-05, 968.6815337306878, 12.39464907425788, 127.16256630155804),
+    'CLA-S03-MAG-QUAD-01': (0.03292687927253263, 32.92537955433488, 0.0, -2.0719519971002557e-05, 827.5113380759257, 14.165747961532913, 177.3873553089107),
+    'CLA-S04-MAG-QUAD-01': (0.03300084085651986, 31.651768761135315, 0.0, -2.0032977165348837e-05, 855.3146867622004, 14.635319421898553, 177.24280743290632),
+    'CLA-S04-MAG-QUAD-02': (0.032999997510782475, 30.157677604831235, 0.0, -2.0345475518560935e-05, 841.1487375256713, 14.37655476521769, 178.2118044564119),
+    'CLA-S04-MAG-QUAD-03': (0.033045181590067654, 30.02773919549145, 0.0, -2.0828593500372133e-05, 823.292574612181, 14.09906236213403, 178.2245335427979),
+    'CLA-S04-MAG-QUAD-04': (0.03315039034187742, 28.99024142582374, 0.0, -2.028407185785607e-05, 846.143487928404, 14.505512364717779, 178.13961042892936),
+    'CLA-S04-MAG-QUAD-05': (0.03302409560091926, 28.493120696201345, 0.0, -1.7290755135191894e-05, 983.4570694281244, 16.709369911017077, 178.30552410296391),
+    'CLA-S04-MAG-QUAD-06': (0.03290760760478667, 32.25310163681735, 0.0, -1.9703241239472623e-05, 867.3341729394665, 14.801632519007915, 177.7860696819553),
+    'CLA-S04-MAG-QUAD-07': (0.03308632843603917, 27.80374401232274, 0.0, -1.965948816825354e-05, 869.2887346914672, 14.840748193947032, 177.82351412719666),
+    'CLA-S04-MAG-QUAD-08': (0.03304916380997161, 25.215015404632766, 0.0, -1.807487918132224e-05, 939.4441916672081, 15.940590077657294, 177.95551811340832),
+    'CLA-S05-MAG-QUAD-01': (0.03293504071551384, 32.61840980762844, 0.0, -1.994736249343613e-05, 858.1671691072961, 14.669029655177805, 179.57966101222246),
+    'CLA-S05-MAG-QUAD-02': (0.032954499643149136, 35.98771244432771, 0.0, -2.3288553568566625e-05, 743.5133976725631, 12.844034527590717, 177.98213440788126),
+    'CLA-S06-MAG-QUAD-01': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S06-MAG-QUAD-02': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-SP2-MAG-QUAD-01': (0.03300461886218006, 31.679573970603826, 0.0, -1.9798875632936394e-05, 865.1768763950724, 14.80020265920343, 177.72209948572734),
+    'CLA-SP2-MAG-QUAD-02': (0.03297976772580555, 31.014925926994124, 0.0, -2.053206378232411e-05, 834.143341936435, 14.266359360098075, 177.3359426013012),
+    'CLA-S07-MAG-QUAD-01': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-02': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-03': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-04': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-05': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-06': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-S07-MAG-QUAD-07': (0.03817924790625646, 86.68317235082367, 0.0, -0.000105175752221088, 276.83934324438246, 7.1045011906834175, 173.0),
+    'CLA-SP3-MAG-QUAD-01': (0.032935359208036905, 37.032817594712526, 0.0, -2.292241769527923e-05, 755.4421853556837, 13.050224442780705, 178.61333243621272),
+    'CLA-SP3-MAG-QUAD-02': (0.03307626679089194, 29.23898974796043, 0.0, -1.9845273386874784e-05, 82.46138258348374, 154.2853238470319, 178.86229867703756),
+    'CLA-S07-MAG-QUAD-08': (0.033103414932148884, 31.144274782628543, 0.0, -2.077722502848588e-05, 827.7717090709805, 14.216526102680454, 178.96633363154066),
+    'CLA-S07-MAG-QUAD-09': (0.03311177084023693, 24.59191110389395, 0.0, -1.827386329380341e-05, 930.579066306729, 15.813701258632834, 177.46849133094705),
+    'CLA-S07-MAG-QUAD-10': (0.033048298135529036, 26.022169283958306, 0.0, -1.8510486849427286e-05, 918.7133881686619, 15.61095118096471, 178.0810474996782),
+    'CLA-FEA-MAG-QUAD-01': (0.032900418964706794, 59.22674326779446, 0.0, -2.3779457568388565e-05, 751.0091119380381, 13.3285495482497, 178.58),
+    'CLA-FEA-MAG-QUAD-02': (0.032920193356019596, 60.40293657492907, 0.0, -2.3080859508476764e-05, 773.5521445567463, 13.72698126054488, 178.85),
+    'CLA-FEA-MAG-QUAD-03': (0.03314219301015097, 31.660221085424553, 0.0, -2.0121624371152168e-05, 855.2068791193067, 14.69636030466905, 179.11523365383448),
+    'CLA-FEA-MAG-QUAD-04': (0.03306801100871693, 29.662078158400504, 0.0, -2.0550433879872146e-05, 834.2195683315144, 14.283423898178508, 178.5964510461538),
+    'CLA-FEA-MAG-QUAD-05': (0.033055243517488564, 30.77145905685029, 0.0, -2.058890188875096e-05, 833.515667953896, 14.284610726185395, 178.72602042392793),
+    'CLA-FEA-MAG-QUAD-06': (0.03319365972300137, 12.302507006139422, 0.0, -1.5424459782484804e-05, 1088.3097121561807, 18.26667374492573, 177.875031278515),
+    'CLA-FEA-MAG-QUAD-07': (0.03290336354862481, 58.789048961078436, 0.0, -2.303198061787594e-05, 773.0863578752615, 13.685749469148128, 178.11),
+    'CLA-FEA-MAG-QUAD-08': (0.03290889700181836, 58.07169171020763, 0.0, -1.9475393864846468e-05, 902.9556830224365, 15.81317544550224, 178.64),
+    'CLA-FEA-MAG-QUAD-09': (0.03303632736680855, 30.981923256650532, 0.0, -2.173535031782001e-05, 790.9495999617111, 13.5767994370707, 179.32844353715657),
+    'CLA-FEA-MAG-QUAD-10': (0.03302540862456914, 31.66533908260368, 0.0, -2.091256977647132e-05, 821.2719961689543, 14.084302013916911, 178.14542223862884),
+    'CLA-FEA-MAG-QUAD-11': (0.03312087066806501, 25.169531216150006, 0.0, -1.924511561959686e-05, 885.6702245541205, 15.083902875099522, 178.31869303188586),
+    'CLA-FEA-MAG-QUAD-12': (0.03290330993167759, 60.52803668112841, 0.0, -2.594853742609098e-05, 694.5389135059945, 12.422100940586736, 178.6),
+    'CLA-FEA-MAG-QUAD-13': (0.032940381672459745, 50.94470435640716, 0.0, -1.718696095421298e-05, 1009.2404077159119, 17.46145111756085, 178.51),
+    'CLA-FEA-MAG-QUAD-14': (0.032855774845597444, 59.13793948419669, 0.0, -2.2485184113552074e-05, 789.7473638872395, 13.945392198654295, 178.08),
+    'CLA-FEA-MAG-QUAD-15': (0.03292748746968172, 59.88089671940901, 0.0, -2.5221951144022126e-05, 712.6354612187913, 12.718511348067127, 178.77),
+    'CLA-FEA-MAG-QUAD-16': (0.032886212066097, 58.213406983678794, 0.0, -2.0740882766105187e-05, 851.0005905610274, 14.950302168359503, 178.08),
+    'CLA-FEH-MAG-QUAD-01': (0.026688574317492417, 79.033775203819, 0.0, -9.151153081938685e-06, 1537.2420511732557, 21.568048754915516, 256.23),
+    'CLA-FEH-MAG-QUAD-02': (0.026668351870576326, 82.54801836031868, 0.0, -9.917457577421688e-06, 1427.0635689632327, 20.129426499321866, 256.23),
+    'CLA-FEH-MAG-QUAD-03': (0.026678463094034374, 76.0439224118604, 0.0, -3.3357779115869188e-06, 3922.792900831974, 51.31267532639771, 256.23),
+    'CLA-FEH-MAG-QUAD-04': (0.0266835187057634, 79.61833444452975, 0.0, -9.14594452290478e-06, 1538.3806656033366, 21.58695329184186, 256.23),
+    'CLA-FEH-MAG-QUAD-05': (0.026703741152679462, 71.82765573108543, 0.0, -8.478868779813033e-06, 1646.550761262405, 22.943566224872633, 256.23),
+    'CLA-FEH-MAG-QUAD-06': (0.026698685540950454, 63.89347408693766, 0.0, -7.150857310301466e-06, 1930.7105830291443, 26.626653249823125, 256.23),
+    'CLA-FEH-MAG-QUAD-07': (0.026673407482305355, 70.73746828774154, 0.0, -7.717905908740275e-06, 1798.758501305169, 24.932913891739624, 256.23),
+    'CLA-FEH-MAG-QUAD-08': (0.027039999999999998, 91.39231933027844, 0.0, -1.8390349449180654e-05, 826.5605137879622, 12.410722303758613, 256.23),
+    'CLA-FED-MAG-QUAD-01': (0.03300103093050328, 56.568296787734084, 0.0, -2.190611911672585e-05, 809.8060280960195, 14.295622946441327, 178.92),
+    'CLA-FED-MAG-QUAD-02': (0.032929544835786195, 64.48667421492985, 0.0, -2.6108778095524188e-05, 695.108772179585, 12.506566154553603, 178.67),
+    'CLA-FED-MAG-QUAD-03': (0.0266835187057634, 75.96069714677162, 0.0, -8.783493445920989e-06, 1594.9188924281202, 22.29247339174995, 256.23),
+    'CLA-S07-MAG-QUAD-11': (0.03296847658990396, 59.7474242405558, 0.0, -2.518575847134592e-05, 714.2537522396216, 12.75881983367243, 179.12),
+}
+
+# slope [T.mm/A], threshold [A], f [T.mm/A^3], a [T.mm/A^2], I0 [A], d [T.mm], magnetic length [mm]
+DIPOLE_CAL = {
+    'CLA-C2V-MAG-DIP-01': (1.398152305758474, 72.77158683809951, 0.0, -0.001513260004623848, 541.1400375726836, 433.7081044258256, 399.216),
+    'CLA-C2V-MAG-DIP-02': (0.9019177277706808, 126.86232259341756, 0.0, -0.0004581723408280844, 1111.1182972563433, 558.2783338395176, 397.752),
+    'CLA-VBC-MAG-DIP-01': (0.7581763345214154, 123.70403990282664, 0.0, -0.0024438048474122167, 286.4265908551807, 158.653165690361, 231.56),
+    'CLA-VBC-MAG-DIP-02': (0.7569959768377563, 123.42716301418135, 0.0, -0.0024340460305071485, 286.7828124391902, 158.53624219455617, 231.304),
+    'CLA-VBC-MAG-DIP-03': (0.7593112348949013, 123.29614877422443, 0.0, -0.002438379417393581, 286.8322332515053, 158.99202132240117, 231.535),
+    'CLA-VBC-MAG-DIP-04': (0.7599753314422656, 124.48754536264167, 0.0, -0.0024446214805770336, 286.6994811486062, 159.04854179409267, 232.147),
+    'CLA-SP2-MAG-DIP-01': (1.3963693845296439, 244.04124568119096, 0.0, -0.002048337915870075, 600.7483518642364, 601.1839314402813, 400.0),
+    'CLA-SP3-MAG-DIP-01': (1.3966746927879516, 246.90388362886958, 0.0, -0.0020829194836779275, 596.1589358551605, 598.7346914311352, 400.0),
+    'CLA-FEA-MAG-DIP-01': (0.5871407922379503, 263.21063042188337, 0.0, -0.0003664691049720368, 1067.1267532482045, 391.3755165163718, 243.15),
+    'CLA-FEA-MAG-DIP-02': (0.589343451390555, 251.70639977150086, 0.0, -0.0003754834141862987, 1054.1282168142934, 390.0161544733601, 243.15),
+    'CLA-FEA-MAG-DIP-03': (0.5867613699322093, 254.2799916046815, 0.0, -0.0003774188366622654, 1044.0565788012586, 384.5575232486163, 243.15),
+    'CLA-FEA-MAG-DIP-04': (0.587776052871474, 254.62467851024135, 0.0, -0.0003847941375388669, 1030.847572784723, 381.3095832932811, 243.15),
+    'CLA-FED-MAG-DIP-01': (2.038671, 164.2963, 0.0, -0.00045, 2458.77, 2692.044, 610.23),
+}
+
+import math
+
+def _quad_params(magnet_name):
+    try:
+        return QUAD_CAL[magnet_name.upper().replace("_", "-")]
+    except KeyError:
+        raise KeyError(f"No quadrupole calibration for {magnet_name!r}")
+
+def _quad_strength_from_current(current_a, slope, thr, f, a, i0, d):
+    """Integrated strength [T] from current. Odd in current."""
+    i = abs(current_a)
+    if thr == 0 or i < thr:
+        b = slope * i
+    else:
+        b = f * i**3 + a * (i - i0)**2 + d
+    return math.copysign(b, current_a)
+
+def _quad_current_from_strength(b_int, slope, thr, f, a, i0, d):
+    """Inverse of the above (integrated strength [T] -> current [A])."""
+    b = abs(b_int)
+    i_lin = b / slope
+    if thr == 0 or i_lin < thr:
+        i = i_lin
+    elif f == 0:
+        i = i0 - math.sqrt((b - d) / a)
+    else:
+        # f I^3 + a (I-I0)^2 + d - b = 0  ->  cubic in I, take the root on the branch
+        # continuous with the linear region (the real root closest to the threshold, >= thr)
+        c3, c2, c1, c0 = f, a, -2*a*i0, a*i0**2 + d - b
+        # depressed cubic t^3 + p t + q = 0, I = t - c2/(3 c3)
+        p = (3*c3*c1 - c2**2) / (3*c3**2)
+        q = (2*c2**3 - 9*c3*c2*c1 + 27*c3**2*c0) / (27*c3**3)
+        shift = -c2 / (3*c3)
+        if p < 0:
+            r = math.sqrt(-p/3)
+            arg = max(-1.0, min(1.0, -q / (2*r**3)))
+            th = math.acos(arg)
+            roots = [2*r*math.cos(th/3 - 2*math.pi*k/3) + shift for k in range(3)]
+        else:
+            roots = [shift]  # single real root
+        valid = [x for x in roots if x >= thr]
+        if not valid:
+            raise ValueError("Requested strength is outside the magnet's excitation curve")
+        i = min(valid)
+    return math.copysign(i, b_int)
+
+def quadrupole_k_from_current(magnet_name, current_a, momentum_mevc):
+    """Quad K [m^-2] for a given current [A] and beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, length_mm = _quad_params(magnet_name)
+    b_int = _quad_strength_from_current(current_a, slope, thr, f, a, i0, d)  # T
+    return C_MEV_PER_T_M * (1000.0 / length_mm) * b_int / momentum_mevc
+
+def quadrupole_current_from_k(magnet_name, k, momentum_mevc):
+    """Current [A] needed for quad K [m^-2] at beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, length_mm = _quad_params(magnet_name)
+    b_int = k * momentum_mevc * (length_mm / 1000.0) / C_MEV_PER_T_M          # T
+    return _quad_current_from_strength(b_int, slope, thr, f, a, i0, d)
+
+def _dipole_params(magnet_name):
+    try:
+        return DIPOLE_CAL[magnet_name.upper().replace("_", "-")]
+    except KeyError:
+        raise KeyError(f"No dipole calibration for {magnet_name!r}")
+
+def dipole_angle_from_current(magnet_name, current_a, momentum_mevc):
+    """Dipole bend angle [rad] for a given current [A] and beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, _length_mm = _dipole_params(magnet_name)
+    b_int_tmm = _quad_strength_from_current(current_a, slope, thr, f, a, i0, d)  # T.mm
+    return C_MEV_PER_T_M * (b_int_tmm / 1000.0) / momentum_mevc
+
+def dipole_current_from_angle(magnet_name, angle_rad, momentum_mevc):
+    """Current [A] needed for a dipole bend angle [rad] at beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, _length_mm = _dipole_params(magnet_name)
+    b_int_tmm = angle_rad * momentum_mevc * 1000.0 / C_MEV_PER_T_M
+    return _quad_current_from_strength(b_int_tmm, slope, thr, f, a, i0, d)
+
+def corrector_current_from_angle(magnet_name, angle_rad, momentum_mevc):
+    """Inverse of corrector_angle_from_current (angle in rad)."""
+    cal = CORRECTOR_CAL[magnet_name.upper().replace("_", "-")]
+    return angle_rad * 1000.0 * momentum_mevc / (C_MEV_PER_T_M * cal)
+
+def corrector_angle_from_current(
+    magnet_name: str,
+    current_a: float,
+    momentum_mevc: float,
+) -> float:
+    """ angle in rads for corrector at given current. """
+    angle_mrad = current_a * C_MEV_PER_T_M * CORRECTOR_CAL[magnet_name.upper().replace("_","-")] / momentum_mevc
+    return angle_mrad / 1000.0
+
+
+
+def update_cheetah_element(
+    lattice: cheetah.Segment,
+    PVname: str,
+    value: float,
+    device: str = "cpu",
+) -> None:
+    """ Sets appropriate cheetah element values from a PV. eg, CLA-FEA-MAG-QUAD-01:READI"""
+    name = PVname.lower().replace("-", "_").split(":")[0]
+    names = lattice.element_names
+
+    # Map the PV name to a Cheetah element name and property
+    if "vcor" in name or "hcor" in name:
+        kind = "vcor" if "vcor" in name else "hcor"
+        if name not in names:
+             # Check for a misnamed combined corrector
+            orig_name = name
+            name = name.replace(kind, "hcor" if kind == "vcor" else "vcor")
+            if name in names:
+                if not isinstance(lattice.elements[lattice.element_index(name)],cheetah.CombinedCorrector):
+                    print(f"Unknown element: {orig_name}")
+                    return
+            else: # check for a properly named combined corrector
+                name = orig_name.replace(kind, "hvcor")
+                if name not in names:
+                    print(f"Unknown element: {orig_name}")
+                    return                
+        
+        if not isinstance(lattice.elements[lattice.element_index(name)],cheetah.CombinedCorrector):
+            prop = "angle"
+        else:           
+            prop = "vertical_angle" if kind == "vcor" else "horizontal_angle"
+    elif "quad" in name:
+        prop = "k1"
+    elif "sext" in name:
+        prop = "k2"
+    elif "dip" in name:
+        prop = "angle"
+    elif "rf_ctrl" in name:
+        name = name.replace("rf_ctrl", "lin_cav")
+        if "getPhase" in PVname:
+            prop = "phase"
+        elif "getPower" in PVname:
+            prop = "voltage"
+            value = np.sqrt(value * 1e6 * CAVITY_SHUNT_IMPEDANCE)
+        else:
+            print(f"Unknown RF control PV: {PVname}")
+            return
+    else:
+        print(f"Unknown element type: {name}")
+        return
+
+    if name not in names:
+        print(f"Unknown element: {name}")
+        return
+
+    element = lattice.elements[lattice.element_index(name)]
+    energy = beam_energy[element.name[4:7]]  # keyed by section code in the name
+
+    # Convert current to the physical quantity where needed
+    if isinstance(
+        element,
+        (cheetah.CombinedCorrector, cheetah.VerticalCorrector, cheetah.HorizontalCorrector),
+    ):
+        corrector_name = element.name.replace(
+            "hvcor", "hcor" if prop == "horizontal_angle" else "vcor"
+        )
+        value = corrector_angle_from_current(corrector_name, value, energy)
+    elif isinstance(element, cheetah.Quadrupole):
+        value = quadrupole_k_from_current(element.name, value, energy)
+    elif isinstance(element, cheetah.Dipole):
+        value = dipole_angle_from_current(element.name, value, energy)
+
+    prev = getattr(element, prop)
+    setattr(element, prop, torch.tensor(value, dtype=torch.float, device=device))
+    return (prop,prev,value)
