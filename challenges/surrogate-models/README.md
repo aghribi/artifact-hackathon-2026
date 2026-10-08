@@ -55,12 +55,12 @@ on the full pack, since every number differs on the sample.
 - `objectives_detailed.md` — the same objectives with the physics, the traps and the reference numbers
 - `requirements.txt` — Python dependencies
 - `kickoff_notebook.ipynb` — starter notebook: from the raw pack to a scored submission
-- `kickoff_notebook_detailed.ipynb` — the longer starter notebook: the same path, with every step explained and more plots
+- `kickoff_notebook_detailed.ipynb` — the longer starter notebook: the same path, with every step explained
 - `pallas_score.py` — the scorer, imported by the kickoff notebook
 - `data/` — dataset description and schema; `data/sample/` holds the 10 % sample
 
-The kickoff notebook runs on a laptop CPU in under a minute and ends with a valid submission
-file. Do that first; it also walks through the pack's id conventions and its single injection
+The kickoff notebook runs on a laptop CPU in under a minute and writes two valid submission
+files (inverse and direct). Do that first; it also walks through the pack's id conventions and its single injection
 flag, which are what a join or a quoted rate gets wrong.
 
 ## Getting help

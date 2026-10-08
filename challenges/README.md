@@ -16,6 +16,6 @@ Three challenges, each tackled by two teams. Every challenge folder follows the 
 |---|---|---|
 | [Anomaly Detection](anomaly-detection/) | ESS (time-series / LLRF) | Ishkhan Gorgisyan |
 | [Optimisation](optimisation/) | CLEAR (CERN) & CLARA (Daresbury) — double case | Amelia, Antonio Gilardi |
-| [Surrogate Models](surrogate-models/) | PALLAS (laser-plasma acceleration) | Mykita |
+| [Surrogate Models](surrogate-models/) | PALLAS (laser-plasma acceleration) | Mykyta |
 
 See `scientific_case.md` for background, `objectives.md` for the difficulty levels, and `data/README.md` for dataset details (to be completed by the respective case holders).

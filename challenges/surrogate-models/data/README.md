@@ -258,7 +258,7 @@ reference number here uses.
 for information (free-space transport, not the physics the simulation is run for). The split is
 at each configuration's own plasma end, `L_inj + 3.2` mm — the shipped density profile's own
 support, not a flat plane. Because that boundary moves with `L_inj`, a position is not wholly one
-zone or the other: 44 positions are scored in-plasma and 77 in the drift, and they overlap. Most
+zone or the other: 44 positions are scored in-plasma and 76 in the drift, and they overlap. Most
 of the stored range is drift, so **a single pooled number would mostly score the beam after the
 physics is over** — the scorer's default is therefore the in-plasma zone. A position carrying fewer than 30 configurations of a zone is dropped
 from that zone's sum, and the scorer reports how many it scored and dropped.

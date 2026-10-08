@@ -49,7 +49,7 @@ PLASMA_END_OFFSET_MM = float(os.environ.get("PLASMA_END_OFFSET_MM", 3.2))
 # expression is the shipped density profile's own support, measured, and it runs from
 # 3.601 to 3.999 mm across the corpus. A key or submission carrying L_inj is split on
 # its own end; the flat fallback below is only for a table that carries no L_inj, and
-# it mislabels a median 2 and up to 5 of the 40 in-plasma positions.
+# it mislabels a median 2 and up to 5 positions per configuration.
 PLASMA_END_MM = float(os.environ.get("PLASMA_END_MM", 3.8))
 
 ZONES = ("pooled", "in_plasma", "drift")
