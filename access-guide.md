@@ -85,8 +85,7 @@ key *on `cca`* (not on your laptop), and always connect to DALIA from there.
      ou consulter le statut de la demande", targeting **IDRIS-EXT**.
    - Sign and submit the account declaration form (electronically on eDARI,
      or as a signed PDF to [gestutil@idris.fr](mailto:gestutil@idris.fr)).
-   - Where the form asks for your fixed IP: use `cca.in2p3.fr`'s address —
-     check with the organizers for the exact IP/range to declare.
+   - When the form asks for your fixed IP: what you write there has no importance per se, since you will be jumping through CC-IN2P3 (which is itself whitelisted). Nevertheless, if you do have a fixed personnal or professional IP address, feel free to write it in the form, so that you can have a backup method for connecting to DALIA.
 
 2. **Wait for the onboarding email from IDRIS** confirming your login
    (e.g. `udlxxxxxx`).
