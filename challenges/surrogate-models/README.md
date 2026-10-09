@@ -57,6 +57,7 @@ on the full pack, since every number differs on the sample.
 - `kickoff_notebook.ipynb` — starter notebook: from the raw pack to a scored submission
 - `kickoff_notebook_detailed.ipynb` — the longer starter notebook: the same path, with every step explained
 - `pallas_score.py` — the scorer, imported by the kickoff notebook
+- `PHYSICS.md` and `physics_formulas.py` — the physics kit: the gas density profile from the knobs for both campaigns, the laser parameters, and seven textbook formulas as functions (for the physics-informed track, and for anyone adding physics to a model)
 - `data/` — dataset description and schema; `data/sample/` holds the 10 % sample
 
 The kickoff notebook runs on a laptop CPU in under a minute and writes two valid submission
