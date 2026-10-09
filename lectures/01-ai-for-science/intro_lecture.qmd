@@ -1,0 +1,1088 @@
+---
+pdf-engine: xelatex
+format:
+  beamer:
+    keep-tex: false
+    classoption: "aspectratio=169"
+    titlepage: "true"
+    header-includes: |
+        \usepackage{biblatex}
+        \usepackage{caption}
+        \captionsetup[figure]{labelformat=empty}
+        \usepackage{tikz}
+        \setbeamertemplate{itemize item}{\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+        \setbeamertemplate{itemize subitem}{--}
+        \setbeamertemplate{itemize subsubitem}{-}
+        \setbeamertemplate{footline}[page number]
+        \usepackage{pgfplots}
+        \pgfplotsset{compat=1.17}
+        \usetikzlibrary{positioning, arrows.meta, calc, shapes.geometric, backgrounds, chains, matrix, fit}
+        \definecolor{myblue}{RGB}{80, 115, 184}
+        \definecolor{myred}{RGB}{184, 80, 80}
+        \definecolor{mygreen}{RGB}{80, 184, 115}
+        \definecolor{myorange}{RGB}{235, 160, 90}
+        \usepackage{tikz}
+        \usepackage{pgfplots}
+        \pgfplotsset{compat=1.18}
+        \usepgfplotslibrary{fillbetween}
+        \usepackage{array}
+        \usepackage{colortbl}
+        \newcommand{\fref}[1]{\begin{tikzpicture}[remember picture,overlay]\node[anchor=south west, font=\tiny, text=gray, text width=13.2cm, align=left, inner sep=0pt] at ([xshift=0.45cm,yshift=0.3cm]current page.south west) {#1};\end{tikzpicture}}
+        \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+        \usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+---
+
+
+
+
+\centering
+
+[AISSAI Hackathon]{.smallcaps  .smaller}
+
+\Large  \bigskip
+ \bigskip
+
+
+AI for Science: putting physics into learning
+\bigskip
+\bigskip
+
+\textcolor{mygreen}{Introductory lecture}
+
+\bigskip
+\normalsize Hadrien Vroylandt
+
+\normalsize  Octobre 2026
+
+
+# What AI has made possible
+
+## Problems solved in the last few years
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[
+  t/.style={draw, rounded corners, thick, text width=4.2cm, minimum height=2.0cm, align=left, font=\small, anchor=north west},
+  m/.style={anchor=north, font=\footnotesize\bfseries, text width=4.4cm, align=center, inner sep=3pt}
+]
+\node[t, draw=myblue, fill=myblue!8] (p1) at (0,0) {\textbf{\textcolor{myblue}{Protein structure}}\\[2pt] \scriptsize 3D structure from the sequence alone, close to experimental accuracy};
+\node[t, draw=myblue, fill=myblue!8] (p2) at (4.7,0) {\textbf{\textcolor{myblue}{Molecular simulation}}\\[2pt] \scriptsize quantum-chemistry accuracy at force-field cost};
+\node[t, draw=myblue, fill=myblue!8] (p3) at (9.4,0) {\textbf{\textcolor{myblue}{Weather forecasting}}\\[2pt] \scriptsize 10-day global forecast in a minute, as good as the best physics models};
+\node[t, draw=myred, fill=myred!8] (p4) at (0,-3.05) {\textbf{\textcolor{myred}{Exoplanet detection}}\\[2pt] \scriptsize a network finds a planet hidden in 4 years of Kepler light curves};
+\node[t, draw=myred, fill=myred!8] (p5) at (4.7,-3.05) {\textbf{\textcolor{myred}{Materials discovery}}\\[2pt] \scriptsize hundreds of thousands of new crystals predicted stable};
+\node[t, draw=myred, fill=myred!8] (p6) at (9.4,-3.05) {\textbf{\textcolor{myred}{Maths \& algorithms}}\\[2pt] \scriptsize faster matrix multiplication, new combinatorial constructions};
+\uncover<2->{
+\node[m, text=myblue] at (p1.south) {AlphaFold 2 (2020)};
+\node[m, text=myblue] at (p2.south) {Deep Potential (2018)\\ MACE (2022)};
+\node[m, text=myblue] at (p3.south) {GraphCast (2023)};
+\node[m, text=myred] at (p4.south) {Shallue \& Vanderburg (2018)};
+\node[m, text=myred] at (p5.south) {GNoME (2023)};
+\node[m, text=myred] at (p6.south) {AlphaTensor (2022)\\ FunSearch (2023)};
+}
+\end{tikzpicture}
+\end{center}
+```
+
+::: notes
+First show only the problems; ask the room who knows which model did it. Second click reveals the names and dates.
+:::
+
+\fref{\only<2->{AlphaFold: Nature 596, 583 (2021) · DeePMD: PRL 120, 143001 (2018) · MACE: NeurIPS (2022) · GraphCast: Science 382, 1416 (2023) · Kepler-90i: AJ 155, 94 (2018) · GNoME: Nature 624, 80 (2023) · AlphaTensor: Nature 610, 47 (2022) · FunSearch: Nature 625, 468 (2024)}}
+
+## What did AI actually improve?
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[
+  g/.style={draw, rounded corners, thick, text width=3.3cm, minimum height=5.6cm, align=left, font=\small, anchor=north, execute at begin node={\hyphenpenalty=10000\raggedright}},
+  h/.style={font=\bfseries}
+]
+\node[g, draw=myblue, fill=myblue!8] at (0,0) {\textcolor{myblue}{\textbf{\large Speed}}\\[2pt]
+  \footnotesize an expensive calculation becomes cheap\\[6pt]
+  \small\textbf{Molecular simulation}\\ \footnotesize DFT $\to$ ML potential: $10^3$--$10^6\times$ faster\\[4pt]
+  \small\textbf{Weather}\\ \footnotesize hours on a supercomputer $\to$ one minute on one chip};
+\node[g, draw=myorange, fill=myorange!12] at (3.75,0) {\textcolor{myorange!80!black}{\textbf{\large Search}}\\[2pt]
+  \footnotesize explore a huge, high-dimensional space\\[6pt]
+  \small\textbf{Materials}\\ \footnotesize combinatorial space of compositions and structures\\[4pt]
+  \small\textbf{Maths \& algorithms}\\ \footnotesize space of algorithms and programs, too large to enumerate};
+\node[g, draw=mygreen, fill=mygreen!10] at (7.5,0) {\textcolor{mygreen!70!black}{\textbf{\large Unknown mapping}}\\[2pt]
+  \footnotesize learn a relation no theory gives in a usable form\\[6pt]
+  \small\textbf{Protein structure}\\ \footnotesize sequence $\to$ 3D structure: seconds to hours instead of months to years of experiments};
+\node[g, draw=myred, fill=myred!8] at (11.25,0) {\textcolor{myred}{\textbf{\large Finding signals}}\\[2pt]
+  \footnotesize rare, weak patterns in huge datasets\\[6pt]
+  \small\textbf{Exoplanets}\\ \footnotesize trained on $\sim 15\,000$ labelled Kepler signals, then searched new stars: found Kepler-90i, the 8th planet of its system};
+\end{tikzpicture}
+\end{center}
+```
+
+::: notes
+Speed: the learned model replaces a known but costly computation (a surrogate). Search: the model guides exploration of a space too large for brute force, with an external checker. Unknown mapping: the relation exists but no tractable theory gives it. Finding signals: rare, weak patterns that humans and classical pipelines miss in huge data.
+These four map loosely onto the hackathon: surrogates = speed, optimisation = search, anomaly detection = finding signals / learning what "normal" looks like.
+:::
+
+## Why did these work?
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[
+  i/.style={draw, rounded corners, thick, text width=3.0cm, minimum height=2.1cm, align=center, font=\small, anchor=north}
+]
+\node[i, draw=myblue, fill=myblue!8] at (0,0) {\textbf{Data}\\[3pt] \scriptsize large curated databases, or a simulator that produces labels on demand};
+\node[i, draw=myorange, fill=myorange!12] at (3.5,0) {\textbf{A clear target}\\[3pt] \scriptsize a benchmark, a skill score, an exact checker};
+\node[i, draw=mygreen, fill=mygreen!10] at (7,0) {\textbf{Known structure}\\[3pt] \scriptsize symmetries, locality, conservation laws built into the model};
+\node[i, draw=myred, fill=myred!8] at (10.5,0) {\textbf{Validation}\\[3pt] \scriptsize blind tests, physical checks, uncertainty};
+\end{tikzpicture}
+\end{center}
+```
+
+\bigskip
+
+- None of these successes is a "black box trained on raw data"
+- In science we rarely start from zero: we have **equations, symmetries, conservation laws**
+- **Today's question: how do we put what we know into a learned model?**
+
+::: notes
+Bridge to the lecture: the third ingredient (known structure) is what parts I and II are about; the fourth (validation, uncertainty) is part III.
+:::
+
+## Science for AI: the other direction
+
+```{=latex}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{L{6.7cm}cL{6.3cm}}
+\textcolor{myblue}{\textbf{Concept from science}} & & \textcolor{myred}{\textbf{AI method}} \\ \hline
+\rowcolor{myorange!15}
+Langevin dynamics, non-equilibrium thermodynamics & $\to$ & \textbf{diffusion models} (2015, 2020) \\
+Boltzmann distribution, spin models & $\to$ & energy-based models, Boltzmann machines \\
+Monte Carlo (1953); Hybrid Monte Carlo from lattice QCD (1987) & $\to$ & MCMC and HMC for Bayesian inference \\
+variational free energy, mean-field theory & $\to$ & variational inference, VAEs (ELBO = $-$free energy) \\
+optimal transport (Monge, Kantorovich) & $\to$ & Wasserstein GANs, flow matching \\
+group theory, symmetries & $\to$ & equivariant networks (Part II) \\
+\end{tabular}
+\end{center}
+```
+
+\medskip
+\centering
+\textcolor{mygreen}{AI for science $\rightleftarrows$ science for AI: many ML ideas are physics in disguise.}
+
+::: notes
+Diffusion models: add noise step by step (a forward diffusion), learn to reverse it; sampling is a learned Langevin dynamics. Sohl-Dickstein et al. explicitly built on non-equilibrium thermodynamics. We will train one in demo III.
+HMC was invented for lattice QCD (Duane et al. 1987) and is now the default sampler in Bayesian software (Stan).
+The next lecture develops the Hopfield / statistical-mechanics side further: keep this slide short.
+:::
+
+\fref{Sohl-Dickstein et al., ICML (2015) · Ho et al., NeurIPS (2020) · Metropolis et al., J. Chem. Phys. 21, 1087 (1953) · Duane et al., Phys. Lett. B 195, 216 (1987)}
+
+# ML in 5 minutes
+
+## Learning = fitting a function
+
+::: columns
+::::{.column width=55%}
+- Data: pairs $(x_i, y_i)$, $i = 1\dots N$
+- Model: a flexible function $f_\theta(x)$ with parameters $\theta$
+- Loss: how wrong we are
+$$\mathcal{L}(\theta) = \frac{1}{N}\sum_{i=1}^N \ell\big(f_\theta(x_i),\, y_i\big)$$
+- Optimisation: gradient descent
+$$\theta \leftarrow \theta - \eta\, \nabla_\theta \mathcal{L}$$
+- Neural network = composition of simple layers, gradients by **automatic differentiation**
+:::
+
+::::{.column width=45%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=6.5cm, height=5cm, axis lines=left, xlabel={$x$}, ylabel={$y$},
+  xtick=\empty, ytick=\empty, ymin=-1.6, ymax=1.8, xmin=0, xmax=6.5]
+\addplot[only marks, mark=*, mark size=1.5pt, myblue] coordinates {
+ (0.3,0.35) (0.8,0.62) (1.2,1.05) (1.7,0.95) (2.1,0.8) (2.6,0.45) (3.0,0.1)
+ (3.5,-0.45) (3.9,-0.65) (4.4,-1.0) (4.9,-0.9) (5.3,-0.8) (5.8,-0.35) (6.2,0.0)};
+\addplot[thick, myred, domain=0:6.4, samples=80] {sin(deg(x))};
+\node[myred] at (axis cs:4.8,1.2) {$f_\theta(x)$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+```
+:::
+:::
+
+::: notes
+For physicists: this is least-squares fitting, with a model that has millions of parameters instead of 3.
+:::
+
+## Generalisation and inductive bias
+
+::: columns
+::::{.column width=52%}
+- Goal: perform well on **new** data, not on the training set
+- Split data: **train** / **validation** / **test**
+- Overfitting: the model memorises noise
+- **Inductive bias**: the assumptions built into the model decide how it generalises, especially **outside the data**
+- Physics is the best inductive bias we have
+:::
+
+::::{.column width=48%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=6.8cm, height=5cm, axis lines=left, xlabel={model complexity / training time}, ylabel={error},
+  xtick=\empty, ytick=\empty, ymin=0, ymax=1.2, xmin=0, xmax=8, legend style={draw=none, font=\scriptsize, at={(0.97,0.97)}, anchor=north east}]
+\addplot[thick, myblue, domain=0:8, samples=60] {0.05 + 0.95*exp(-0.6*x)};
+\addlegendentry{train}
+\addplot[thick, myred, domain=0:8, samples=60] {0.12 + 0.95*exp(-0.6*x) + 0.012*x^2};
+\addlegendentry{validation}
+\draw[dashed, gray] (axis cs:3.3,0) -- (axis cs:3.3,1.0);
+\node[gray, font=\scriptsize] at (axis cs:3.3,1.08) {sweet spot};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+```
+:::
+:::
+
+## Three ways to put physics into a model
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[
+  ax/.style={draw, rounded corners, thick, text width=4.3cm, minimum height=3.9cm, align=left, font=\small, anchor=center}
+]
+\node[ax, draw=myblue, fill=myblue!8] (a) at (0,0) {\textbf{\textcolor{myblue}{I. Soft constraints}}\\[3pt]
+  physics in the \textbf{loss}\\[3pt] \textit{the model is encouraged}\\[4pt] \scriptsize PINNs, penalties, augmentation};
+\node[ax, draw=mygreen, fill=mygreen!10] (b) at (4.8,0) {\textbf{\textcolor{mygreen!70!black}{II. Hard constraints}}\\[3pt]
+  physics in the \textbf{architecture}\\[3pt] \textit{the model is forced}\\[4pt] \scriptsize symmetries, equivariant networks, potentials};
+\node[ax, draw=myred, fill=myred!8] (c) at (9.6,0) {\textbf{\textcolor{myred}{III. Probabilistic models}}\\[3pt]
+  learn the whole \textbf{distribution}\\[3pt] \textit{the model admits what it does not know}\\[4pt] \scriptsize generative models, uncertainty, LLMs};
+\draw[-{Stealth}, thick, gray] (a.east) -- (b.west);
+\draw[-{Stealth}, thick, gray] (b.east) -- (c.west);
+\end{tikzpicture}
+\end{center}
+```
+
+\bigskip
+\centering
+\textcolor{mygreen}{What you know is data you don't need to collect.}
+
+\medskip
+\small One small demo per part (notebooks available in the hackathon repository).
+
+# I. Soft constraints: physics in the loss
+
+## The idea: add physics to the loss
+
+$$\mathcal{L}(\theta) = \underbrace{\frac{1}{N}\sum_i \big(f_\theta(x_i) - y_i\big)^2}_{\text{fit the data}} \;+\; \sum_k \lambda_k\, \underbrace{\mathcal{R}_k[f_\theta]}_{\text{violate the physics}}$$
+
+\bigskip
+
+- $\mathcal{R}_k \geq 0$, zero when the physics is satisfied
+- Can be evaluated **anywhere**, not only where we have data
+- The network architecture does not change: any model, any optimiser
+- Physics acts as a **regulariser**: it pulls the model towards physical solutions
+- But the constraint is only satisfied **approximately**, as a trade-off set by $\lambda_k$
+
+## The problem: solving a PDE with a neural network
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=myblue, very thick, rounded corners, fill=myblue!6, inner xsep=10pt, inner ysep=5pt] {%
+  \Large $\partial_t u = D\,\partial_x^2 u$%
+  \normalsize\quad $x\in[0,L],\ t\in[0,T]$%
+  \qquad \textcolor{myblue}{$u(x,0)=u_0(x)$}%
+  \qquad \textcolor{myred}{$u(0,t)=u(L,t)=0$}};
+\end{tikzpicture}
+\end{center}
+```
+
+\vspace{-0.3cm}
+
+::: columns
+::::{.column width=50%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[scale=0.66, every node/.append style={transform shape}]
+\fill[gray!8] (0,0) rectangle (4.6,3.3);
+\draw[-{Stealth}, thick] (0,0) -- (5.0,0) node[right] {$x$};
+\draw[-{Stealth}, thick] (0,0) -- (0,3.7) node[above] {$t$};
+\draw[line width=2.2pt, myblue] (0,0) -- (4.6,0);
+\draw[line width=2.2pt, myred] (0,0) -- (0,3.3);
+\draw[line width=2.2pt, myred] (4.6,0) -- (4.6,3.3);
+\draw[thin, gray] (0,3.3) -- (4.6,3.3);
+\node[myblue, font=\scriptsize, below] at (2.3,-0.05) {initial condition $u(x,0)=u_0(x)$};
+\node[myred, font=\scriptsize, rotate=90, above] at (-0.05,1.65) {boundary $u(0,t)$};
+\node[myred, font=\scriptsize, rotate=-90, above] at (4.65,1.65) {boundary $u(L,t)$};
+\node[font=\Huge, gray!60] at (2.3,1.65) {?};
+\foreach \p in {(1.1,2.6),(3.4,2.2),(2.9,0.55)} \fill[myorange] \p circle (0.09);
+\node[myorange, font=\scriptsize, anchor=west] at (3.45,2.75) {sensors};
+\end{tikzpicture}
+\end{center}
+```
+
+:::
+
+::::{.column width=50%}
+\centering
+![](demos/figures/fig_I_fem_heat.pdf){height=3.5cm}
+:::
+:::
+
+\small
+
+::: columns
+::::{.column width=50%}
+- **Known**: the equation, initial and boundary conditions, a few sensors
+- **Unknown**: $u(x,t)$ everywhere inside
+:::
+
+::::{.column width=50%}
+- Classical route (right): mesh + finite elements, solve on the grid
+- Neural-network route: $u_\theta(x,t)$, mesh-free and differentiable
+- \textcolor{myred}{But}: no labels inside the domain. How do we train it?
+:::
+:::
+
+::: notes
+Right figure: a deliberately rough P1 finite-element solution (12 elements, implicit Euler with 20 time steps, scikit-fem; demos/fem_heat.py). Max error 0.01 against the exact solution: classical solvers are excellent when the equation and the conditions are fully known. The neural route matters when they are not (inverse problems, scarce data, high dimension).
+:::
+
+## The PINN solution: the equation becomes the training signal
+
+::: columns
+::::{.column width=46%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\fill[gray!8] (0,0) rectangle (4.6,3.3);
+\draw[-{Stealth}, thick] (0,0) -- (5.0,0) node[right] {$x$};
+\draw[-{Stealth}, thick] (0,0) -- (0,3.7) node[above] {$t$};
+\draw[thin, gray] (0,0) rectangle (4.6,3.3);
+\foreach \p in {(0.5,0.6),(1.3,0.4),(2.1,0.9),(3.0,0.3),(3.9,0.8),(0.8,1.4),(1.7,1.7),(2.6,1.3),(3.5,1.6),(4.2,1.2),
+                (0.4,2.3),(1.2,2.1),(2.0,2.6),(2.8,2.0),(3.7,2.5),(0.9,3.0),(1.9,3.1),(3.1,2.9),(4.1,3.0),(2.4,0.5)}
+  \node[mygreen!70!black, font=\small] at \p {$\times$};
+\foreach \x in {0.3,0.9,1.5,2.1,2.7,3.3,3.9,4.4} \fill[myblue] (\x,0) circle (0.07);
+\foreach \y in {0.4,1.1,1.8,2.5,3.1} {\fill[myred] (0,\y) circle (0.07); \fill[myred] (4.6,\y) circle (0.07);}
+\foreach \p in {(1.1,2.6),(3.4,2.2),(2.9,0.55)} \fill[myorange] \p circle (0.09);
+\end{tikzpicture}
+\end{center}
+```
+\scriptsize
+\textcolor{myorange}{$\bullet$ data} \quad \textcolor{mygreen!70!black}{$\times$ collocation} \quad \textcolor{myblue}{$\bullet$ initial} \quad \textcolor{myred}{$\bullet$ boundary}
+:::
+
+::::{.column width=54%}
+\small
+$$\begin{aligned}
+\mathcal{L}(\theta) =\;& \textcolor{myorange}{\textstyle\sum_i \big|u_\theta(x_i,t_i) - u_i\big|^2} \\
++\;& \textcolor{mygreen!70!black}{\tfrac{1}{N_r}\textstyle\sum_r \big|\partial_t u_\theta - D\,\partial_x^2 u_\theta\big|^2_{(x_r,t_r)}} \\
++\;& \textcolor{myblue}{\textstyle\sum_j \big|u_\theta(x_j,0) - u_0(x_j)\big|^2} \\
++\;& \textcolor{myred}{\textstyle\sum_k \big|u_\theta(x_k^{\partial},t_k) - g(t_k)\big|^2}
+\end{aligned}$$
+
+- Derivatives of $u_\theta$ by **automatic differentiation**: exact, no mesh
+- Collocation points are **free**: no labels needed, put them anywhere
+- No data $\Rightarrow$ forward solver; with data $\Rightarrow$ **inverse problem** (e.g. learn $D$ too)
+:::
+:::
+
+\fref{Lagaris, Likas \& Fotiadis, IEEE TNN 9, 987 (1998) · Raissi, Perdikaris \& Karniadakis, J. Comput. Phys. 378, 686 (2019)}
+
+## Demo I: a damped oscillator, observed only at the beginning
+
+![](demos/figures/fig_I_oscillator.pdf){width=100%}
+
+\small
+$\ddot x + \mu\dot x + kx = 0$, 10 noisy points in the grey region. **Same network**, only the loss differs:
+\textcolor{myred}{A}: data only $\;\Rightarrow\;$ fits the points, then nonsense. \textcolor{myblue}{B}: + ODE residual on 60 collocation points $\;\Rightarrow\;$ follows the physics everywhere.
+
+::: notes
+Live: cd demos; uv run jupyter lab; open demo1_pinn_oscillator.ipynb (about 1 min on a laptop CPU).
+RMSE over the whole window: A 0.66, B 0.03.
+:::
+
+## Demo I: two lessons
+
+::: columns
+::::{.column width=50%}
+![](demos/figures/fig_I_loss.pdf){width=95%}
+
+\small The data-only model has the **lowest training loss** (it memorises the noise) and the **worst** prediction.
+:::
+
+::::{.column width=50%}
+![](demos/figures/fig_I_wrong_physics.pdf){width=95%}
+
+\small A PINN with the **wrong** stiffness $k$: smooth, confident, and wrong. A soft constraint is only as good as the physics you put in.
+:::
+:::
+
+## Soft constraints beyond PDEs
+
+\small
+
+::: columns
+::::{.column width=50%}
+\textcolor{myblue}{\textbf{Conservation and sum rules}}
+
+- total charge $\sum_i q_i = Q$ in ML charge models
+- $\int \rho(\mathbf r)\,d\mathbf r = N_\text{electrons}$, $f$-sum rule
+- probabilities sum to one
+
+\textcolor{myblue}{\textbf{Energy--force consistency}}
+
+- separate heads for $E$ and $\mathbf F$, penalty $\|\mathbf F + \nabla E\|^2$
+
+\textcolor{myblue}{\textbf{Known limits}}
+
+- ideal-gas limit, short-range repulsion, dissociation limit
+:::
+
+::::{.column width=50%}
+\textcolor{myblue}{\textbf{Kinetics}}
+
+- detailed balance $\pi_i k_{ij} = \pi_j k_{ji}$ in learned rate matrices or Markov state models; non-negative rates
+
+\textcolor{myblue}{\textbf{Matching experiments}}
+
+- train a potential so that simulated averages match measured ones (RDF, NMR): max-entropy reweighting, DiffTRe (Thaler \& Zavadlak 2021)
+
+\textcolor{myblue}{\textbf{Shape constraints}}
+
+- monotonicity (adsorption isotherms), convexity, bounds
+:::
+:::
+
+\bigskip
+\centering
+\normalsize \textcolor{mygreen}{Any equation, inequality or limit you trust can become a loss term.}
+
+\fref{Thaler \& Zavadlak, Nat. Commun. 12, 6884 (2021)}
+
+## Two more soft tools
+
+::: columns
+::::{.column width=50%}
+\textcolor{myblue}{\textbf{Data augmentation}}
+
+- Known symmetry? Show the model transformed copies of the data (rotated, permuted, translated)
+- The model **learns** the symmetry, approximately and only near the data
+- The soft version of what Part II does exactly
+:::
+
+::::{.column width=50%}
+\textcolor{myblue}{\textbf{Neural operators}}
+
+- Learn a map between **functions**: initial condition, parameters $\mapsto$ solution field
+- Fourier neural operators, DeepONet (Li et al. 2021; Lu et al. 2021)
+- Physics-informed versions add the PDE residual to the loss: one model for a whole family of problems
+:::
+:::
+
+\fref{Li et al., ICLR (2021) · Lu et al., Nat. Mach. Intell. 3, 218 (2021)}
+
+## Soft constraints: what goes wrong, and when to use them
+
+::: columns
+::::{.column width=50%}
+\textcolor{myred}{\textbf{What goes wrong}}
+
+- Choosing the weights $\lambda_k$: competing terms
+- Stiff, ill-conditioned loss landscapes; PINNs can fail to train (Krishnapriyan et al. 2021; Wang et al. 2021)
+- Spectral bias: slow to learn sharp or high-frequency features
+- Constraint satisfied only approximately, only where evaluated
+- Wrong physics $\Rightarrow$ confident wrong model
+:::
+
+::::{.column width=50%}
+\textcolor{mygreen}{\textbf{When to use them}}
+
+- Known equations, scarce or noisy data
+- Inverse problems: infer parameters or a missing term
+- Approximate physics you don't want to impose exactly
+- Quick to try: only the loss changes
+
+\bigskip
+\small This week: *"What accuracy is lost by removing the physics?"* is one of the questions of the surrogate challenge.
+:::
+:::
+
+\fref{Krishnapriyan et al., NeurIPS (2021) · Wang, Teng \& Perdikaris, SIAM J. Sci. Comput. 43, A3055 (2021)}
+
+# II. Hard constraints: physics in the architecture
+
+## Symmetries: invariance and equivariance
+
+::: columns
+::::{.column width=55%}
+- Physical laws do not depend on how you label or orient things
+  - translations, rotations, permutations of identical particles, time reversal, gauge
+- **Invariance**: $f(g\cdot x) = f(x)$
+  - energy $E(R\mathbf{r}) = E(\mathbf{r})$
+- **Equivariance**: $f(g\cdot x) = g\cdot f(x)$
+  - forces $\mathbf{F}(R\mathbf{r}) = R\,\mathbf{F}(\mathbf{r})$
+- How do we get a model that satisfies this **exactly**?
+:::
+
+::::{.column width=45%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[atom/.style={circle, draw, thick, minimum size=0.55cm}]
+\begin{scope}
+\node[atom, fill=myred!40] (o) at (0,0) {};
+\node[atom, fill=white, minimum size=0.4cm] (h1) at (-0.7,-0.5) {};
+\node[atom, fill=white, minimum size=0.4cm] (h2) at (0.7,-0.5) {};
+\draw[thick] (o) -- (h1); \draw[thick] (o) -- (h2);
+\draw[-{Stealth}, very thick, myblue] (o) -- (0,0.9);
+\end{scope}
+\draw[-{Stealth}, thick, gray] (1.2,0) -- node[above, font=\scriptsize] {rotate} (2.2,0);
+\begin{scope}[shift={(3.3,0)}, rotate=60]
+\node[atom, fill=myred!40] (o) at (0,0) {};
+\node[atom, fill=white, minimum size=0.4cm] (h1) at (-0.7,-0.5) {};
+\node[atom, fill=white, minimum size=0.4cm] (h2) at (0.7,-0.5) {};
+\draw[thick] (o) -- (h1); \draw[thick] (o) -- (h2);
+\draw[-{Stealth}, very thick, myblue] (o) -- (0,0.9);
+\end{scope}
+\node[font=\scriptsize, align=center] at (1.65,-1.5) {$E$ unchanged (invariant)\\ \textcolor{myblue}{force rotates} (equivariant)};
+\end{tikzpicture}
+\end{center}
+```
+:::
+:::
+
+## Four routes to an exact symmetry
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[
+  r/.style={draw, rounded corners, thick, draw=mygreen, fill=mygreen!8, text width=3.05cm, minimum height=3.3cm, align=center, font=\footnotesize, anchor=north, execute at begin node={\hyphenpenalty=10000}},
+  s/.style={draw, rounded corners, fill=white, font=\scriptsize, inner sep=2pt}
+]
+\node[r] (r1) at (0,0) {\textbf{1. Invariant inputs}\\[4pt]
+  $x \to$ \fbox{\scriptsize distances, angles} $\to$ NN\\[6pt] \scriptsize describe the system only by invariants (symmetry functions, SOAP, ACE)};
+\node[r] (r2) at (3.45,0) {\textbf{2. Canonicalise}\\[4pt]
+  $x \to$ \fbox{\scriptsize standard pose} $\to$ NN\\[6pt] \scriptsize align to inertia frame, sort atoms; or learn the frame};
+\node[r] (r3) at (6.9,0) {\textbf{3. Average}\\[4pt]
+  {\scriptsize $\bar f(x) = \tfrac{1}{|G|}\sum_g g^{-1} f(g x)$}\\[6pt] \scriptsize symmetrise any model over the group or a set of frames};
+\node[r] (r4) at (10.35,0) {\textbf{4. Equivariant\\ layers}\\[4pt]
+  $x \to$ \fbox{\scriptsize layer} $\to\cdots\to$ \fbox{\scriptsize layer}\\[6pt] \scriptsize every layer commutes with the group (CNN, GNN, e3nn)};
+\end{tikzpicture}
+\end{center}
+```
+
+\vspace{-0.2cm}
+
+```{=latex}
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{L{3.1cm}L{3.1cm}L{3.1cm}L{3.1cm}}
+\textcolor{mygreen!70!black}{\textbf{+}} simple, cheap & any network, exact & any network, exact & most expressive, data-efficient \\
+\textcolor{myred}{\textbf{--}} may lose information (chirality), scalar outputs & discontinuous at degeneracies & cost $\propto$ number of group elements & complex, costly \\
+\end{tabular}
+\end{center}
+```
+
+::: notes
+Refs: Behler-Parrinello 2007 (symmetry functions); Kaba et al. 2023 (learned canonicalisation); Puny et al. 2022 (frame averaging); Cohen & Welling 2016 (group CNNs); Zaheer et al. 2017 (Deep Sets); Satorras et al. 2021 (EGNN).
+:::
+
+\fref{Behler \& Parrinello, PRL 98, 146401 (2007) · Kaba et al., ICML (2023) · Puny et al., ICLR (2022) · Cohen \& Welling, ICML (2016) · Zaheer et al., NeurIPS (2017) · Satorras et al., ICML (2021)}
+
+## Equivariance is a constraint on the architecture
+
+::: columns
+::::{.column width=40%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[font=\small]
+\node (x) at (0,1.8) {$x$};
+\node (Lx) at (3,1.8) {$L(x)$};
+\node (gx) at (0,0) {$g\cdot x$};
+\node (gLx) at (3,0) {$g\cdot L(x)$};
+\draw[-{Stealth}, thick, myblue] (x) -- node[above] {layer $L$} (Lx);
+\draw[-{Stealth}, thick, myblue] (gx) -- node[below] {layer $L$} (gLx);
+\draw[-{Stealth}, thick, myred] (x) -- node[left] {$g$} (gx);
+\draw[-{Stealth}, thick, myred] (Lx) -- node[right] {$g$} (Lx|-gLx.north);
+\end{tikzpicture}
+\end{center}
+```
+\footnotesize
+Transform then apply $=$ apply then transform.
+:::
+
+::::{.column width=60%}
+\small
+
+- Impose it **layer by layer**: equivariant layers compose into an equivariant network
+- Finish with a sum or mean $\Rightarrow$ invariant output
+- The constraint acts on the **weights**: only a subspace of weight matrices is allowed
+:::
+:::
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[x=0.24cm, y=0.24cm]
+\pgfmathsetseed{7}
+\foreach \i in {0,...,5} \foreach \j in {0,...,5} {
+  \pgfmathsetmacro\v{int(10+75*rnd)}
+  \fill[myblue!\v] (\j,-\i) rectangle ++(1,-1);}
+\draw[gray] (0,0) rectangle (6,-6);
+\node[font=\scriptsize, align=center] at (3,-7.6) {no symmetry\\ $n^2$ free weights};
+\begin{scope}[xshift=4.2cm]
+\foreach \i in {0,...,5} \foreach \j in {0,...,5} {
+  \pgfmathsetmacro\v{int(12+13*mod(\j-\i+6,6))}
+  \fill[mygreen!\v] (\j,-\i) rectangle ++(1,-1);}
+\draw[gray] (0,0) rectangle (6,-6);
+\node[font=\scriptsize, align=center] at (3,-7.6) {translations\\ $n$ weights: a \textbf{convolution}};
+\end{scope}
+\begin{scope}[xshift=8.4cm]
+\foreach \i in {0,...,5} \foreach \j in {0,...,5} {
+  \pgfmathsetmacro\v{\i==\j ? 75 : 20}
+  \fill[myred!\v] (\j,-\i) rectangle ++(1,-1);}
+\draw[gray] (0,0) rectangle (6,-6);
+\node[font=\scriptsize, align=center] at (3,-7.6) {permutations\\ 2 weights: $W = a\,I + b\,\mathbf{1}\mathbf{1}^{\top}$};
+\end{scope}
+\node[font=\scriptsize, anchor=east, align=right] at (-0.6,-3) {linear layer\\ $L(x) = W\cdot x$\\ \textcolor{gray}{($n$ inputs)}};
+\end{tikzpicture}
+\end{center}
+```
+
+::: notes
+Nonlinearities must commute with g too: pointwise on scalars, norms or gates on vectors.
+Key message: equivariance is not learned, it is imposed by restricting the weights. For a linear layer on a periodic 1D signal, commuting with all shifts forces W to be circulant, i.e. a convolution (one weight per offset). Commuting with all permutations forces W = aI + b 11^T (Deep Sets). Fewer free parameters, exact symmetry, less data needed.
+:::
+
+\fref{Cohen \& Welling, ICML (2016) · Zaheer et al., NeurIPS (2017) · Kondor \& Trivedi, ICML (2018)}
+
+## Which symmetry, which architecture?
+
+```{=latex}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{L{3.0cm}L{3.2cm}L{3.1cm}L{3.9cm}}
+\textcolor{mygreen!70!black}{\textbf{Symmetry}} & \textcolor{mygreen!70!black}{\textbf{Typical data}} & \textcolor{mygreen!70!black}{\textbf{Architecture}} & \textcolor{mygreen!70!black}{\textbf{What the constraint does}} \\ \hline
+translations & images, grids, time series & \textbf{CNN} & same filter everywhere \\
+permutations (sets) & particles, point clouds & \textbf{Deep Sets} & same function per element, then sum \\
+permutations (graphs) & molecules, meshes & \textbf{GNN} & same message on every edge \\
+E(3): rotations + translations & atoms, 3D point clouds & \textbf{EGNN, NequIP, MACE} & vector/tensor features, tensor products \\
+rotations on the sphere & climate, cosmology maps & \textbf{spherical CNN} & convolution on the sphere \\
+Lorentz group & particle jets & \textbf{Lorentz-equivariant} & four-vectors, Minkowski products \\
+gauge symmetry & lattice field theory & \textbf{gauge-equivariant} & built from gauge-invariant loops \\
+\end{tabular}
+\end{center}
+```
+
+\fref{Cohen et al., ICLR (2018) · Satorras et al., ICML (2021) · Bogatskiy et al., ICML (2020) · Kanwar et al., PRL 125, 121601 (2020)}
+
+## Example: an E(3)-equivariant graph network (EGNN)
+
+::: columns
+::::{.column width=38%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[n/.style={circle, draw, thick, minimum size=0.65cm, font=\small}]
+\node[n, fill=myorange!40] (i) at (0,0) {$i$};
+\node[n, fill=gray!10] (a) at (-1.7,1.1) {$j$};
+\node[n, fill=gray!10] (b) at (1.5,1.3) {$j'$};
+\node[n, fill=gray!10] (c) at (1.4,-1.2) {$j''$};
+\draw[-{Stealth}, very thick, myblue] (a) -- (i);
+\draw[-{Stealth}, very thick, myblue] (b) -- (i);
+\draw[-{Stealth}, very thick, myblue] (c) -- (i);
+\node[myblue, font=\scriptsize] at (-1.25,0.25) {$\mathbf x_i - \mathbf x_j$};
+\node[mygreen!70!black, font=\scriptsize] at (0,-1.75) {features $h_i$: scalars};
+\node[myblue, font=\scriptsize] at (0,-2.15) {positions $\mathbf x_i$: vectors};
+\end{tikzpicture}
+\end{center}
+```
+:::
+
+::::{.column width=62%}
+\small
+$$\begin{aligned}
+m_{ij} &= \phi_e\big(h_i,\, h_j,\, \textcolor{mygreen!70!black}{\|\mathbf x_i - \mathbf x_j\|^2}\big) \\
+\mathbf x_i &\leftarrow \mathbf x_i + \textstyle\sum_j \textcolor{myblue}{(\mathbf x_i - \mathbf x_j)}\, \phi_x(m_{ij}) \\
+h_i &\leftarrow \phi_h\big(h_i,\, \textstyle\sum_j m_{ij}\big)
+\end{aligned}$$
+
+- $\phi_e, \phi_x, \phi_h$: ordinary MLPs, **unconstrained**
+- They only see \textcolor{mygreen!70!black}{distances} $\Rightarrow$ $h$ is **invariant**
+- Positions move along \textcolor{myblue}{relative vectors} times scalars $\Rightarrow$ $\mathbf x$ is **equivariant**
+- Differences $\Rightarrow$ translations drop out; sums over $j$ $\Rightarrow$ atom order does not matter
+:::
+:::
+
+\centering
+\small The MLPs are free; **the way they are wired** guarantees the symmetry.\
+NequIP and MACE extend this to higher-order tensor features.
+
+::: notes
+Walk through the three lines. Rotate the whole input: distances do not change, so m_ij and h_i do not change (invariant); x_i - x_j rotates, multiplied by an unchanged scalar, so the update rotates too (equivariant). Translate: only differences appear. Permute atoms: sums over neighbours are order-independent.
+For an energy: E = sum_i phi(h_i) is invariant, and F = -grad E is then equivariant automatically.
+:::
+
+\fref{Satorras, Hoogeboom \& Welling, ICML (2021) · Batzner et al., Nat. Commun. 13, 2453 (2022) · Batatia et al., NeurIPS (2022)}
+
+## Hard constraints beyond symmetry
+
+```{=latex}
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{L{3.6cm}L{9.6cm}}
+\textcolor{mygreen!70!black}{\textbf{Route}} & \textcolor{mygreen!70!black}{\textbf{Example}} \\ \hline
+derive from a potential & $\mathbf F = -\nabla E_\theta$: conservative forces; $\mathbf B = \nabla\times\mathbf A_\theta$: divergence-free; Hamiltonian / Lagrangian NNs conserve energy \\
+output parametrisation & softplus $\Rightarrow$ positive; softmax $\Rightarrow$ normalised; $LL^\top$ $\Rightarrow$ positive-definite matrix; input-convex NNs $\Rightarrow$ convex \\
+projection layer & $q_i \leftarrow q_i - \big(\sum_j q_j - Q\big)/N$: exact total charge; optimisation layers (OptNet) \\
+trial-function ansatz & $u = g(x) + d(x)\,\mathrm{NN}(x)$: boundary conditions exact (Lagaris et al. 1998) \\
+locality, extensivity & $E = \sum_i \varepsilon(\text{environment}_i)$: size-extensive, linear scaling \\
+hybrid model & keep the known solver, learn only the missing term (universal differential equations) \\
+normalised by construction & normalizing flows: exact probability densities ($\to$ Part III) \\
+\end{tabular}
+\end{center}
+```
+
+::: notes
+Refs: Greydanus 2019 (HNN), Cranmer 2020 (LNN), Amos et al. 2017 (ICNN), Amos & Kolter 2017 (OptNet), Rackauckas et al. 2020 (UDE).
+:::
+
+\fref{Greydanus et al., NeurIPS (2019) · Cranmer et al., arXiv:2003.04630 · Amos et al., ICML (2017) · Lagaris et al., IEEE TNN 9, 987 (1998) · Rackauckas et al., arXiv:2001.04385}
+
+## Soft vs hard
+
+```{=latex}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{3.4cm}L{5cm}L{5cm}}
+ & \textcolor{myblue}{\textbf{Soft} (Part I)} & \textcolor{mygreen!70!black}{\textbf{Hard} (Part II)} \\ \hline
+how & penalty in the loss, augmentation & built into the model \\
+guarantee & approximate, near the data & exact, \textbf{everywhere} \\
+data needed & more & less \\
+flexibility & any architecture & needs a suitable design \\
+if the physics is wrong & model can compromise & model cannot escape \\
+\end{tabular}
+\end{center}
+```
+
+\bigskip
+\centering
+Next: the demo puts **no constraint**, **soft** (augmentation) and **hard** (canonicalisation, invariant descriptors) side by side on the same problem.
+
+## Demo II: four ways to handle symmetry
+
+\small
+Energy of a 6-atom cluster (Lennard-Jones + three-body term). Trained in **one orientation**, tested on **rotated and permuted** copies.
+
+![](demos/figures/fig_II_parity.pdf){width=100%}
+
+\textcolor{myred}{(a)} raw coordinates: off-scale on rotated data. \textcolor{myorange}{(b)} augmentation: nearly invariant\dots{} by predicting $\approx$ the mean energy. \textcolor{mygreen!70!black}{(c)}, \textcolor{myblue}{(d)}: $E(x) = E(gx)$ to $10^{-14}$, by construction.
+
+::: notes
+Live: demo2_symmetry_cluster.ipynb (about 1 min).
+(b) is a real lesson: with this budget, the cheapest way for a network to look invariant is to be nearly constant.
+:::
+
+## Demo II: data efficiency and the price of each route
+
+::: columns
+::::{.column width=50%}
+![](demos/figures/fig_II_learning_curve.pdf){width=100%}
+
+\small Training data now in random orientations. Hard constraints learn with far less data. Invariant descriptors win with little data but plateau: **they lose information**.
+:::
+
+::::{.column width=50%}
+![](demos/figures/fig_II_canon_path.pdf){width=100%}
+
+\small Move one atom smoothly: two atoms swap places in the sorting order and the canonicalised model **jumps**. Exact symmetry, but a discontinuous model.
+:::
+:::
+
+## Hard constraints: what goes wrong
+
+- You must know the constraint **exactly**
+- **Broken** symmetries: external fields, boundaries, finite-size effects
+- Canonicalisation: discontinuities at degenerate configurations
+- Invariant descriptors: information loss
+- Expressivity and computational cost of equivariant layers
+- **Over-constraining**: no room left to learn what the physics misses
+
+## Where we stand: a spectrum
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}
+\draw[-{Stealth}, very thick, gray] (0,0) -- (12,0);
+\node[below, font=\small, align=center] at (0.8,-0.2) {pure\\ physics};
+\node[below, font=\small, align=center] at (11.2,-0.2) {pure\\ data};
+\foreach \x/\t/\c in {0.8/{simulation}/myblue, 3.4/{hybrid: solver +\\ learned closure}/myblue, 6/{hard constraints\\ (Part II)}/mygreen, 8.6/{soft constraints\\ (Part I)}/mygreen, 11.2/{black-box\\ network}/myred}
+  {\fill[\c] (\x,0) circle (0.12); \node[above, font=\scriptsize, align=center] at (\x,0.25) {\t};}
+\end{tikzpicture}
+\end{center}
+```
+
+\bigskip
+
+- The further to the right, the more data you need and the less you can extrapolate
+- Most successful AI-for-science models sit in the **middle**
+- So far, every model returns **one number**. How much should we trust it? $\to$ Part III
+
+# III. Generative and probabilistic models
+
+## From a value to a distribution
+
+::: columns
+::::{.column width=50%}
+- Predict $p(y \mid x)$ instead of $y$
+- Minimising the MSE = maximising a Gaussian likelihood with fixed width
+- Let the network also predict the width:
+$$-\log p = \frac{(y - \mu_\theta(x))^2}{2\sigma_\theta(x)^2} + \log \sigma_\theta(x)$$
+- The model now says **how sure** it is
+:::
+
+::::{.column width=50%}
+```{=latex}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=7cm, height=5cm, axis lines=left, xlabel={$x$}, ylabel={$y$},
+  xtick=\empty, ytick=\empty, xmin=-4, xmax=4, ymin=-2.5, ymax=2.5]
+\addplot[name path=up, draw=none, domain=-4:4, samples=80] {sin(deg(x)) + 0.15 + 1.1*exp(-x^2/0.9) + 0.12*max(abs(x)-3,0)^2*4};
+\addplot[name path=lo, draw=none, domain=-4:4, samples=80] {sin(deg(x)) - 0.15 - 1.1*exp(-x^2/0.9) - 0.12*max(abs(x)-3,0)^2*4};
+\addplot[myblue!25] fill between[of=up and lo];
+\addplot[thick, myblue, domain=-4:4, samples=80] {sin(deg(x))};
+\addplot[only marks, mark=*, mark size=1.3pt, myorange] coordinates {
+ (-3,-0.2) (-2.7,-0.35) (-2.3,-0.8) (-2,-0.95) (-1.6,-1.05) (-1.2,-0.9)
+ (1.1,0.85) (1.5,1.05) (1.9,0.9) (2.3,0.8) (2.7,0.35) (3.0,0.2)};
+\node[font=\scriptsize, gray] at (axis cs:0,2.0) {no data here};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+```
+:::
+:::
+
+## Two kinds of uncertainty
+
+::: columns
+::::{.column width=50%}
+\textcolor{myblue}{\textbf{Aleatoric}}: noise in the data
+
+- measurement noise, thermal fluctuations, chaotic dynamics
+- does **not** go away with more data
+- captured by predicting $\sigma_\theta(x)$
+
+\medskip
+\textcolor{myred}{\textbf{Epistemic}}: lack of data
+
+- the model has not seen this region
+- **decreases** with more data
+- Gaussian processes, deep ensembles (Lakshminarayanan et al. 2017), MC dropout, Bayesian NNs
+:::
+
+::::{.column width=50%}
+\textcolor{mygreen!70!black}{\textbf{Why it matters}}
+
+- Trust: is the prediction usable?
+- Out-of-distribution warning
+- Active learning: compute or measure where the model is unsure
+- Bayesian optimisation: choose where to look next
+
+\medskip
+\textcolor{myred}{\textbf{Calibration}}: a 90% interval should contain the truth 90% of the time. A neural network can be **confidently wrong** far from the data, and uncertainty estimates can be miscalibrated too.
+:::
+:::
+
+\fref{Lakshminarayanan, Pritzel \& Blundell, NeurIPS (2017)}
+
+## Learning the whole distribution $p(x)$
+
+- **Generative model**: learn $p(x)$ from samples, then **sample** new $x$ or **score** a given $x$
+- Variational autoencoders: encode to a small latent space, decode back
+- Normalizing flows: invertible map from a Gaussian, exact $\log p(x)$
+- **Diffusion models** (Ho et al. 2020): learn to undo a gradual noising
+  - generation = learned, Langevin-like dynamics from noise to data
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[font=\small]
+\node[draw, rounded corners, fill=myblue!10, minimum width=2.2cm] (x) at (0,0) {data $x_0$};
+\node[draw, rounded corners, fill=gray!10, minimum width=2.2cm] (m) at (4,0) {noisy $x_t$};
+\node[draw, rounded corners, fill=gray!25, minimum width=2.2cm] (z) at (8,0) {noise $x_T$};
+\draw[-{Stealth}, thick] (x) to[bend left=25] node[above, font=\scriptsize] {add noise} (m);
+\draw[-{Stealth}, thick] (m) to[bend left=25] node[above, font=\scriptsize] {add noise} (z);
+\draw[-{Stealth}, thick, myred] (z) to[bend left=25] node[below, font=\scriptsize] {learned denoising} (m);
+\draw[-{Stealth}, thick, myred] (m) to[bend left=25] node[below, font=\scriptsize] {learned denoising} (x);
+\end{tikzpicture}
+\end{center}
+```
+
+\fref{Ho, Jain \& Abbeel, NeurIPS (2020)}
+
+## Demo III: a diffusion model learns a Boltzmann distribution
+
+\small Target: $p(x,y) \propto e^{-U(x,y)/k_BT}$, a tilted double well. 50\,000 exact samples, a small network that predicts the added noise.
+
+![](demos/figures/fig_III_denoising.pdf){width=100%}
+
+\centering
+From pure noise to the two basins, by running the learned denoising backwards.
+
+::: notes
+Live: demo3_diffusion_doublewell.ipynb (about 1 min).
+:::
+
+## Demo III: check the physics, not the pictures
+
+::: columns
+::::{.column width=55%}
+![](demos/figures/fig_III_samples.pdf){width=100%}
+:::
+
+::::{.column width=45%}
+![](demos/figures/fig_III_free_energy.pdf){width=100%}
+:::
+:::
+
+\small
+- Free energy $F(x) = -k_BT\ln p(x)$: the trained model gets the **barrier** right
+- The under-trained model gets the basin populations right (0.25 vs 0.25)\dots{} by luck: the barrier is gone
+- One summary number can look fine while the distribution is wrong. The barrier is where samples are rare.
+
+## Physics meets generative models
+
+::: columns
+::::{.column width=55%}
+\textcolor{myblue}{\textbf{Boltzmann generators}} (Noé et al. 2019)
+
+- Flow trained to sample $p(x) \propto e^{-E(x)/k_BT}$ directly
+- Uses the **energy** as a training signal (soft, Part I)
+- Equivariant flows respect symmetries (hard, Part II)
+- Exact likelihood $\Rightarrow$ reweighting gives **unbiased** averages (Part III)
+:::
+
+::::{.column width=45%}
+\textcolor{myred}{\textbf{Other uses}}
+
+- Protein and molecule design (RFdiffusion)
+- Inverse problems with a prior
+- Probabilistic weather forecasts (GenCast)
+- Fast generation of simulated events
+:::
+:::
+
+\bigskip
+\centering
+\textcolor{mygreen}{All three parts meet here.}
+
+\fref{Noé et al., Science 365, eaaw1147 (2019) · Watson et al., Nature 620, 1089 (2023) · Price et al., Nature 637, 84 (2025)}
+
+
+## Probabilistic models: links and pitfalls
+
+::: columns
+::::{.column width=50%}
+\textcolor{mygreen!70!black}{\textbf{Links to this week}}
+
+- **Anomaly detection**: low likelihood under a model of "normal" $\Rightarrow$ suspicious
+- **Optimisation**: uncertainty decides where to evaluate next (Bayesian optimisation)
+- **Surrogates**: error bars tell you when to stop trusting the model (out of distribution)
+:::
+
+::::{.column width=50%}
+\textcolor{myred}{\textbf{What goes wrong}}
+
+- Evaluating generative models: "looks realistic" is not a metric
+- Mode collapse; rare events under-represented
+- Overconfidence out of distribution
+- Uncertainty that is itself not calibrated
+:::
+:::
+
+# Conclusion
+
+## Three ways to put physics into a model
+
+```{=latex}
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{L{1.9cm}L{2.6cm}L{2.3cm}L{2.8cm}L{2.4cm}}
+ & \textbf{encodes} & \textbf{guarantee} & \textbf{tools} & \textbf{use when} \\ \hline
+\textcolor{myblue}{\textbf{I. Soft}} & equations, limits, sum rules in the loss & approximate, near the evaluated points & PINNs, penalties, augmentation & physics known but approximate; few data \\
+\textcolor{mygreen!70!black}{\textbf{II. Hard}} & symmetries and structure in the model & exact, everywhere & invariant features, canonicalisation, equivariant nets, potentials & constraint known exactly \\
+\textcolor{myred}{\textbf{III. Probabilistic}} & the full distribution & honest error bars (if calibrated) & GPs, ensembles, flows, diffusion & you need uncertainty or samples \\
+\end{tabular}
+\end{center}
+```
+
+\bigskip
+\centering
+They combine: an equivariant (II) generative model (III) trained with an energy penalty (I).
+
+## What we did not cover
+
+\small
+
+::: columns
+::::{.column width=58%}
+- **Data**: collection, cleaning, labelling, curation, FAIR data, leakage between train and test
+- **The mathematics**: approximation theory, optimisation landscapes, why deep networks generalise
+- **LLMs and agents**: literature search, coding assistants, autonomous "AI scientists"
+- **Reinforcement learning and control** in depth
+- **Interpretability**: what did the model learn? Symbolic regression, explainability tools
+- **Scale**: foundation models for science, GPUs, energy cost
+- **Deployment**: running models in production, monitoring drift
+:::
+
+::::{.column width=42%}
+\textcolor{mygreen!70!black}{\textbf{Some of it this week}}
+
+\medskip
+
+- *Accelerators and AI*: Bayesian optimisation, autoencoders, surrogates, RL in practice
+- *HPC and Slurm*: running on GPUs and clusters
+- *Feature Store*: data and feature engineering for your challenge dataset
+
+\medskip
+And in your projects: **data** will probably be the hardest part.
+:::
+:::
+
+## Resources
+
+::: columns
+::::{.column width=50%}
+\textbf{Software}
+
+- General: PyTorch, JAX, scikit-learn
+- Physics-informed: DeepXDE, neuraloperator
+- Symmetry: PyTorch Geometric, e3nn, MACE
+- Uncertainty: GPyTorch, BoTorch
+- Generative: sbi (simulation-based inference)
+
+\medskip
+\textbf{Demos of this lecture}: `demos/` (three notebooks, CPU, about 1 min each)
+:::
+
+::::{.column width=50%}
+\textbf{To go further}
+
+- *Physics-based Deep Learning* (Thuerey et al., online book)
+- *Geometric Deep Learning* (Bronstein et al., 2021)
+- *Deep Learning* (Goodfellow, Bengio, Courville)
+
+\bigskip
+\textcolor{mygreen}{\textbf{Next: Accelerators and AI}}
+:::
+:::
+
+##
+
+\centering
+\Huge Questions?
+
+\bigskip
+\normalsize
+\textcolor{mygreen}{Have a great hackathon!}

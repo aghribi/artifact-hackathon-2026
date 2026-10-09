@@ -1,0 +1,21 @@
+[project]
+name = "ai4science-lecture-demos"
+version = "0.1.0"
+description = "Small CPU demos for the AI for Science introductory lecture (AISSAI hackathon 2026)"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "torch>=2.0",
+    "jupyter",
+    "nbformat",
+    "scikit-fem>=12.0.2",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
