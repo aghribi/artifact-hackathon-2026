@@ -233,8 +233,9 @@
 <div class="slides">
 <!-- ------------------------------------------------------------- title -->
 <section class="titleslide">
-  <img src="brand/agora_mark.svg" alt=""
-       style="height:72px; width:auto; display:block; margin:0 auto 0.5em auto;">
+  <img src="talk_assets/visual_indico.png"
+       alt="ARTIFACT, CNRS, AISSAI, IRIS, Region Normandie, EPS Accelerator Group, GANIL"
+       style="width:72%; max-width:1150px; height:auto; display:block; margin:0 auto 0.7em auto;">
   <h1>Steering CLARA end to end</h1>
   <p class="sub">Getting the beam a user asked for, in shots instead of hours</p>
   <div class="brandrule"></div>
@@ -341,11 +342,11 @@
     <div class="col wide">
       <div class="r-stack methodshot">
         <img class="fragment fade-in-then-out" data-fragment-index="1"
-             src="optics_nodes/transmission_matrix_vbc_on.png"
-             alt="Transmission for each of the 144 matched optics nodes">
+             src="model_svd_opt/optics_matching.png"
+             alt="Transmission at each of the 144 matched nodes">
         <img class="fragment fade-in-then-out" data-fragment-index="2"
-             src="segment_opt/response.png"
-             alt="Beam before and after segment-by-segment response correction">
+             src="steering/fig_svd_orbit.png"
+             alt="Orbit at the 31 BPMs before correction, after one shot and after three">
         <img class="fragment fade-in-then-out" data-fragment-index="3"
              src="segment_opt/comparison.png"
              alt="Response matrix, BO, RCDS and hybrids compared on one section">
@@ -413,28 +414,28 @@
     <thead>
       <tr>
         <th>Method</th><th class="num">Score</th><th class="num">Shots</th>
-        <th class="num">Screen moves</th><th class="num">Think time</th>
+        <th class="num">Screen moves</th>
       </tr>
     </thead>
     <tbody>
       <tr class="hero"><td><strong>Calibration + MF-BO</strong></td>
         <td class="num best">0.40</td><td class="num">8.7</td>
-        <td class="num best">0</td><td class="num">258 s</td></tr>
+        <td class="num best">0</td></tr>
       <tr class="hero"><td><strong>SVD subspace, BO</strong></td>
         <td class="num">0.43</td><td class="num">5.6</td>
-        <td class="num best">0</td><td class="num best">4 s</td></tr>
+        <td class="num best">0</td></tr>
       <tr class="hero"><td><strong>SVD subspace, RCDS</strong></td>
         <td class="num">0.50</td><td class="num">6.2</td>
-        <td class="num best">0</td><td class="num">4 s</td></tr>
+        <td class="num best">0</td></tr>
       <tr class="hero"><td><strong>Model-based RL</strong></td>
         <td class="num">0.77</td><td class="num">6.5</td>
-        <td class="num best">0</td><td class="num">270 s</td></tr>
+        <td class="num best">0</td></tr>
       <tr><td>Optics + placement <span class="muted">(two linear solves)</span></td>
         <td class="num">1.00</td><td class="num best">2.0</td>
-        <td class="num best">0</td><td class="num">7 s</td></tr>
+        <td class="num best">0</td></tr>
       <tr class="baseline"><td>Do nothing</td>
         <td class="num">9.65</td><td class="num">0</td>
-        <td class="num">0</td><td class="num">0</td></tr>
+        <td class="num">0</td></tr>
     </tbody>
   </table>
   <p style="text-align:center; margin-top:1em; font-size:1.05em;">
