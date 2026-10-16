@@ -40,7 +40,7 @@ See the **[Participant Access Guide](access-guide.md)** for everything you need 
 
 See **[GRADING.md](GRADING.md)** for how objectives are scored and logged to Weights & Biases.
 
-See **[coding-assistant/](coding-assistant/)** to use the coding model that runs on DALIA from Claude Code on your laptop.
+See **[coding-assistant/](coding-assistant/)** to use the coding model served on DALIA from Claude Code on your laptop. The server is stopped since Thu 15 Oct.
 
 ## Contacts
 

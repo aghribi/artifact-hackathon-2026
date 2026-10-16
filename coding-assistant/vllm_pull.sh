@@ -16,9 +16,10 @@
 set -euo pipefail
 
 TAG="${1:-glm53-flash}"
-export PROJECT_DIR=/lustre/work/pdl18409/$USER
-export APPTAINER_CACHEDIR=$PROJECT_DIR/cache_apptainer
-SIF=$PROJECT_DIR/vllm/vllm-$TAG.sif
+umask 007
+DIR=/lustre/work/pdl18409/shared/vllm
+export APPTAINER_CACHEDIR=$DIR/cache_apptainer
+SIF=$DIR/vllm-$TAG.sif
 
 uname -m
 nvidia-smi --query-gpu=name,memory.total --format=csv

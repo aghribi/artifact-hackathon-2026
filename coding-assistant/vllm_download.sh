@@ -15,9 +15,10 @@
 set -euo pipefail
 
 MODEL="${1:-RedHatAI/GLM-5.3-Flash-NVFP4}"
-export PROJECT_DIR=/lustre/work/pdl18409/$USER
-export HF_HOME=$PROJECT_DIR/cache_huggingface
-SIF=$PROJECT_DIR/vllm/vllm-glm53-flash.sif
+umask 007
+DIR=/lustre/work/pdl18409/shared/vllm
+export HF_HOME=$DIR/cache_huggingface
+SIF=$DIR/vllm-glm53-flash.sif
 
 apptainer exec --bind /lustre "$SIF" python3 -c "
 import sys

@@ -16,19 +16,19 @@
 
 set -euo pipefail
 
-export PROJECT_DIR=/lustre/work/pdl18409/$USER
-export HF_HOME=$PROJECT_DIR/cache_huggingface
+# Everything lives in the group folder, read and write for the hackathon group.
+umask 007
+DIR=/lustre/work/pdl18409/shared/vllm
+export HF_HOME=$DIR/cache_huggingface
 export HF_HUB_OFFLINE=1
 MODEL="${1:-RedHatAI/GLM-5.3-Flash-NVFP4}"
-SIF=$PROJECT_DIR/vllm/vllm-glm53-flash.sif
+SIF=$DIR/vllm-glm53-flash.sif
 
-# Hackathon members read the node name and the key from the shared folder.
+# Hackathon members read the node name and the key from the group folder.
 # The node name changes with each job; the key is kept across jobs.
-SHARED=/lustre/work/pdl18409/shared/vllm
-install -d -m 2750 "$SHARED"
-[ -f "$SHARED/api_key" ] || (umask 027 && openssl rand -hex 24 > "$SHARED/api_key")
-(umask 027 && hostname -s > "$SHARED/node")
-export VLLM_API_KEY=$(cat "$SHARED/api_key")
+[ -f "$DIR/api_key" ] || openssl rand -hex 24 > "$DIR/api_key"
+hostname -s > "$DIR/node"
+export VLLM_API_KEY=$(cat "$DIR/api_key")
 
 # The default 2 MB stack segfaults NCCL on this machine (IDRIS DALIA FAQ).
 ulimit -s 8192

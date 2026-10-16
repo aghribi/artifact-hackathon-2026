@@ -1,6 +1,8 @@
 # A coding model on DALIA for Claude Code
 
-GLM-5.3-Flash runs on two GB200 of the hackathon reservation. It is reachable only through ssh, with the accounts from the [access guide](../access-guide.md): your CC-IN2P3 login and your DALIA login, with the DALIA key on `cca`.
+**The server is stopped since Thu 15 Oct, 17:14.** The steps below no longer connect. [OPS.md](OPS.md) has the command to start it again.
+
+GLM-5.3-Flash ran on two GB200 of the hackathon reservation. It is reachable only through ssh, with the accounts from the [access guide](../access-guide.md): your CC-IN2P3 login and your DALIA login, with the DALIA key on `cca`.
 
 ## 1. Install Claude Code
 
@@ -59,7 +61,7 @@ Measured with a 33,000-token conversation per request.
 
 ## Limits
 
-- The server restarts on Thu 15 Oct around 17:35 and stops on Fri 16 Oct around 15:35. After a restart the node can change: read it again and reopen the tunnel.
+- After a restart the node can change: read it again and reopen the tunnel.
 - The model thinks before every answer, at full depth. Long thinking is normal.
 - The weights are a 4-bit version (`RedHatAI/GLM-5.3-Flash-NVFP4`). Its coding scores are not published.
 - `setsockopt TCP_NODELAY: Invalid argument` in the tunnel terminal is harmless.
