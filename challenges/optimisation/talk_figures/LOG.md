@@ -4,7 +4,7 @@ Figures for the CLARA hackathon talk, one section per figure: path (relative to 
 
 ## The deck
 
-`talk.html` is the talk: 32 slides, 16:9, reveal.js, built from `notes.txt` and the figures here. Serve this folder and open it:
+`talk.html` is the talk: 10 slides, 16:9, reveal.js, almost all picture. Serve this folder and open it:
 
 ```bash
 python3 -m http.server -d . 8000     # then http://localhost:8000/talk.html
@@ -20,18 +20,20 @@ reveal.js 5.1.0 is vendored in `talk_assets/reveal/` (`reveal.js`, `reveal.css`,
 
 The slide asks for `?speed=2.5`, which brings it in at about six seconds. `speed` scales how fast real time is fed to the simulation and nothing else, so the strands wander exactly the same way, the run is just over sooner; without it the animation takes about fifteen.
 
-### The story it tells
+### The slides
 
-The deck runs in acts, and each slide carries its act as a small label above the title (`<p class="kicker">`), so the thread stays visible:
+Eight content slides between a title and the credits, each one a visual with a headline and as little text as will carry it:
 
-1. **The problem** - an operator spends 30 to 90 minutes setting up, so the metrics are steps, screen changes, wall time and the match. Everything after is judged on those four.
-2. **Closing the sim2real gap** - tomography (can the model explain the beam at all), the optics lookup, the VBC-on rematch, and calibrating the day's beam from the free reset reading.
-3. **Finding the knobs** - the corrector and quadrupole SVDs.
-4. **Strategies** - response matrix, BO, RCDS, MF-BO, model-based RL, PPO, and a slide of the ones that lost.
-5. The robust screen measure and the capture filter sit in act 2: reading the beam the way the control room reads it is part of closing the gap, not a separate topic.
-6. **Results** - per method, one episode as an animation, then `The big winners`: one sorted table, best value in each column badged, baselines greyed.
+1. **A user asks for a spot. It costs a morning.** - the line, with three numbers: 30-90 minutes, 64.4 m, 0.1-20 mm.
+2. **And every day is a different machine** - survey error, a fresh beam, shot-to-shot jitter, over `environment/episodes.gif`: ten benchmark episodes through `lattice.plot_overview(beam)`, each one a different trajectory dying in a different place.
+3. **0.8 TB of screen images** - a good clean and a bad one, and the filter between them.
+4. **Six ways to tune a machine** - one card per approach, stepped through with the arrow keys: each card lights up while the rest dim, and its own figure appears beside it. The cards are `fragment custom` so reveal leaves them on screen and only tags the current one; the images are `fade-in-then-out` in an `r-stack`, paired by `data-fragment-index`. A few lines after `Reveal.initialize` add `.stepping` to the list once the walk-through starts, so before the first press it reads as a plain list of six.
+5. **The animation** - seven workstreams converging, at `?speed=2.5`.
+6. **What we ended up with** - the pipeline flow: lookup, steer, focus, read, place.
+7. **One episode, eight shots** - `mbrl_episode/beam_focusing.gif`.
+8. **The numbers** - the methods sorted by score, best value in each column badged.
 
-Keep that shape when adding slides: give a new slide a kicker naming its act, and put it with the others.
+This replaced a 32-slide version, kept as `talk_too_long_backup.html`; the long one still holds the tomography, rematch, calibration, per-method results, ablations and lessons slides if any of them are ever wanted back. `math/` and the `<p class="review">` convention below are only used by the long deck now.
 
 Two conventions worth keeping:
 
@@ -44,6 +46,12 @@ Two conventions worth keeping:
 - **The team card** on the title and closing slides copies the app's own: `--team` #10b981, 2px border, the same 160-degree gradient, the name, and the motto *Foxy Gradient - always finds the way down*.
 - **`brand/team/*.svg`** are the five members' avatars, decoded from the `data:` URIs in the saved page and stripped of their metadata blocks. They appear full size on the title and closing slides and at 34px beside the names on `How we split it`.
 - **`brand/agora_mark.svg`** is the conference's own mark, kept on the title slide only, with its palette (`--brand-purple` #ae81ff, `--brand-cyan` #66d9e8) on the two rules and the progress bar. Those two colours are decoration only - neither has the contrast to carry text on white, so headings and body stay on `--accent`.
+
+`scripts/make_environment_animation.py` makes that GIF: ten cases from `score.make_cases` (own beam, own survey error, own set point), each through Cheetah's own `plot_overview`. Two details matter. Every frame is given the **same y range**, or the animation reads as the axes moving rather than the beam; and that range is **capped at 50 mm**, because one runaway episode reaches 437 mm and would flatten the other nine into a straight line - the pipe is 17 mm, so past the cap the beam is gone and running off the panel says so. Frames are saved with a tight bbox and padded back to a common size.
+
+```bash
+.venv/bin/python -I talk_figures/scripts/make_environment_animation.py   # run from challenges/optimisation
+```
 
 The animated GIF of one MBRL episode (`mbrl_episode/beam_focusing.gif`, made by `scripts/make_mbrl_episode_animation.py`) is included with `data-src` rather than `src`, so reveal drops it on the way out and it restarts from the first shot each time the slide is reached.
 

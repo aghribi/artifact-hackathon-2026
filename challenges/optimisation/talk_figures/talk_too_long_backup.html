@@ -1,0 +1,1167 @@
+<!doctype html>
+<!--
+  CLARA hackathon talk, team Overfit & Proud.
+
+  Self-contained: reveal.js is vendored in talk_assets/reveal/, the figures are
+  the PNGs in this folder, and the "seven workstreams" slide is the real
+  workflow_animation.html in a background iframe, so it animates live and
+  replays every time the slide is entered.
+
+  Open talk.html directly, or (better, so the iframe is definitely allowed)
+  serve the folder:  python3 -m http.server -d . 8000
+
+  Keys: arrows / space to move, f fullscreen, s speaker notes, o overview,
+  b blank. Click the animation to replay it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steering CLARA end to end</title>
+<link rel="stylesheet" href="talk_assets/reveal/reveal.css">
+<link rel="stylesheet" href="talk_assets/reveal/theme/white.css">
+<style>
+  :root {
+    --accent: #1f77b4;
+    --good: #2ca02c;
+    --warn: #d62728;
+    --muted: #6b7079;
+    /* Agora-Conf palette, taken from the conference app's own mark. Decorative
+       only: the purple and the cyan are far too light to carry text on white. */
+    --brand-purple: #ae81ff;
+    --brand-cyan: #66d9e8;
+    --brand-ink: #272822;
+    /* Overfit & Proud: the team's own colour from its page on the conference app */
+    --team: #10b981;
+  }
+  /* the team's fox, sitting outside .reveal so reveal's scaling transform does
+     not drag it around */
+  .brandmark {
+    position: fixed; top: 14px; right: 22px; font-size: 30px; line-height: 1;
+    opacity: 0.5; z-index: 40; pointer-events: none;
+  }
+  /* the team card, echoing the one on the conference app */
+  .teamcard {
+    display: inline-block; text-align: left; padding: 0.7em 1.1em; border-radius: 16px;
+    border: 2px solid var(--team);
+    background: linear-gradient(160deg, rgba(16,185,129,0.25), rgba(16,185,129,0.06) 60%);
+  }
+  .teamcard .row { display: flex; align-items: center; gap: 0.5em; }
+  .teamcard .fox { font-size: 1.5em; line-height: 1; }
+  .teamcard .name {
+    font-size: 0.86em; font-weight: 800; color: var(--team); margin: 0; line-height: 1.1;
+  }
+  .teamcard .motto { font-size: 0.44em; color: var(--muted); margin: 0.15em 0 0 0; }
+  .teamcard .motto em { opacity: 0.85; }
+  .roster { display: flex; gap: 0.7em; justify-content: center; margin-top: 0.7em; }
+  .roster figure { text-align: center; }
+  .roster img { width: 52px; height: 52px; border-radius: 50%; display: block; }
+  .roster figcaption { font-size: 0.38em; margin-top: 0.25em; color: var(--muted); }
+  /* the title slide gives full names, so each caption gets room to wrap */
+  .roster.full { gap: 1.1em; }
+  .roster.full figcaption { max-width: 7.2em; line-height: 1.25; }
+  td .avatar {
+    width: 34px; height: 34px; border-radius: 50%; vertical-align: middle;
+    margin-right: 0.45em; display: inline-block;
+  }
+  .brandrule {
+    height: 4px; width: 46%; margin: 0 auto 1.1em auto; border-radius: 2px;
+    background: linear-gradient(90deg, var(--brand-purple), var(--brand-cyan));
+  }
+  .reveal .progress span {
+    background: linear-gradient(90deg, var(--brand-purple), var(--brand-cyan));
+  }
+  .reveal { font-size: 30px; }
+  .reveal section { text-align: left; }
+  /* content is top-aligned (center: false) so every title sits in the same place */
+  .reveal .slides section { padding-top: 0.3em; }
+  .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: 0; }
+  .reveal h2 {
+    font-size: 1.25em; color: var(--accent); margin: 0 0 0.5em 0;
+    padding-bottom: 0.15em; border-bottom: 2px solid rgba(31, 119, 180, 0.18);
+  }
+  .reveal h3 { font-size: 0.85em; color: var(--accent); margin: 0 0 0.3em 0; }
+  /* the act this slide belongs to, so the thread through the talk stays visible */
+  .kicker {
+    font-size: 0.42em; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 0.25em 0; font-weight: 600;
+  }
+  .reveal h2 + .kicker { margin-top: -0.3em; }
+  .reveal ul { font-size: 0.78em; margin-left: 1em; }
+  .reveal li { margin-bottom: 0.35em; }
+  .reveal li li { font-size: 0.92em; }
+  .reveal p { font-size: 0.8em; }
+  .reveal strong { color: #111; }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .muted { color: var(--muted); }
+  code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+
+  .cols { display: flex; gap: 1.2em; align-items: flex-start; }
+  .col { flex: 1 1 0; min-width: 0; }
+  .col.wide { flex: 1.25 1 0; }
+  .col.narrow { flex: 0.8 1 0; }
+
+  figure { margin: 0; }
+  figure img { width: 100%; display: block; }
+  /* LaTeX-rendered formulae, made by scripts/make_math_svgs.py */
+  img.math { display: inline-block; width: auto; }
+  figcaption, .caption { font-size: 0.46em; color: var(--muted); line-height: 1.35; margin-top: 0.4em; }
+  .fit { text-align: center; }
+  .fit img { width: auto; max-height: 74vh; max-width: 100%; margin: 0 auto; }
+
+  /* the choice/cost boxes carry the argument of the talk, so they are sized to be
+     read from the back of an auditorium, not treated as a footnote */
+  .choice {
+    margin-top: 0.9em; padding: 0.7em 1em; font-size: 0.76em; line-height: 1.4;
+    background: rgba(31, 119, 180, 0.09); border-left: 7px solid var(--accent);
+    border-radius: 4px;
+  }
+  .choice b.c, .choice b.k {
+    display: inline-block; min-width: 2.6em;
+    text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.82em;
+  }
+  .choice b.c { color: var(--accent); }
+  .choice b.k { color: var(--warn); }
+
+  table { font-size: 0.66em; border-collapse: collapse; width: 100%; }
+  th, td { padding: 0.3em 0.6em; text-align: left; }
+  thead th { border-bottom: 2px solid #999; }
+  tbody tr + tr td { border-top: 1px solid #e3e3e3; }
+  td.num, th.num { text-align: right; }
+  table.people td:first-child { white-space: nowrap; font-weight: 600; color: var(--accent); }
+
+  /* review flag. Remove the <p class="review"> line and this rule before the talk. */
+  .review {
+    display: inline-block; margin: 0 0 0.4em 0; padding: 0.15em 0.6em;
+    font-size: 0.42em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #fff; background: var(--warn); border-radius: 3px;
+  }
+
+  /* the final comparison: best value in each column carries the badge */
+  table.winners { font-size: 0.62em; }
+  table.winners td.best {
+    font-weight: 700; color: var(--good);
+    background: rgba(44, 160, 44, 0.10); border-radius: 3px;
+  }
+  table.winners tr.baseline td { color: var(--muted); }
+  table.winners tr.hero td { background: rgba(44, 160, 44, 0.05); }
+  table.winners td:first-child { white-space: nowrap; }
+
+  /* pipeline flow */
+  .flow { display: grid; grid-template-columns: 1fr auto; gap: 0.25em 1em; align-items: center; font-size: 0.68em; }
+  .flow .step {
+    background: rgba(31, 119, 180, 0.06); border: 1px solid rgba(31, 119, 180, 0.35);
+    border-radius: 4px; padding: 0.3em 0.7em;
+  }
+  .flow .cost { color: var(--muted); font-style: italic; font-size: 0.82em; white-space: nowrap; }
+  .flow .arrow { color: rgba(31, 119, 180, 0.6); text-align: center; font-size: 0.8em; }
+
+  .eqn {
+    font-size: 0.72em; text-align: center; margin: 0.6em 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .footnote { font-size: 0.45em; color: var(--muted); margin-top: 0.6em; }
+
+  /* title and closing: nudged down by hand, since reveal forces display:block
+     on the current slide and would override flex centring */
+  .reveal .slides section.titleslide { text-align: center; padding-top: 14vh; }
+  /* keep the slide number clear of the navigation arrows */
+  .reveal .slide-number { left: 12px; right: auto; background: none; color: var(--muted); }
+  .titleslide h1 { font-size: 1.7em; color: var(--accent); margin-bottom: 0.2em; }
+  .titleslide .sub { font-size: 0.72em; color: var(--muted); margin-bottom: 1.6em; }
+  .titleslide .team { font-size: 0.8em; }
+  .titleslide .names { font-size: 0.62em; color: var(--muted); }
+
+  .reveal .flow .arrow { font-size: 1.15em; line-height: 1; }
+  .reveal .flow .arrow.loop { color: var(--accent); font-weight: 700; font-size: 1.5em; }
+  .flow .loop-label { color: var(--accent); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="brandmark" aria-hidden="true">&#129418;</div>
+
+<div class="reveal">
+<div class="slides">
+
+<!-- ------------------------------------------------------------- title -->
+<section class="titleslide">
+  <img src="brand/agora_mark.svg" alt=""
+       style="height:72px; width:auto; display:block; margin:0 auto 0.5em auto;">
+  <h1>Steering CLARA end to end</h1>
+  <p class="sub">Optimisation and RL across the whole lattice,<br>
+    and how close we got to the machine</p>
+  <div class="brandrule"></div>
+  <div class="teamcard">
+    <div class="row">
+      <span class="fox">&#129418;</span>
+      <span>
+        <p class="name">Overfit &amp; Proud</p>
+        <p class="motto">Foxy Gradient <em>&mdash; always finds the way down</em></p>
+      </span>
+    </div>
+  </div>
+  <!-- full names here on the title slide; first names everywhere after it -->
+  <div class="roster full">
+    <figure><img src="brand/team/amy.svg" alt=""><figcaption>Amelia Pollard</figcaption></figure>
+    <figure><img src="brand/team/eiad.svg" alt=""><figcaption>Eiad Hamwi</figcaption></figure>
+    <figure><img src="brand/team/francesco.svg" alt=""><figcaption>Francesco Velotti</figcaption></figure>
+    <figure><img src="brand/team/ivan.svg" alt=""><figcaption>Ivan Morozov</figcaption></figure>
+    <figure><img src="brand/team/manuel.svg" alt=""><figcaption>Manuel Vazquez Muniz</figcaption></figure>
+  </div>
+  <p class="names" style="margin-top:1em;">Artifact Hackathon 2026</p>
+</section>
+
+<!-- ------------------------------------------------------------- the case -->
+<section>
+  <p class="kicker">The problem</p>
+  <h2>Setting up costs a morning</h2>
+  <p><strong>A user asks for a beam</strong>: a spot of a given size, in a given place on
+     the FEH screen. Delivering it takes an operator <strong>30 minutes on a good day and
+     90 on a bad one</strong> &mdash; and that time comes out of the user&rsquo;s
+     experiment.</p>
+  <ul>
+    <li>So the question is not <em>can</em> it be tuned. It is: how fast, and how much
+        beam time does the tuning hand back?</li>
+    <li>One line, <code>cla_s02_sim_aper_01</code> to the FEH screen:
+        <strong>64.4 m</strong>, 655 elements, <strong>282 apertures</strong>.</li>
+    <li>A request arrives as four numbers &mdash; position and spot size
+        (&mu;<sub>x</sub>, &mu;<sub>y</sub>, &sigma;<sub>x</sub>, &sigma;<sub>y</sub>)
+        at <code>cla_feh_dia_scr_01</code> &mdash; with the spot anywhere from
+        <strong>0.1 to 20 mm</strong> in each plane.</li>
+    <li>Every episode is a different day on the machine: its own beam, its own survey
+        error, its own request. The agent sees what an operator sees.</li>
+    <li><strong>Shots are the currency. Model time is free.</strong>
+        That one sentence shapes everything that follows.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="kicker">The problem</p>
+  <h2>So these are the numbers we chased</h2>
+  <div class="cols">
+    <div class="col">
+      <h3>Steps</h3>
+      <p>Every shot is a step: set the magnets, fire, read. This is the one the operator
+         feels. A 30-minute setup is tens of them.</p>
+      <h3>Screen changes</h3>
+      <p>Moving a screen in or out is <strong>30 seconds</strong> of nobody doing
+         anything. Read a different screen ten times and you have spent five minutes
+         on actuators.</p>
+    </div>
+    <div class="col">
+      <h3>Wall time</h3>
+      <p>What the model costs between shots. Free in beam terms &mdash; but an operator
+         will not wait ten minutes for a magnet setting, so it has a budget too.</p>
+      <h3>And of course: the match</h3>
+      <p>Mismatch in units of the requested spot, plus what was lost on the way, plus
+         the cost of the steps. One number, lower is better.</p>
+    </div>
+  </div>
+  <p style="margin-top:0.5em;"><strong>Everything in this talk is judged on those
+     four.</strong></p>
+</section>
+
+<section>
+  <p class="kicker">The problem</p>
+  <h2>The line</h2>
+  <div class="fit">
+    <img src="geometry/line_geometry_apertures_nominal_beam.png"
+         alt="CLARA floor plan, lattice and apertures with the nominal beam envelope">
+    <p class="caption">Floor plan (VBC chicane, FEA dogleg), the lattice, and the x/y
+      half-apertures, with the nominal &plusmn;3&sigma; envelope.
+      Pipe 17 mm; <strong>L4H iris 4.12 mm</strong>; <strong>TDC 5 mm</strong>.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">The problem</p>
+  <h2>Why it is not easy</h2>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>Two bottlenecks: the <strong>4.12 mm L4H iris</strong> and the
+            <strong>5 mm TDC aperture</strong> in S07.</li>
+        <li>With the nominal optics the vertical beam (&plusmn;3&sigma; &asymp; 9 mm)
+            is larger than both, so only <strong>59%</strong> of the bunch reaches the
+            screen &mdash; and it is lost in the middle of the line.</li>
+        <li>Apertures make the objective a <strong>staircase</strong>: a particle is in
+            or out, so there is no slope to follow.</li>
+        <li>Two orders of magnitude of target spot size means two orders of magnitude
+            of optics.</li>
+        <li>And the model is not the machine.</li>
+      </ul>
+      <p class="footnote">VBC at 118.5 mrad; at the 131.7 mrad default it is 72%.</p>
+    </div>
+    <div class="col narrow">
+      <figure>
+        <img src="transmission_along_s/losses_by_section_vbc_on.png"
+             alt="Fraction of the bunch lost in each section">
+        <figcaption>Where the beam goes. Black: nominal optics. Blue: median over the
+          144 matched optics nodes, 10th to 90th percentile.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- who did what -->
+<section>
+  <p class="kicker">The problem</p>
+  <h2>How we split it</h2>
+  <table class="people">
+    <tbody>
+      <tr><td><img class="avatar" src="brand/team/francesco.svg" alt="">Francesco</td><td>Sim2real matching with tomography and beam optics, the
+        VBC-on rematch, and the multi-fidelity BO pipeline: twin as low fidelity,
+        machine as high fidelity.</td></tr>
+      <tr><td><img class="avatar" src="brand/team/eiad.svg" alt="">Eiad</td><td>Beam optics and SVD: the reference tune, which quadrupoles and
+        correctors matter for a given target, per-node orbit responses cross-checked in
+        Cheetah and xsuite &mdash; and the staged SVD tuner that runs the whole pipeline
+        on the machine.</td></tr>
+      <tr><td><img class="avatar" src="brand/team/ivan.svg" alt="">Ivan</td><td>Numerical optimisation section by section &mdash; response-matrix
+        correction, BO, RCDS, RCDS+BO and PPO, all on the same image budget.</td></tr>
+      <tr><td><img class="avatar" src="brand/team/manuel.svg" alt="">Manuel</td><td>A robust measure for real screen images, and a filter for the
+        captures worth using &mdash; a DALIA job over the whole
+        <strong>0.8 TB</strong>.</td></tr>
+      <tr><td><img class="avatar" src="brand/team/amy.svg" alt="">Amy</td><td>The framework and simulation environment, and a model-based RL
+        agent built against it, driving Eiad&rsquo;s SVD controls.</td></tr>
+    </tbody>
+  </table>
+  <p style="text-align:center; margin-top:1.2em;">Five people, seven workstreams, one weekend.</p>
+</section>
+
+<!-- The live animation. Reveal reloads a background iframe on every visit, so it
+     replays each time the slide is reached; the page draws its own captions
+     ("Seven workstreams, in practice", then "Then it all pointed one way"), so
+     this slide deliberately has no content of its own. Click it to replay. -->
+<section data-background-iframe="workflow_animation.html?theme=light&amp;speed=2.5"
+         data-background-interactive
+         data-background-color="#ffffff">
+</section>
+
+<!-- ------------------------------------------------------------- pipeline -->
+<section>
+  <p class="kicker">The pipeline</p>
+  <h2>The pipeline</h2>
+  <div class="flow">
+    <div class="step"><strong>1. Episode</strong> &mdash; a realistic beam and lattice, perturbed</div>
+    <div class="cost">1 episode</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>2. Nominal optics</strong> from the lookup table (optics matching)</div>
+    <div class="cost">~40 s model, 1 shot</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>3. SVD, correctors vs BPMs</strong> &mdash; the controls that centre this beam</div>
+    <div class="cost">no shots</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>4. Steering</strong> &mdash; simple optimisation, typically 1 iteration, 4 at worst</div>
+    <div class="cost">1&ndash;4 shots, or 0</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>5. Focus SVD</strong> &mdash; quadrupoles and correctors together, for focusing</div>
+    <div class="cost">no shots</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>6. Tweak the matched tune</strong> &mdash; numerical optimisation or the RL agent,
+      <em>focusing only</em></div>
+    <div class="cost">4&ndash;8 shots</div>
+    <!-- 6 and 7 are a loop: tweak, read, tweak again until the reading matches -->
+    <div class="arrow loop">&darr;&ensp;&uarr;</div>
+    <div class="cost loop-label">round and round until it matches</div>
+    <div class="step"><strong>7. Read the screen</strong> with the robust measure</div>
+    <div class="cost">every shot</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>8. One last corrector SVD</strong> &mdash; place the spot, with the focused optics</div>
+    <div class="cost">1 shot</div>
+  </div>
+  <p style="margin-top:0.8em; font-size:0.62em;">Everything that can happen in the model
+    happens in the model. The machine is only asked when it has to be.</p>
+</section>
+
+<!-- ------------------------------------------------------------- steps -->
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>1. The episode</h2>
+  <ul>
+    <li><code>SimEnv</code> deals a new day: a realistic beam, the lattice with small
+        perturbations, a survey error, and a request.</li>
+    <li>Cheetah 0.8.4, second-order tracking, apertures on, 200k particles for the
+        reference work and 50k for the sweeps.</li>
+    <li>The agent sees what an operator sees: BPM centroids, and screens that cost a shot.</li>
+  </ul>
+  <div class="choice">
+    <b class="c">Choice:</b> Cheetah over xsuite as the working model, for
+    differentiability and speed.<br>
+    <b class="k">Cost:</b> the 282 aperture elements break Cheetah&rsquo;s map fusion:
+    a track costs 90 ms instead of 37. Everything downstream is paced by that.
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <p class="review">Francesco to check</p>
+  <h2>First: does the model even explain the beam?</h2>
+  <aside class="notes">Flagged for Francesco: numbers taken from
+    inference/tomography/README.md (the chi2/dof ladder and the eps_y conditioning
+    caveat). Remove the review badge once checked.</aside>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>Reconstruct the full <strong>4&times;4 transverse moment matrix</strong>
+            &mdash; ten unknowns, x&ndash;y coupling included &mdash; from the screens
+            along the line. Every screen sits at a different transport map, so the line
+            <em>is</em> the scan. No quad scan, no extra shots.</li>
+        <li>The forward model is the xsuite line, sliced into nine energy slices, with the
+            launch trajectory and all 46 quadrupole offsets fitted from the BPMs first.</li>
+        <li>That last part is not optional: leave the quadrupole offsets out and a
+            chromatic kick masquerades as dispersion, putting <strong>50% error</strong>
+            into the dispersive screens.</li>
+      </ul>
+      <p style="margin-top:0.4em;"><strong>The test is whether the model can explain 23
+         screens at once:</strong></p>
+      <table style="width:auto;">
+        <thead><tr><th>Model</th><th class="num">&chi;&sup2;/dof</th></tr></thead>
+        <tbody>
+          <tr><td>Achromatic, on-momentum</td><td class="num warn">87</td></tr>
+          <tr><td>+ xsuite energy slices</td><td class="num">15.5</td></tr>
+          <tr><td>+ fitted orbit</td><td class="num">2.5</td></tr>
+          <tr><td>+ dispersive weights</td><td class="num good"><strong>1.2</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col narrow">
+      <div class="choice" style="margin-top:0;">
+        <b class="c">Why it matters:</b> every tuner in this talk plans against a model.
+        A model that is wrong about the beam spends shots discovering that.<br>
+        <b class="k">Honest limit:</b> the horizontal plane and the coupling come out
+        well (6&ndash;8%). The vertical ellipse is nearly degenerate, so &epsilon;<sub>y</sub>
+        amplifies a 2% data error into 46% &mdash; we do not believe it, and say so.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>2. Nominal optics from the lookup</h2>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>A matched family over a 12&times;12 grid of target sizes, 0.1 to 20 mm,
+            log spaced. Each node sets <strong>all 46 quadrupole</strong>
+            k<sub>1</sub> values.</li>
+        <li>42 quadrupoles are a shared prefix that carries the beam through the
+            apertures; the final focus does the rest.</li>
+        <li>Re-matching removes those losses outright: median transmission
+            <strong>92.7%</strong> with the VBC on, 97% with it off.</li>
+        <li>No shots, no machine time. It hits the requested <em>size</em> to a
+            fraction of a percent in its own model.</li>
+      </ul>
+    </div>
+    <div class="col narrow">
+      <figure>
+        <img src="optics_nodes/transmission_matrix_vbc_on.png"
+             alt="Transmission per optics node, VBC on">
+        <figcaption>Transmission per node, VBC on.</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="choice">
+    <b class="c">Choice:</b> match the optics offline and load them in one step.<br>
+    <b class="k">Cost:</b> the family was matched with the VBC switched off. With the
+    machine&rsquo;s VBC on, the large-spot corner loses up to 80% of the beam.
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>2b. &hellip;which is why we rematched it</h2>
+  <div class="cols">
+    <div class="col">
+      <ul>
+        <li>VBC at the measured maximum compression into FEBE: 131.7 mrad,
+            R<sub>56</sub> = &minus;57.6 mm.</li>
+        <li>Keep the 42-quadrupole prefix, refit the <strong>30 quadrupoles after the
+            VBC</strong> per node &mdash; L-BFGS through differentiable Cheetah.</li>
+        <li>Only a handful of magnets do the work: S06 Q01/Q02 for the VBC,
+            FEA Q15/Q16 and FEH Q1/Q2 for the size. The rest are degenerate.</li>
+        <li>Checked in <strong>both backends</strong>: all 144 nodes tracked with the same
+            200k bunch in Cheetah and in xsuite give a median transmission of
+            <strong>98.95%</strong> either way, and never differ by more than
+            1.1 points at a node.</li>
+      </ul>
+      <table style="width:auto; margin-top:0.6em;">
+        <thead><tr><th></th><th class="num">Before</th><th class="num">After</th></tr></thead>
+        <tbody>
+          <tr><td>Median transmission</td><td class="num">89%</td><td class="num good">99%</td></tr>
+          <tr><td>Median size error</td><td class="num">285%</td><td class="num good">1.6%</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote">96 of 144 nodes at T &ge; 95% and within 5% of target.</p>
+    </div>
+    <div class="col">
+      <figure>
+        <img src="optics_nodes/rematch_vbc_on.png"
+             alt="Transmission and size error before and after the VBC-on rematch">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>Then: make the model <em>this</em> day&rsquo;s machine</h2>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>Resetting the episode already returns a reading. <strong>It is free, and it
+            is data.</strong> Fit the day's beam in the twin from it, then refit after
+            every reading that follows.</li>
+        <li>Load the re-matched optics with the FEH correctors <em>already aimed</em> at
+            where the calibrated model says the spot will land.</li>
+        <li>So the first shot is not a probe. It is an attempt.</li>
+      </ul>
+      <table style="width:auto; margin-top:0.5em;">
+        <thead><tr><th>30 days, paired by seed</th><th class="num">Score</th><th class="num">Steps</th></tr></thead>
+        <tbody>
+          <tr><td>Steer only</td><td class="num">0.59</td><td class="num">4.7</td></tr>
+          <tr><td>Steer + MF-BO</td><td class="num">0.41</td><td class="num">7.9</td></tr>
+          <tr><td>Calibrate</td><td class="num">0.41</td><td class="num good"><strong>5.3</strong></td></tr>
+          <tr><td><strong>Calibrate + MF-BO</strong></td><td class="num good"><strong>0.39</strong></td><td class="num">9.6</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote"><strong>Calibration alone buys what the whole optimiser bought,
+        two to three steps cheaper.</strong> Together they take the best of both: fitting
+        wins on the days the final focus can reach, searching wins on the rest.</p>
+    </div>
+    <div class="col narrow" style="text-align:center;">
+      <img src="mfopt/mfopt_workflow_calibrated.svg"
+           alt="The calibrated MF-BO episode workflow, reset to score"
+           style="max-height:66vh; width:auto;">
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>7. Reading the screen &mdash; the same measure on both sides</h2>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>Threshold each frame at a tenth of its own peak, then take the
+            intensity-weighted centroid and rms from the row and column sums &mdash;
+            no full coordinate grids, four scalars off the device.</li>
+        <li>Per-camera &micro;m/pixel calibration for all 28 screens, so the numbers come
+            out in metres.</li>
+        <li>Run over the <strong>0.8 TB</strong> of real CLARA HDF5 captures as a DALIA job.</li>
+        <li>The same measure drives the agent in simulation. The benchmark scores the
+            particle moments; <em>the agent never sees them</em>.</li>
+      </ul>
+      <div class="choice">
+        <b class="c">Choice:</b> drive the agent from the camera measure, not from the
+        truth available in simulation.<br>
+        <b class="k">Cost:</b> it costs accuracy and it costs speed. It is also the only
+        version of the loop that could be moved onto the machine unchanged.
+      </div>
+    </div>
+    <div class="col narrow">
+      <figure>
+        <img src="screens/Noisy_beam.png" alt="Raw and cleaned beam image">
+        <figcaption>A good clean: raw left, cleaned right. The halo and the background
+          go, the beam stays.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the sim2real gap</p>
+  <h2>Which captures can you believe?</h2>
+  <div class="cols">
+    <div class="col wide">
+      <ul>
+        <li>Not every capture has a beam in it. Clean a weak one and nothing is left
+            &mdash; but it still returns four perfectly confident numbers.</li>
+        <li>So each file is judged on how its readings <em>move</em> across its captures:
+            keep it only if the relative variation of all four of
+            c<sub>x</sub>, c<sub>y</sub>, s<sub>x</sub>, s<sub>y</sub> sits between
+            <strong>0.1% and 30%</strong>.</li>
+        <li>Below that, nothing is changing and the camera is looking at a wall. Above it,
+            the measure is chasing noise.</li>
+        <li><strong>5,732 capture sets</strong> come through the filter, with their means,
+            spreads and ranges.</li>
+      </ul>
+    </div>
+    <div class="col narrow">
+      <figure>
+        <img src="screens/Weak_beam.png" alt="A weak beam before and after cleaning">
+        <figcaption>A bad clean: the raw frame is almost empty, and after cleaning there
+          is nothing to measure. Discarded.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Finding the knobs</p>
+  <h2>3&ndash;4. Steering: SVD, then one shot</h2>
+  <ul>
+    <li>SVD of the corrector-to-BPM response <em>at the loaded optics</em> ranks the
+        corrector planes; invert the leading ones and correct in one shot.</li>
+    <li>On the xsuite model: one BPM shot takes the orbit from
+        <strong>2&ndash;4 mm rms to about 0.15 mm</strong>.</li>
+    <li>Fitting first is better still: stepping each quadrupole by 5 A recovers
+        99 &micro;m rms quadrupole offsets to <strong>6 / 15 &micro;m</strong> (x / y)
+        from BPMs alone.</li>
+    <li>Typically 1 iteration in the pipeline, 4 in the worst case.</li>
+    <li><strong>And on a healthy machine, we measured it doing nothing.</strong> Every
+        pipeline variant that includes the BPM steering scores <em>worse</em> than the one
+        without it, and pays 3.5 extra shots for it: 0.53 without, 1.49 with. It now
+        defaults to zero shots.</li>
+  </ul>
+  <div class="choice">
+    <b class="c">Choice:</b> BPM-only one-shot correction as the first stage.<br>
+    <b class="k">Cost:</b> the reference optics already delivers beam to every BPM, so
+    there is nothing to recover and the orbit bottoms out around 550 &micro;m anyway
+    &mdash; a handful of correctors against a survey error on 46 quadrupoles. It earns its
+    place on the day the beam is <em>lost</em>, not on the day it is merely off centre.
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Finding the knobs</p>
+  <h2>5. The focus control set</h2>
+  <ul>
+    <li>The same trick again, but for focusing: SVD of
+        <img class="math" src="math/size_response.svg" alt="d ln sigma by d k1"
+             style="height:2.4em; vertical-align:-1.0em;">
+        at every screen and the readout, over all 46 quadrupoles &mdash; and of the
+        centroid response over all 58 corrector planes.</li>
+    <li>Each magnet gets a score
+        <img class="math" src="math/magnet_score.svg"
+             alt="score j equals the square root of the sum over i of s i squared times V i j squared"
+             style="height:2.0em; vertical-align:-0.72em;">
+        over the modes holding 99% of the squared response, so the control set is
+        <em>ranked</em>, not guessed.</li>
+    <li>What survives the ranking is small: the five quadrupoles nearest the IP
+        (FEA Q14/Q15/Q16, FEH Q1/Q2), the nearest correctors in each plane, and the two
+        FEA sextupoles. Out of 46 + 58 knobs.</li>
+    <li>1.5 to 2.5 minutes per target on the error-free model. Zero environment steps.</li>
+  </ul>
+  <div class="choice">
+    <b class="c">Choice:</b> rank the knobs by measured response instead of by physical
+    intuition.<br>
+    <b class="k">Cost:</b> the centroid SVD ranks the last two correctors near the
+    <em>bottom</em>, because they move nothing but the final screen &mdash; which is
+    exactly the property we need to place the spot. The ranking has to be read with the
+    objective in mind; it is why placing the spot is its own step at the end.
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- segment optimisation -->
+<section id="segment-optimisation">
+  <p class="kicker">Strategies</p>
+  <h2>Comparison and applicaiton of different optimization methods</h2>
+  <h3>Different methods applied to a sigle section</h3>
+  <figure>
+    <img src="segment_opt/comparison.png"
+         style="width:auto; max-width:100%; height:300px; margin:0 auto;"
+         alt="S04 section 4 + 4 knobs: RM, full BO, RCDS and other methods: several initial beams scores and averaged scores">
+    <figcaption>Response matrix (RM), Bayesian optimisation (BO), RCDS and hybrid methods.</figcaption>
+  </figure>
+  <h3 style="margin-top:0.7em;">Response method applied segment-by-segment</h3>
+  <figure>
+    <img src="segment_opt/response.png"
+         style="width:auto; max-width:100%; height:300px; margin:0 auto;"
+         alt="Beam distributions before and after segment-by-segment response correction, alongside the design beam; survival is 64.5%, 77.8% and 58.5%, respectively">
+    <figcaption>Initial &rarr; corrected &rarr; design beam. Survival rises from
+      <strong>64.5% to 77.8%</strong> after correction.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <p class="kicker">Strategies</p>
+  <h2>And section by section: what actually wins?</h2>
+  <p>Same section (S04), same image budget, same objective &mdash; response-matrix
+     correction, BO, RCDS, RCDS+BO and PPO, head to head.</p>
+  <div class="cols">
+    <div class="col">
+      <table>
+        <thead><tr><th>9 images, 4 held-out beams</th><th class="num">Objective</th></tr></thead>
+        <tbody>
+          <tr><td>PPO, trained on one beam</td><td class="num">0.264</td></tr>
+          <tr><td>Response correction <span class="muted">(2 images)</span></td><td class="num">0.268</td></tr>
+          <tr><td>RCDS, response directions</td><td class="num">0.279</td></tr>
+          <tr><td>RCDS, plain</td><td class="num">0.283</td></tr>
+          <tr><td class="muted">RCDS, plain, at 32 images</td><td class="num muted">0.091</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <ul>
+        <li><strong>At a realistic image budget they are all within noise of each other.</strong>
+            The budget decides the result, not the algorithm.</li>
+        <li>Give it room and the picture changes: over five beams at 128 images,
+            RCDS 0.126, RCDS+BO 0.119 &mdash; and response correction
+            <strong>0.017</strong>.</li>
+        <li>What wins is using the <em>vector</em> residual and a model-based correction on
+            every image. RCDS only ever sees a scalar.</li>
+      </ul>
+      <p class="footnote">Local screen objective on S04, lower is better. Not the
+        whole-lattice FEH score.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Strategies</p>
+  <h2>6. Tweak the tune, one: multi-fidelity BO</h2>
+  <div class="cols">
+    <div class="col narrow" style="text-align:center;">
+      <img src="mfopt/mfopt_workflow.svg" alt="One MF-BO episode, from reset to score"
+           style="max-height:72vh; width:auto;">
+    </div>
+    <div class="col wide">
+      <ul>
+        <li><strong>Low fidelity is the twin, high fidelity is the machine.</strong>
+            256 Sobol points over seven knobs in <em>one</em> batched Cheetah track:
+            1.5 s, where tracking them one at a time took 10 s.</li>
+        <li>The machine is modelled as the twin&rsquo;s GP plus a discrepancy &mdash; an
+            offset, then a GP of its own once there are three readings.</li>
+        <li>Each proposal maximises expected improvement of the benchmark mismatch, and
+            sets the FEH correctors to cancel the centroid it predicts.</li>
+        <li><strong>It stops itself.</strong> When the expected improvement is worth less
+            than the cost of one more step, it returns to the best reading it has seen.</li>
+        <li>Purple boxes in the figure cost nothing: they are the error-free twin.
+            Blue and teal are shots.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Strategies</p>
+  <h2>6. Tweak the tune, two: model-based RL</h2>
+  <div class="cols">
+    <div class="col">
+      <h3>The twin</h3>
+      <p>A differentiable Cheetah copy of the environment&rsquo;s own lattice. System
+         identification fits the episode&rsquo;s beam &mdash; and optionally the survey
+         error &mdash; to the shots taken so far.</p>
+      <h3>The planner</h3>
+      <p>CEM to explore, Adam to refine, anchored on the last measurement:</p>
+      <p class="eqn"><img class="math" src="math/anchored.svg"
+           alt="predicted y of delta equals the measured y plus twin of k plus delta minus twin of k"
+           style="height:1.9em;"></p>
+      <p>A model wrong by a constant still predicts the <em>effect</em> of a move, and
+         anchoring cancels the constant exactly.</p>
+      <p><strong>Nearly all the arithmetic is the twin&rsquo;s.</strong> An episode spends
+         <strong>6.5 shots</strong> on the machine and millions of particle-tracks on the
+         model &mdash; and the focus stops as soon as it is inside the jitter, so often it
+         is fewer. That is the whole point: only the shots cost beam time.</p>
+    </div>
+    <div class="col">
+      <h3>Two things that mattered</h3>
+      <ul>
+        <li><strong>Steps measured in effect, not in units.</strong> One batched track
+            calibrates every knob so that a step changes the reading by half a requested
+            spot. 0.1 mrad is a huge kick near the injector and nothing a metre before
+            the screen.</li>
+        <li><strong>Hard walls, soft gradients.</strong> <code>twin._aperture</code>
+            takes its <em>value</em> from the hard edge and its <em>gradient</em> from a
+            sigmoid. Blurring the wall outright moved the predicted loss from 0.00 to
+            114.7 and the fit walked off chasing it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Strategies</p>
+  <h2>6. Tweak the tune, three: BO and RCDS inside the SVD subspace</h2>
+  <div class="cols">
+    <div class="col narrow">
+      <ul>
+        <li>The same four stages, run straight on the machine: calibrate and reset,
+            <strong>thread</strong>, correct the <em>measured</em> size, centre on the screen.</li>
+        <li>The search never leaves the <strong>five dominant quadrupole modes</strong>,
+            and the modal boxes are sized so every proposal is already inside every
+            magnet limit &mdash; no clipping, ever.</li>
+        <li>Two branches from the same start: <strong>BO</strong> (joint GP, EI then LCB)
+            and <strong>RCDS</strong>. Every proposal is one fresh shot &mdash; no
+            three-shot averaging, no replay.</li>
+        <li><strong>Then they were taught when to stop:</strong> the same tolerance and
+            patience the RL focus uses, and for BO, stop once expected improvement is
+            worth less than the shot it would cost.</li>
+      </ul>
+      <table style="margin-top:0.5em;">
+        <thead><tr><th>100 episodes</th><th class="num">Shots</th><th class="num">Score</th><th class="num">Median</th></tr></thead>
+        <tbody>
+          <tr><td>BO</td><td class="num">5.6</td><td class="num good"><strong>0.43</strong></td><td class="num good"><strong>0.38</strong></td></tr>
+          <tr><td>RCDS</td><td class="num">6.2</td><td class="num">0.50</td><td class="num">0.43</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote"><strong>That stopping rule cut the shots by 97%</strong>
+        &mdash; 192 a branch down to six &mdash; and the residual did not get worse.
+        BO lands inside 10% of the request on 51% of days, inside 25% on 87%.</p>
+    </div>
+    <div class="col wide" style="text-align:center;">
+      <img src="model_svd_opt/model_svd_opt_100_episodes_all.png"
+           alt="Histograms of shots and final score per episode, BO and RCDS"
+           style="max-height:64vh; width:auto; max-width:100%;">
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Strategies</p>
+  <h2>And the ones that did not win</h2>
+  <div class="cols">
+    <div class="col">
+      <p>Tried on the same 30 days, against MF-BO&rsquo;s 0.39&ndash;0.41:</p>
+      <table>
+        <tbody>
+          <tr><td>Newton correction before BO</td><td class="num">0.39&ndash;0.41</td></tr>
+          <tr><td>GP on ln &sigma; instead of &sigma;</td><td class="num">0.43</td></tr>
+          <tr><td>Pick the final setting by posterior mean</td><td class="num">0.45</td></tr>
+          <tr><td>Jitter-robust objective</td><td class="num">0.46</td></tr>
+          <tr><td>Linear-mean discrepancy</td><td class="num">0.48</td></tr>
+          <tr><td>Trust-region BO</td><td class="num warn">0.61</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <ul>
+        <li><strong>Not one of them beat the simple version by more than its error bar.</strong>
+            Several were clearly worse.</li>
+        <li>Same story elsewhere: raw SVD directions made RCDS five times worse than plain
+            coordinate axes, and BPM steering cost 3.5 shots to make the score go up.</li>
+        <li>None of this was predictable from the physics. <strong>The only way we found
+            out was by running all of them</strong> &mdash; which is the argument for
+            having five people and one benchmark.</li>
+        <li>The benchmark is what makes a negative result cheap. Without a score on the
+            same 30 days, every one of these would still be someone&rsquo;s favourite idea.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<section>
+  <p class="kicker">Results</p>
+  <h2>8. Size first, then position</h2>
+  <ul>
+    <li>The focus works on the <strong>quadrupoles only</strong>, and scores the
+        <strong>size and transmission only</strong>.</li>
+    <li>Where the spot actually lands is settled afterwards, by the two correctors nearest
+        the screen: a <strong>two-row least squares</strong>, one shot. Not a search.</li>
+    <li>The request puts the spot anywhere within 2 mm of the screen centre &mdash; about
+        eight requested spot sizes, and most of the score. It is worth a step of its own.</li>
+    <li><strong>It is the best shot in the whole pipeline.</strong> Reference optics
+        alone scores 6.79. Add that one linear solve and it is <strong>1.00</strong>,
+        with 62% of days already inside half a requested spot. Everything clever that
+        follows is worth another 0.23.</li>
+  </ul>
+  <div class="choice">
+    <b class="c">Choice:</b> separate the two, rather than optimising size and position
+    together.<br>
+    <b class="k">Cost:</b> none that we found &mdash; and the alternative is expensive.
+    Put both in one optimiser and a quadrupole will happily fix a 2 mm position error by
+    distorting the optics, which it can do, and which costs exactly the size the focus
+    just bought.
+  </div>
+</section>
+
+
+<!-- ------------------------------------------------------------- results -->
+<section>
+  <p class="kicker">Results</p>
+  <h2>Calibration + MF-BO, over 100 fresh days</h2>
+  <div class="cols">
+    <div class="col wide" style="text-align:center;">
+      <img src="mfopt/mfopt_100_episodes_all.png"
+           alt="Histograms of score, steps, wall time and screen moves over 100 episodes"
+           style="max-height:62vh; width:auto; max-width:100%;">
+    </div>
+    <div class="col narrow">
+      <table style="width:auto;">
+        <thead><tr><th></th><th class="num">Mean</th><th class="num">Median</th></tr></thead>
+        <tbody>
+          <tr><td>Score</td><td class="num good"><strong>0.40</strong></td><td class="num good"><strong>0.29</strong></td></tr>
+          <tr><td>Steps</td><td class="num">8.7</td><td class="num good"><strong>7</strong></td></tr>
+          <tr><td>Wall time</td><td class="num">258 s</td><td class="num">239 s</td></tr>
+          <tr><td>Screen moves</td><td class="num good"><strong>0</strong></td><td class="num good"><strong>0</strong></td></tr>
+        </tbody>
+      </table>
+      <ul style="margin-top:0.5em;">
+        <li><strong>62%</strong> of days end within 10% of the request, 87% within 25%,
+            96% within 50%. No day fails.</li>
+        <li>A <strong>median of seven shots</strong>, against a morning.</li>
+        <li>The long tail is one population: the 29 days asking for
+            &sigma;<sub>x</sub> under 0.135 mm, where FEH Q2 runs out of magnet at 100 A.
+            They average 0.51; the other 71 average 0.35.</li>
+        <li>What is left is mostly not the optimiser &mdash; shot-to-shot jitter is worth
+            about 0.1 of score on its own, and the steps another 0.08.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="footnote" style="text-align:center;">100 days, seeds 2000&ndash;2099, second
+    order, VBC 131.7 mrad, 100 A magnet limits. Wall time with 16 episodes sharing the
+    machine.</p>
+</section>
+
+<section>
+  <p class="kicker">Results</p>
+  <h2>One episode, eight shots</h2>
+  <div class="fit">
+    <!-- data-src: reveal loads it when the slide arrives and drops it on the way out,
+         so the GIF starts from the first shot every time it is shown -->
+    <img data-src="mbrl_episode/beam_focusing.gif"
+         alt="One MBRL episode: the measured spot converging onto the requested one over eight shots"
+         style="max-height:66vh; width:auto;">
+    <p class="caption">One frame per shot, in the order the agent took them. Purple is
+      what was asked for, orange is what the camera saw. The inset shows where that
+      window sits on the 22 mm chip. <strong>Score 10 to 0.42 in eight shots, no screen
+      moved.</strong></p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Results</p>
+  <h2>Does it work? Model-based RL</h2>
+  <table style="width:92%; margin: 0 auto;">
+    <thead>
+      <tr>
+        <th></th><th class="num">Score</th><th class="num">Median</th><th class="num">Shots</th>
+        <th class="num">&lt;50%</th><th class="num">&lt;25%</th><th class="num">&lt;10%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Do nothing</td><td class="num">9.65</td><td class="num">10.00</td><td class="num">0</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+      <tr><td>Reference optics only</td><td class="num">6.79</td><td class="num">6.93</td><td class="num">1.0</td><td class="num">3%</td><td class="num">2%</td><td class="num">0%</td></tr>
+      <tr><td>Optics + placement</td><td class="num">1.00</td><td class="num">0.81</td><td class="num">2.0</td><td class="num">62%</td><td class="num">36%</td><td class="num">8%</td></tr>
+      <tr><td><strong>Full pipeline</strong></td>
+          <td class="num good"><strong>0.77</strong></td><td class="num good"><strong>0.57</strong></td>
+          <td class="num">6.5</td><td class="num">86%</td><td class="num">60%</td>
+          <td class="num good"><strong>21%</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="footnote" style="text-align:center;">100 episodes, seeds 1234&ndash;1333, the
+    same machine as the table before but a different draw of days. Beam delivered on
+    every one.</p>
+  <ul style="margin-top:0.6em;">
+    <li><strong>6.79 to 1.00 is one shot of placement. 1.00 to 0.77 is the focus.</strong>
+        Both matter, and they could hardly be more different: a two-row linear solve, and
+        4.5 shots of search against a fitted twin.</li>
+    <li><strong>6.5 shots</strong>, of which 2 are fixed overhead &mdash; load the optics,
+        place the spot. The focus often takes none at all, because the lookup has already
+        landed the size inside the shot-to-shot jitter.</li>
+    <li><strong>Zero screen switches, by design.</strong> All 31 BPMs sit upstream of the
+        readout screen and none of them intercept the beam, so the screen never has to
+        move. At 30 s a swap, that is real time not spent.</li>
+    <li><strong>About 270 s of model time per run</strong>, and not one second of it is
+        beam time. Spread over 6.5 shots, that is well under a minute of thinking between
+        shots &mdash; an operator would wait for that.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="kicker">Results</p>
+  <h2>The big winners</h2>
+  <table class="winners" style="width:96%; margin:0 auto;">
+    <thead>
+      <tr>
+        <th>Method</th><th class="num">Score</th><th class="num">Median</th>
+        <th class="num">Steps</th><th class="num">Screen moves</th>
+        <th class="num">Wall time</th><th class="num">Days</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td><strong>Calibration + MF-BO</strong></td>
+        <td class="num best">0.40</td><td class="num best">0.29</td>
+        <td class="num">8.7</td><td class="num best">0</td>
+        <td class="num">258 s</td><td class="num">100</td>
+      </tr>
+      <tr class="hero">
+        <td><strong>SVD subspace, BO</strong></td>
+        <td class="num">0.43</td><td class="num">0.38</td>
+        <td class="num">5.6</td><td class="num best">0</td>
+        <td class="num best">4 s</td><td class="num">100</td>
+      </tr>
+      <tr class="hero">
+        <td><strong>SVD subspace, RCDS</strong></td>
+        <td class="num">0.50</td><td class="num">0.43</td>
+        <td class="num">6.2</td><td class="num best">0</td>
+        <td class="num">4 s</td><td class="num">100</td>
+      </tr>
+      <tr class="hero">
+        <td><strong>Model-based RL</strong></td>
+        <td class="num">0.77</td><td class="num">0.57</td>
+        <td class="num">6.5</td><td class="num best">0</td>
+        <td class="num">270 s</td><td class="num">100</td>
+      </tr>
+      <tr>
+        <td>Optics + placement <span class="muted">(two linear solves)</span></td>
+        <td class="num">1.00</td><td class="num">0.81</td>
+        <td class="num best">2.0</td><td class="num best">0</td>
+        <td class="num">7 s</td><td class="num">100</td>
+      </tr>
+      <tr class="baseline">
+        <td>Reference optics only</td>
+        <td class="num">6.79</td><td class="num">6.93</td>
+        <td class="num">1.0</td><td class="num">0</td><td class="num">5 s</td><td class="num">100</td>
+      </tr>
+      <tr class="baseline">
+        <td>Do nothing</td>
+        <td class="num">9.65</td><td class="num">10.00</td>
+        <td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">100</td>
+      </tr>
+    </tbody>
+  </table>
+  <ul style="margin-top:0.7em;">
+    <li><strong>Four methods, four philosophies, and they land within 0.37 of each
+        other</strong> &mdash; against 9.65 for doing nothing. Every one moves a screen
+        zero times and gets there in under ten shots.</li>
+    <li><strong>What separated them in the end was not the search. It was knowing when to
+        stop.</strong> The SVD subspace went from 192 shots to 5.6 and from 1.57 to 0.43
+        by adopting the RL focus's tolerance-and-patience rule. Same optimiser, same
+        subspace, same machine.</li>
+    <li>And two linear solves &mdash; load the optics, place the spot &mdash; get within a
+        factor of two and a half of the best of them, in 2 shots and 7 seconds. Whatever
+        you build, it has to beat that.</li>
+  </ul>
+  <p class="footnote">Different draws of days (seeds 2000&ndash;2099, 1234&ndash;1333,
+    42&ndash;141) and different targets for the SVD rows, so these are the same benchmark
+    but not one experiment. Wall time is per run, on machines under different load
+    &mdash; read it as an order of magnitude, not a ranking.</p>
+</section>
+
+<section>
+  <p class="kicker">What we learned</p>
+  <h2>The choices that cost us the most</h2>
+  <ul>
+    <li><strong>Two copies of the lattice.</strong> The twin was built from a stale copy
+        of the line. The two agreed until the VBC was turned on and only one was updated
+        &mdash; then the twin disagreed with the machine by 1.5 mm at the readout, and
+        the planner spent whole episodes optimising a different accelerator. There is now
+        a smoke test holding them to 10<sup>&minus;4</sup> &micro;m.</li>
+    <li><strong>Matching against a machine we no longer had.</strong> The optics family
+        was matched with the VBC switched off. Good physics, wrong machine; it took a
+        30-quadrupole rematch to get it back.</li>
+    <li><strong>Clipping the cost at the benchmark&rsquo;s scale.</strong> The benchmark
+        stops counting at ten spot sizes. An untuned machine sits at seventy, so a clipped
+        cost is flat across the entire region where tuning happens.</li>
+    <li><strong>Trusting raw SVD directions.</strong> Handing RCDS the raw singular
+        directions made it five times <em>worse</em> than plain coordinate axes
+        (0.66 against 0.126). Making the directions boundary-aware fixed it. A good basis
+        in the model is not automatically a good basis for a bounded line search.</li>
+    <li><strong>Splitting by workstream, not by interface.</strong> Everything converged
+        in the last day. It worked &mdash; but see the first two bullets.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="kicker">What we learned</p>
+  <h2>What we would do next</h2>
+  <ul>
+    <li><strong>Close the loop on stage 1.</strong> Re-run the optics lookup against the
+        beam the system identification actually <em>fitted</em>, rather than the nominal
+        beam it assumes, and reload. Another 40 s of model time, no extra shots. The size
+        residual is the binding constraint, and this is the most promising thing we have
+        not tried.</li>
+    <li><strong>The Dyna layer: built, verified, and probably not worth it any more.</strong>
+        The twin can also play the machine, so the agent runs against it unmodified and the
+        planner&rsquo;s decisions get cloned into a policy &mdash; a twin episode converges
+        9.75 to 0.67 and the cloning fits. But the focus is now 4.5 shots and often zero, so
+        a warm start would buy wall-clock, not shots. Honest answer: the thing it was built
+        to fix went away while it was being built.</li>
+    <li><strong>Re-measure the survey-error fit.</strong> It was worth a third of the
+        score on the old coupled pipeline. Nobody has checked what it is worth now that
+        size and position are separate stages, and it is still off by default.</li>
+    <li><strong>Put the three tuners in the same room.</strong> They now finish within
+        0.37 of each other in five to nine shots, on the same machine &mdash; but not on
+        the same seeds, and not on the same requests: the SVD runs ask for 1&times;1 mm
+        every time. Until that is one experiment we cannot say which one we would take to
+        a shift.</li>
+    <li><strong>Beat the jitter floor.</strong> A single reading is worth 0.2 to 0.3 of
+        score on its own. Averaging shots costs budget; a noise model in the GP might not.</li>
+    <li><strong>Mind the currents.</strong> Every knob here is in model units. The lattice
+        and the current conversion disagree about the beam energy at the VBC by 8%, so
+        S05&ndash;S06 would come out that much strong the day these settings become amps.</li>
+  </ul>
+</section>
+
+<section class="titleslide">
+  <h2 style="border:0; text-align:center;">Steering CLARA end to end</h2>
+  <ul style="display:inline-block; text-align:left; max-width:76%;">
+    <li><strong>Thirty to ninety minutes, against a median of seven shots.</strong>
+        That is the whole result, and it is beam time handed back to the experiment.</li>
+    <li><strong>Close the sim2real gap and everything downstream gets cheaper.</strong>
+        The two methods that fit a model of the day beat the two that search the machine,
+        and calibrating on a reading we were given for free was worth as much as the
+        optimiser it feeds.</li>
+    <li><strong>Try all of them.</strong> Half of what we tried lost, and none of the
+        losers were obvious beforehand &mdash; a shared benchmark is what made finding
+        that out cheap.</li>
+  </ul>
+  <div class="brandrule" style="margin-top:1.4em;"></div>
+  <div class="teamcard">
+    <div class="row">
+      <span class="fox">&#129418;</span>
+      <span>
+        <p class="name">Overfit &amp; Proud</p>
+        <p class="motto">Foxy Gradient <em>&mdash; always finds the way down</em></p>
+      </span>
+    </div>
+  </div>
+  <div class="roster">
+    <figure><img src="brand/team/amy.svg" alt=""><figcaption>Amy</figcaption></figure>
+    <figure><img src="brand/team/eiad.svg" alt=""><figcaption>Eiad</figcaption></figure>
+    <figure><img src="brand/team/francesco.svg" alt=""><figcaption>Francesco</figcaption></figure>
+    <figure><img src="brand/team/ivan.svg" alt=""><figcaption>Ivan</figcaption></figure>
+    <figure><img src="brand/team/manuel.svg" alt=""><figcaption>Manuel</figcaption></figure>
+  </div>
+</section>
+
+<section class="titleslide">
+  <p class="kicker" style="text-align:center;">Credits</p>
+  <h2 style="border:0; text-align:center;">Most valuable player</h2>
+  <p style="font-size:2.6em; margin:0.1em 0;">&#127942;</p>
+  <p style="font-size:1.5em; margin:0 0 0.2em 0;">
+    <strong style="color:var(--accent);">Claude</strong></p>
+  <p class="names" style="max-width:62%; margin:0 auto; line-height:1.5;">
+    Wrote the twin, the planner, the response tables, the capture filter, most of the
+    READMEs and every slide you have just sat through &mdash; and found more of our bugs
+    than we would like recorded in a public talk.
+  </p>
+  <p class="names" style="margin-top:1.6em;">
+    &#129352;&ensp;Honourable mention: <strong>ChatGPT</strong>
+  </p>
+  <p class="footnote" style="text-align:center; max-width:64%; margin:0.3em auto 0;">
+    The models had the benchmark in front of them throughout. Every number in this deck
+    comes from a run a human set off, read and checked.
+  </p>
+</section>
+
+</div>
+</div>
+
+<script src="talk_assets/reveal/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1600,
+    height: 900,
+    margin: 0.05,
+    center: false,
+    hash: true,
+    slideNumber: "c/t",
+    transition: "fade",
+    transitionSpeed: "fast",
+    // the animation is a background iframe: let it take key presses only once
+    // it has been clicked, so arrows and space keep driving the deck
+    controls: true,
+    progress: true,
+  });
+</script>
+</body>
+</html>
