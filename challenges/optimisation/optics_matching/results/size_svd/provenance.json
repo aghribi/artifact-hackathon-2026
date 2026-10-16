@@ -1,0 +1,11 @@
+{
+  "source": "MatchedOptics no-wake zero-VBC family; analytic beta response model",
+  "sha256": {
+    "data/matching_surface.npz": "d704379785fb4bef4e256fe7c7fdd305a1c07ca115ba56588b17fb39e4fb1977",
+    "data/strength_splines.npz": "8907ed8282cc4d17368c476d2febbde5ee8b44063af037a6c236f618508f2ddf",
+    "data/beamlet_runtime.npz": "8c325a769810db35e9190dd7a89279dd99fc93160b18dc54c522f79d0dd12823",
+    "data/optics_response_model.npz": "ddf9bcae3bf50c68eddeb245dc4714690a9eeb6a16fea634e50251c20f28f8a3",
+    "data/size_modes.npz": "ce6d1b53521a4575e3fa8570a1273143c7d9cc5f5a6531a581ff09bb13b2d141",
+    "results/size_svd/grid_svd.npz": "f48cc7764bba5795105618d7a6604ffea00505ef0db1bf2622a7fe273f90e1ab"
+  }
+}

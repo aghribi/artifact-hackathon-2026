@@ -1,0 +1,194 @@
+{
+ "description": "Vacuum apertures of the CLARA FEBE line, as half sizes in metres. 'pipe' entries set the chamber from that element onwards, until the next 'pipe' entry (our reading of SimFrame's point-like aperture markers, which SimFrame itself applies only at the marker). 'collimators' apply at the entrance and exit of the named element only.",
+ "source": {
+  "file": "https://github.com/astec-stfc/simframe/blob/b2967d3ba1b48f5e14a208e16e8bd9633fd55ef9/tests/CLARA/FEBE_2_Bunches.yaml",
+  "cross_check": "https://github.com/astec-stfc/masterlattice/tree/96514fd276eef73988b07db69d45609d7ee4a45f/MasterLattice/YAML (clara400_v13_FEBE.def sections): identical values wherever both define an element",
+  "convention": "SimFrame horizontal_size / vertical_size, written to ELEGANT as x_max / y_max (half apertures)",
+  "paper": "E. W. Snedden et al., Phys. Rev. Accel. Beams 27, 041602 (2024) has no aperture table. Its ~68 mm radius for the four quadrupoles around FEC1 is used from cla_feh_mag_quad_01 to the readout; its 20 mm FEC2 spectrometer aperture is beyond the readout; the 5 mm tungsten mask in the FEBE arc is not modelled"
+ },
+ "pipe": [
+  {
+   "element": "cla_hrg1_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s01_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l01_sim_aper_01",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s02_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s02_sim_aper_02",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l02_sim_aper_01",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l02_sim_aper_02",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s03_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l03_sim_aper_01",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s04_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l4h_sim_aper_01",
+   "x_max": 0.0041195,
+   "y_max": 0.0041195,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s05_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s06_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_l04_sim_aper_01",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s07_sim_aper_01",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s07_sim_tdc_01_aper",
+   "x_max": 0.005,
+   "y_max": 0.005,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s07_sim_aper_02",
+   "x_max": 1.0,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_s07_sim_aper_03",
+   "x_max": 1.0,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_01",
+   "x_max": 0.034,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_02",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_03",
+   "x_max": 0.034,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_04",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_05",
+   "x_max": 0.034,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_06",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_07",
+   "x_max": 0.034,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_fea_sim_aper_08",
+   "x_max": 0.017,
+   "y_max": 0.017,
+   "shape": "rectangular"
+  },
+  {
+   "element": "cla_feh_mag_quad_01",
+   "x_max": 0.068,
+   "y_max": 0.068,
+   "shape": "elliptical",
+   "source": "PRAB 27, 041602: the four quadrupoles around FEC1 have a ~68 mm radius"
+  }
+ ],
+ "collimators": [
+  {
+   "element": "cla_s02_dia_ecol_01",
+   "x_max": 0.01,
+   "y_max": 0.01,
+   "shape": "elliptical"
+  }
+ ],
+ "open": [
+  "cla_vbc_dia_rcol_01",
+  "cla_fea_dia_rcol_01",
+  "cla_fec1_dia_ecol_01",
+  "cla_fec1_dia_ecol_02"
+ ],
+ "notes": [
+  "Only the TDC (5 mm), the X-band linearizer L4H (4.12 mm) and the S-band linacs (10 mm) are tighter than the 17 mm pipe.",
+  "cla_s07_sim_aper_02/03 follow SimFrame's S07A section (horizontally open, 17 mm vertical); the S070/S07X variants of the same markers are 17 x 17 mm.",
+  "SimFrame models every chamber as rectangular; the 'open' collimators are retracted (1 m) and not modelled.",
+  "The chamber is checked at element ends only, not inside quadrupoles or cavities."
+ ]
+}

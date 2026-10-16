@@ -1,0 +1,10 @@
+{
+  "optics_fingerprint": "ce5ba584d66ea5225719b7b3d7da530446ee7562cf2f30316b721e5edf21d300",
+  "reference_engine_sha256": "ed9a23a4d809f8cf390751155a5b5df428a81f38e0f335c548ca4f20f6138b39",
+  "L4H": "drift",
+  "weights": {
+    "bpm": 1,
+    "ip": 5
+  },
+  "step_rad": 1e-07
+}

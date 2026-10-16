@@ -1,0 +1,11 @@
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+maps done 0.4071168899536133
+1 {'eps_x': 0.519, 'eps_y': 0.033, 'eps_z': 51.105, 'sigma_tau': 0.002, 'sigma_delta': 0.003, 'chirp': 0.009}
+2 {'eps_x': 0.037, 'eps_y': 0.032, 'eps_z': 39.505, 'sigma_tau': 0.001, 'sigma_delta': 0.003, 'chirp': 0.007}
+3 {'eps_x': 0.036, 'eps_y': 0.032, 'eps_z': 33.332, 'sigma_tau': 0.001, 'sigma_delta': 0.002, 'chirp': 0.006}
+4 {'eps_x': 0.036, 'eps_y': 0.032, 'eps_z': 29.51, 'sigma_tau': 0.001, 'sigma_delta': 0.002, 'chirp': 0.005}
+5 {'eps_x': 0.035, 'eps_y': 0.032, 'eps_z': 26.872, 'sigma_tau': 0.001, 'sigma_delta': 0.002, 'chirp': 0.005}
+6 {'eps_x': 0.006, 'eps_y': 0.032, 'eps_z': 24.892, 'sigma_tau': 0.001, 'sigma_delta': 0.002, 'chirp': 0.005}

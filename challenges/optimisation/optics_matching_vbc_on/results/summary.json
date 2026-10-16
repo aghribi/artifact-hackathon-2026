@@ -1,0 +1,25 @@
+{
+  "vbc_on": {
+    "vbc_angle_rad": -0.1185000017285347,
+    "baseline_transmission": 0.58696,
+    "min": 0.1735,
+    "median": 0.92729,
+    "max": 0.98324
+  },
+  "vbc_off": {
+    "vbc_angle_rad": 0.0,
+    "baseline_transmission": 0.13308,
+    "min": 0.59902,
+    "median": 0.97006,
+    "max": 0.9701
+  },
+  "design": {
+    "vbc_angle_rad": 0.0,
+    "baseline_transmission": 0.97176,
+    "min": 0.63134,
+    "median": 0.97174,
+    "max": 0.97176
+  },
+  "num_particles": 50000,
+  "seconds": 212
+}

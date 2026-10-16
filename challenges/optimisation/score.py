@@ -27,6 +27,12 @@ and hand it over::
 you hand back, measures at `CLA-FEH-DIA-SCR-01` (the FEBE hutch screen, s = 67.93 m,
 just ahead of the IP) and reports how close you got.
 
+**Beam that does not arrive counts against you.** The score charges
+`TRANSMISSION_WEIGHT` for the fraction of the bunch that never reaches the readout,
+so a tight spot bought by scraping the rest of the beam off the pipe is not a good
+tune. The lattice-file optics already loses about half the bunch, so there is room
+to win here as well as to lose.
+
 **You always have something to work from.** A set point is only used if the beam is
 still visible on at least the first three diagnostic screens. Past those it is usually
 lost, and recovering it is the job. All 28 screens are yours to measure — the score
@@ -37,10 +43,14 @@ only looks at the IP, but nothing stops you steering your way down the line.
 that needs 10,000 simulator calls per beam would need 10,000 machine shots, so report
 the number honestly — it is the figure that costs beam time.
 
-**Only magnets may change.** The segment you return is checked: same elements in the
-same order, and only quadrupole `k1`, corrector angles and sextupole `k2` may differ.
-Anything else (drift lengths, cavity voltages, screen positions, misalignments) is a
-failed case.
+**Only the knobs may change.** The segment you return is checked: same elements in
+the same order, and only quadrupole `k1`, corrector angles, sextupole `k2`, cavity
+phases and the four VBC chicane angles may differ. Anything else (drift lengths,
+cavity voltages, the FEA dogleg angles, screen positions, misalignments) is a failed
+case. The RF phases and the chicane are real knobs on CLARA and the only handles on
+the energy spread, which is what the dogleg turns into horizontal beam size at the
+readout — but they move the mean energy too, so everything downstream of them has to
+be rematched.
 
 **Baselines to beat.** 
 `do_nothing_tuner` hands the bad set point straight back and never delivers beam, which
@@ -77,16 +87,46 @@ LATTICE_JSON = HERE / "data" / "clara" / "lattice_data" / "CLARA_cheetah.json"
 REFERENCE_TUNE_JSON = HERE / "data" / "clara" / "lattice_data" / "reference_tune.json"
 MAGNET_RANGES_JSON = HERE / "data" / "clara" / "lattice_data" / "magnet_ranges.json"
 
-LATTICE_START = "cla_s02_dia_scr_01"
+LATTICE_START = "cla_s02_sim_aper_01"
 
 # FEBE hutch screen, s = 67.93 m, just ahead of the IP. 
 READOUT_SCREEN = "cla_feh_dia_scr_01"
 
-TUNABLE = {  # what a tuner may change
+TUNABLE = {  # what a tuner may change, by element type
     cheetah.Quadrupole: ("k1",),
     cheetah.CombinedCorrector: ("horizontal_angle", "vertical_angle"),
     cheetah.Sextupole: ("k2",),
+    # RF phase sets the chirp, and so the energy spread the dogleg turns into beam
+    # size at the readout. Voltage and frequency stay fixed.
+    cheetah.Cavity: ("phase",),
 }
+# A dipole angle is the geometry of the machine rather than a tune, so dipoles are
+# not tunable by type. The VBC is the exception: it is a *variable* bunch
+# compressor, set like any other knob. The lattice file runs it at 131.7 mrad,
+# R56 = -57.6 mm, the maximum compression into FEBE measured on CLARA (IPAC
+# THP2100); the SimEnv knob goes up to 135 mrad, R56 = -60.5 mm.
+VBC_DIPOLES = ("cla_vbc_mag_dip_01", "cla_vbc_mag_dip_02",
+               "cla_vbc_mag_dip_03", "cla_vbc_mag_dip_04")
+TUNABLE_BY_NAME = {name: ("angle",) for name in VBC_DIPOLES}
+# The VBC is a chicane of rectangular magnets with their outer faces square to the
+# straight beamline (STFC's SimFrame VBC.yaml), so each dipole's inner face is
+# turned by its own bend angle. Setting an angle sets that edge with it: without
+# the edge focusing the chicane is a different, much more lossy optic.
+VBC_EDGE = {
+    "cla_vbc_mag_dip_01": "dipole_e2",
+    "cla_vbc_mag_dip_02": "dipole_e1",
+    "cla_vbc_mag_dip_03": "dipole_e2",
+    "cla_vbc_mag_dip_04": "dipole_e1",
+}
+
+
+def tunable_properties(element) -> tuple:
+    """What a tuner may change on this element: what its type allows, plus anything
+    allowed to it by name."""
+    by_type = next(
+        (props for kind, props in TUNABLE.items() if isinstance(element, kind)), ()
+    )
+    return tuple(by_type) + TUNABLE_BY_NAME.get(element.name, ())
 TARGET_LABELS = ("mu_x", "mu_y", "sigma_x", "sigma_y")
 
 # A hit is a mean error within this fraction of the target spot size — scale-free, so a
@@ -99,6 +139,11 @@ _PENALTY_UM = 1e4  # booked against a case that fails, loses the beam, or errors
 # accident of micrometres and call counts sharing a plus sign.
 MU_WEIGHT = 1.0
 SIGMA_WEIGHT = 1.0
+# Beam that does not arrive is beam the experiment does not get. Costed against the
+# whole launched bunch, so delivering half of it is worth a spot size — the same as
+# missing the requested size by 100%. Without this nothing asks a tuner to keep the
+# beam, and a tight spot bought by scraping the rest off the pipe scores perfectly.
+TRANSMISSION_WEIGHT = 2.0
 EVAL_WEIGHT = 0.5
 EVAL_BUDGET = 50.0  # calls per case costing EVAL_WEIGHT; each doubling costs another
 FAILURE_SCORE = 10.0  # what a lost beam or an invalid segment books, in spot sizes
@@ -207,6 +252,12 @@ def apply_tune(segment, tune: dict) -> None:
         for element in elements:
             for prop, value in properties.items():
                 setattr(element, prop, torch.tensor(float(value), dtype=torch.float32))
+                if prop == "angle" and name in VBC_EDGE:
+                    setattr(
+                        element,
+                        VBC_EDGE[name],
+                        torch.tensor(float(value), dtype=torch.float32),
+                    )
 
 
 def read_tune(segment) -> dict:
@@ -214,8 +265,7 @@ def read_tune(segment) -> dict:
     return {
         element.name: {p: float(getattr(element, p)) for p in properties}
         for element in segment.elements
-        for kind, properties in TUNABLE.items()
-        if isinstance(element, kind)
+        if (properties := tunable_properties(element))
     }
 
 
@@ -621,9 +671,7 @@ def _fixed_features(segment) -> dict:
     """Everything a tuner is *not* allowed to touch, as rounded floats."""
     fixed = {}
     for index, element in enumerate(segment.elements):
-        allowed = next(
-            (props for kind, props in TUNABLE.items() if isinstance(element, kind)), ()
-        )
+        allowed = tunable_properties(element)
         for feature in element.defining_features:
             value = getattr(element, feature, None)
             if feature not in allowed and isinstance(value, torch.Tensor):
@@ -754,9 +802,10 @@ class Report:
         """What each case contributes to `calc_score`, in requested spot sizes.
 
         A case is judged against the spot it was asked for, so a tight request counts
-        for as much as a loose one. Contributions are clipped at `FAILURE_SCORE`, which
-        is also what a failed case books — so losing the beam is never cheaper than
-        delivering a bad one, and one disastrous case cannot swamp the other ninety-nine.
+        for as much as a loose one, and against how much of the bunch it delivered
+        there. Contributions are clipped at `FAILURE_SCORE`, which is also what a
+        failed case books — so losing the beam is never cheaper than delivering a bad
+        one, and one disastrous case cannot swamp the other ninety-nine.
         """
         scores = []
         for case in self.cases:
@@ -764,10 +813,12 @@ class Report:
                 scores.append(FAILURE_SCORE)
                 continue
             error = np.abs(case.achieved - case.target) / float(case.target[2:].mean())
+            survival = case.survival if np.isfinite(case.survival) else 0.0
             scores.append(
                 min(
                     MU_WEIGHT * (error[0] + error[1]) / 2
-                    + SIGMA_WEIGHT * (error[2] + error[3]) / 2,
+                    + SIGMA_WEIGHT * (error[2] + error[3]) / 2
+                    + TRANSMISSION_WEIGHT * (1.0 - survival),
                     FAILURE_SCORE,
                 )
             )
@@ -776,8 +827,8 @@ class Report:
     def calc_score(self) -> float:
         """One number for the leaderboard, lower is better. Dimensionless.
 
-        Mean per-case error in units of the requested spot size, plus `EVAL_WEIGHT` for
-        every doubling of the evaluation budget — beam time costs order of magnitude,
+        Mean per-case error in units of the requested spot size, the beam that did not
+        arrive, plus `EVAL_WEIGHT` for every doubling of the evaluation budget — beam time costs order of magnitude,
         not increments, so 40 to 80 calls is priced like 2000 to 4000.
         """
         if not self.cases:

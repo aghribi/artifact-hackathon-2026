@@ -1,0 +1,4 @@
+# Run artifacts. The results JSON is small and worth keeping alongside the README
+# table it backs; the logs are just the per-episode progress lines.
+*.log
+__pycache__/

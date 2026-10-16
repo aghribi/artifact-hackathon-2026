@@ -1,0 +1,19 @@
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+built 39.3876678943634 screens 23
+nominal_off 0.0 23
+nominal_plus 5000000.0 9
+nominal_minus -5000000.0 9
+s02a 0.0 10
+s02b 0.0 10
+s02c 0.0 10
+s07x0.7_off 0.0 10
+s07x0.7_plus 5000000.0 10
+s07x0.7_minus -5000000.0 10
+done 87.22268390655518 images 101 shots 101

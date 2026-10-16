@@ -1,0 +1,32 @@
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+screens upstream: ['cla_s02_dia_scr_01', 'cla_s02_dia_scr_02', 'cla_s02_dia_scr_03', 'cla_s03_dia_scr_01', 'cla_s04_dia_scr_01', 'cla_s04_dia_scr_02', 'cla_s04_dia_scr_03', 'cla_s04_dia_scr_04', 'cla_s04_dia_scr_05', 'cla_s05_dia_scr_01', 'cla_vbc_dia_scr_01', 'cla_s06_dia_scr_01', 'cla_s06_dia_scr_02']
+S02 sigma_tau mm 0.688 sigma_delta % 0.934
+linear: rank 10 of 21, sv [1.         0.19731438 0.1481494  0.05327067 0.02476402 0.01736473
+ 0.01517336 0.01367114 0.00475042 0.00401081 0.         0.        ]
+nonlinear: singular values (info per unit scaled change, noise-normalised):
+[6.133e+03 5.357e+03 7.857e+02 5.294e+02 4.166e+02 2.861e+02 1.029e+02
+ 8.102e+01 7.312e+01 2.141e+01 7.451e+00 1.844e+00 8.133e-01 2.297e-01
+ 1.990e-01 1.175e-01 6.179e-02 1.784e-02 5.042e-03 2.079e-03 1.119e-03]
+1-sigma scaled uncertainty (inf-like = unobservable):
+  <x x>          0.0125
+  <x px>         0.0151
+  <x y>          0.0101
+  <x py>         0.102
+  <x tau>        5.6
+  <x delta>      17.1
+  <px px>        0.0248
+  <px y>         0.011
+  <px py>        0.232
+  <px tau>       16.9
+  <px delta>     8.29
+  <y y>          0.0126
+  <y py>         0.0474
+  <y tau>        19
+  <y delta>      27.3
+  <py py>        0.193
+  <py tau>       17
+  <py delta>     35.9
+  <tau tau>      8.13
+  <tau delta>    4.66
+  <delta delta>  8.2

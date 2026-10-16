@@ -1,0 +1,17 @@
+{
+  "cheetah": {
+    "min": 0.026505,
+    "median": 0.989515,
+    "max": 0.989535,
+    "nodes_below_10percent": 3,
+    "nodes_at_least_95percent": 125
+  },
+  "xsuite": {
+    "min": 0.026735,
+    "median": 0.9895275,
+    "max": 0.989585,
+    "nodes_below_10percent": 3,
+    "nodes_at_least_95percent": 123
+  },
+  "max_backend_difference_percentage_points": 0.9639999999999986
+}

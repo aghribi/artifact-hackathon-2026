@@ -1,0 +1,702 @@
+{
+ "mode": "screen",
+ "monitor_offsets": false,
+ "beam_knowledge": "nominal",
+ "beam_scale": 1.0,
+ "screens_per_modulation": 2,
+ "configurations": 47,
+ "shots": 555,
+ "readings": 222,
+ "unknowns": 97,
+ "unobservable": [],
+ "condition_number": 20158.90679874684,
+ "residual_rms_um_by_iteration": [
+  3121.81,
+  208.18,
+  47.84,
+  47.38,
+  47.46,
+  47.46,
+  47.46
+ ],
+ "launch": {
+  "x": {
+   "true": 3.7719066328017984e-05,
+   "estimate": 6.96324198401924e-05,
+   "posterior_rms": 1.0140206408457081e-05
+  },
+  "px": {
+   "true": -3.963145898739057e-06,
+   "estimate": 3.059481407420734e-05,
+   "posterior_rms": 1.8242518787690445e-05
+  },
+  "y": {
+   "true": 0.0001921267951329846,
+   "estimate": 0.00025563714006759746,
+   "posterior_rms": 2.2486514912680525e-05
+  },
+  "py": {
+   "true": 3.1470035145911912e-06,
+   "estimate": -4.5660355684017185e-05,
+   "posterior_rms": 3.5949877469935726e-05
+  },
+  "delta": {
+   "true": 0.0007231901098189695,
+   "estimate": 6.923597658867879e-06,
+   "posterior_rms": 0.0031694683999221917
+  }
+ },
+ "quad_offsets": {
+  "true_rms_um": 97.49112558022719,
+  "error_rms_um_x": 79.47877735134313,
+  "error_rms_um_y": 100.1871305824506,
+  "error_median_abs_um": 25.080577116660123,
+  "per_quad": {
+   "cla_s02_mag_quad_01": {
+    "true_um": [
+     130.4,
+     94.7
+    ],
+    "estimate_um": [
+     121.4,
+     115.6
+    ],
+    "posterior_rms_um": [
+     9.3,
+     16.0
+    ]
+   },
+   "cla_s02_mag_quad_02": {
+    "true_um": [
+     -70.4,
+     -126.5
+    ],
+    "estimate_um": [
+     -61.2,
+     -93.0
+    ],
+    "posterior_rms_um": [
+     8.2,
+     23.0
+    ]
+   },
+   "cla_s02_mag_quad_03": {
+    "true_um": [
+     -62.3,
+     4.1
+    ],
+    "estimate_um": [
+     -61.5,
+     4.1
+    ],
+    "posterior_rms_um": [
+     3.3,
+     4.5
+    ]
+   },
+   "cla_s02_mag_quad_04": {
+    "true_um": [
+     -232.5,
+     -21.9
+    ],
+    "estimate_um": [
+     -233.4,
+     -21.4
+    ],
+    "posterior_rms_um": [
+     5.8,
+     3.3
+    ]
+   },
+   "cla_s02_mag_quad_05": {
+    "true_um": [
+     -124.6,
+     -73.2
+    ],
+    "estimate_um": [
+     -115.2,
+     -77.9
+    ],
+    "posterior_rms_um": [
+     7.1,
+     8.3
+    ]
+   },
+   "cla_s03_mag_quad_01": {
+    "true_um": [
+     -54.4,
+     -31.6
+    ],
+    "estimate_um": [
+     -61.9,
+     -36.5
+    ],
+    "posterior_rms_um": [
+     6.6,
+     6.5
+    ]
+   },
+   "cla_s04_mag_quad_01": {
+    "true_um": [
+     41.2,
+     104.3
+    ],
+    "estimate_um": [
+     0.2,
+     109.1
+    ],
+    "posterior_rms_um": [
+     41.5,
+     15.5
+    ]
+   },
+   "cla_s04_mag_quad_02": {
+    "true_um": [
+     -12.9,
+     136.6
+    ],
+    "estimate_um": [
+     -119.7,
+     178.2
+    ],
+    "posterior_rms_um": [
+     103.9,
+     25.6
+    ]
+   },
+   "cla_s04_mag_quad_03": {
+    "true_um": [
+     -66.5,
+     35.2
+    ],
+    "estimate_um": [
+     -106.5,
+     71.6
+    ],
+    "posterior_rms_um": [
+     44.8,
+     26.8
+    ]
+   },
+   "cla_s04_mag_quad_04": {
+    "true_um": [
+     90.3,
+     9.4
+    ],
+    "estimate_um": [
+     59.0,
+     10.4
+    ],
+    "posterior_rms_um": [
+     75.5,
+     41.7
+    ]
+   },
+   "cla_s04_mag_quad_05": {
+    "true_um": [
+     -74.3,
+     -92.2
+    ],
+    "estimate_um": [
+     -53.8,
+     -91.6
+    ],
+    "posterior_rms_um": [
+     36.9,
+     6.5
+    ]
+   },
+   "cla_s04_mag_quad_06": {
+    "true_um": [
+     -45.8,
+     22.0
+    ],
+    "estimate_um": [
+     -64.9,
+     22.1
+    ],
+    "posterior_rms_um": [
+     34.4,
+     8.1
+    ]
+   },
+   "cla_s04_mag_quad_07": {
+    "true_um": [
+     -101.0,
+     -20.9
+    ],
+    "estimate_um": [
+     -100.2,
+     -14.8
+    ],
+    "posterior_rms_um": [
+     32.5,
+     9.1
+    ]
+   },
+   "cla_s04_mag_quad_08": {
+    "true_um": [
+     -15.9,
+     54.1
+    ],
+    "estimate_um": [
+     21.8,
+     35.0
+    ],
+    "posterior_rms_um": [
+     19.1,
+     29.8
+    ]
+   },
+   "cla_s05_mag_quad_01": {
+    "true_um": [
+     21.5,
+     35.5
+    ],
+    "estimate_um": [
+     9.6,
+     46.5
+    ],
+    "posterior_rms_um": [
+     18.6,
+     18.2
+    ]
+   },
+   "cla_s05_mag_quad_02": {
+    "true_um": [
+     -65.4,
+     -13.0
+    ],
+    "estimate_um": [
+     -54.6,
+     -8.1
+    ],
+    "posterior_rms_um": [
+     13.3,
+     11.6
+    ]
+   },
+   "cla_s06_mag_quad_01": {
+    "true_um": [
+     78.4,
+     149.3
+    ],
+    "estimate_um": [
+     60.6,
+     110.1
+    ],
+    "posterior_rms_um": [
+     20.1,
+     64.6
+    ]
+   },
+   "cla_s06_mag_quad_02": {
+    "true_um": [
+     -125.9,
+     151.4
+    ],
+    "estimate_um": [
+     -149.5,
+     129.5
+    ],
+    "posterior_rms_um": [
+     41.4,
+     159.9
+    ]
+   },
+   "cla_s07_mag_quad_01": {
+    "true_um": [
+     134.6,
+     78.1
+    ],
+    "estimate_um": [
+     134.9,
+     106.3
+    ],
+    "posterior_rms_um": [
+     6.6,
+     147.4
+    ]
+   },
+   "cla_s07_mag_quad_02": {
+    "true_um": [
+     26.4,
+     -31.4
+    ],
+    "estimate_um": [
+     26.2,
+     -126.6
+    ],
+    "posterior_rms_um": [
+     17.3,
+     238.7
+    ]
+   },
+   "cla_s07_mag_quad_03": {
+    "true_um": [
+     145.8,
+     196.0
+    ],
+    "estimate_um": [
+     152.1,
+     135.9
+    ],
+    "posterior_rms_um": [
+     27.2,
+     218.0
+    ]
+   },
+   "cla_s07_mag_quad_04": {
+    "true_um": [
+     180.2,
+     131.5
+    ],
+    "estimate_um": [
+     144.9,
+     295.8
+    ],
+    "posterior_rms_um": [
+     44.7,
+     233.1
+    ]
+   },
+   "cla_s07_mag_quad_05": {
+    "true_um": [
+     35.7,
+     -120.8
+    ],
+    "estimate_um": [
+     4.5,
+     -98.4
+    ],
+    "posterior_rms_um": [
+     44.5,
+     94.0
+    ]
+   },
+   "cla_s07_mag_quad_06": {
+    "true_um": [
+     -0.4,
+     65.6
+    ],
+    "estimate_um": [
+     -47.3,
+     60.6
+    ],
+    "posterior_rms_um": [
+     67.6,
+     100.3
+    ]
+   },
+   "cla_s07_mag_quad_07": {
+    "true_um": [
+     -128.8,
+     39.5
+    ],
+    "estimate_um": [
+     -135.8,
+     32.6
+    ],
+    "posterior_rms_um": [
+     25.0,
+     129.4
+    ]
+   },
+   "cla_s07_mag_quad_08": {
+    "true_um": [
+     43.0,
+     69.6
+    ],
+    "estimate_um": [
+     63.7,
+     -45.3
+    ],
+    "posterior_rms_um": [
+     18.6,
+     162.7
+    ]
+   },
+   "cla_s07_mag_quad_09": {
+    "true_um": [
+     -118.4,
+     -66.2
+    ],
+    "estimate_um": [
+     -189.7,
+     341.5
+    ],
+    "posterior_rms_um": [
+     65.2,
+     301.9
+    ]
+   },
+   "cla_s07_mag_quad_10": {
+    "true_um": [
+     -43.6,
+     -117.0
+    ],
+    "estimate_um": [
+     79.7,
+     -48.3
+    ],
+    "posterior_rms_um": [
+     75.2,
+     98.4
+    ]
+   },
+   "cla_fea_mag_quad_01": {
+    "true_um": [
+     173.9,
+     -49.6
+    ],
+    "estimate_um": [
+     117.4,
+     -130.6
+    ],
+    "posterior_rms_um": [
+     41.9,
+     246.1
+    ]
+   },
+   "cla_fea_mag_quad_02": {
+    "true_um": [
+     32.9,
+     -25.9
+    ],
+    "estimate_um": [
+     -135.9,
+     -173.4
+    ],
+    "posterior_rms_um": [
+     154.4,
+     147.7
+    ]
+   },
+   "cla_fea_mag_quad_03": {
+    "true_um": [
+     158.3,
+     132.0
+    ],
+    "estimate_um": [
+     -13.1,
+     133.0
+    ],
+    "posterior_rms_um": [
+     98.1,
+     162.8
+    ]
+   },
+   "cla_fea_mag_quad_04": {
+    "true_um": [
+     63.3,
+     -220.4
+    ],
+    "estimate_um": [
+     -233.7,
+     -196.3
+    ],
+    "posterior_rms_um": [
+     225.5,
+     125.7
+    ]
+   },
+   "cla_fea_mag_quad_05": {
+    "true_um": [
+     5.2,
+     68.4
+    ],
+    "estimate_um": [
+     -91.8,
+     22.5
+    ],
+    "posterior_rms_um": [
+     70.3,
+     345.5
+    ]
+   },
+   "cla_fea_mag_quad_06": {
+    "true_um": [
+     100.4,
+     -61.8
+    ],
+    "estimate_um": [
+     57.6,
+     -73.0
+    ],
+    "posterior_rms_um": [
+     128.5,
+     142.4
+    ]
+   },
+   "cla_fea_mag_quad_07": {
+    "true_um": [
+     182.2,
+     -132.0
+    ],
+    "estimate_um": [
+     196.0,
+     -25.6
+    ],
+    "posterior_rms_um": [
+     28.7,
+     171.6
+    ]
+   },
+   "cla_fea_mag_quad_08": {
+    "true_um": [
+     -66.2,
+     93.5
+    ],
+    "estimate_um": [
+     -22.9,
+     120.7
+    ],
+    "posterior_rms_um": [
+     131.6,
+     102.2
+    ]
+   },
+   "cla_fea_mag_quad_09": {
+    "true_um": [
+     4.9,
+     200.2
+    ],
+    "estimate_um": [
+     14.9,
+     113.1
+    ],
+    "posterior_rms_um": [
+     50.2,
+     345.1
+    ]
+   },
+   "cla_fea_mag_quad_10": {
+    "true_um": [
+     18.9,
+     -63.3
+    ],
+    "estimate_um": [
+     -117.6,
+     -81.3
+    ],
+    "posterior_rms_um": [
+     111.2,
+     173.7
+    ]
+   },
+   "cla_fea_mag_quad_11": {
+    "true_um": [
+     -37.8,
+     -109.1
+    ],
+    "estimate_um": [
+     -11.6,
+     -195.2
+    ],
+    "posterior_rms_um": [
+     28.8,
+     193.2
+    ]
+   },
+   "cla_fea_mag_quad_12": {
+    "true_um": [
+     -127.8,
+     63.0
+    ],
+    "estimate_um": [
+     -103.7,
+     74.3
+    ],
+    "posterior_rms_um": [
+     111.7,
+     162.8
+    ]
+   },
+   "cla_fea_mag_quad_13": {
+    "true_um": [
+     58.1,
+     129.5
+    ],
+    "estimate_um": [
+     168.4,
+     486.2
+    ],
+    "posterior_rms_um": [
+     50.8,
+     351.6
+    ]
+   },
+   "cla_fea_mag_quad_14": {
+    "true_um": [
+     -75.5,
+     168.9
+    ],
+    "estimate_um": [
+     43.3,
+     290.6
+    ],
+    "posterior_rms_um": [
+     151.4,
+     272.7
+    ]
+   },
+   "cla_fea_mag_quad_15": {
+    "true_um": [
+     -28.7,
+     157.4
+    ],
+    "estimate_um": [
+     -41.9,
+     63.5
+    ],
+    "posterior_rms_um": [
+     37.8,
+     297.2
+    ]
+   },
+   "cla_fea_mag_quad_16": {
+    "true_um": [
+     -43.3,
+     -73.5
+    ],
+    "estimate_um": [
+     -207.0,
+     97.7
+    ],
+    "posterior_rms_um": [
+     96.6,
+     242.0
+    ]
+   },
+   "cla_feh_mag_quad_01": {
+    "true_um": [
+     25.0,
+     103.1
+    ],
+    "estimate_um": [
+     -187.3,
+     80.3
+    ],
+    "posterior_rms_um": [
+     464.0,
+     364.5
+    ]
+   },
+   "cla_feh_mag_quad_02": {
+    "true_um": [
+     16.1,
+     -58.6
+    ],
+    "estimate_um": [
+     22.7,
+     -11.4
+    ],
+    "posterior_rms_um": [
+     447.5,
+     483.7
+    ]
+   }
+  }
+ },
+ "seconds": 240.8735270500183
+}

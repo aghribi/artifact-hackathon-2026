@@ -1,0 +1,1904 @@
+{
+  "particles": 200000,
+  "max_aperture_ratio": 0.798536672594049,
+  "max_coordinate_difference_from_cached_prefix": [
+    2.3681797020787265e-08,
+    1.6025572580763425e-08,
+    2.2298964364245166e-08,
+    1.6695374710539237e-09,
+    2.179186201932068e-09,
+    3.7185822893137654e-09
+  ],
+  "stations": [
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.23638944849660232
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.2373819382769967
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2386478662956273
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.24024046367728072
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.24225560495356926
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.24482078804234342
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.24807886672006696
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.2521693520468418
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2572124438661983
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.370774074867236
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.3771391833871147
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.3821850319487292
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.3858880817922169
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.3882308771805757
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.38920178019402624
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.388794787186774
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.3870093931244518
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.3838504830846173
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.0,
+      "aperture_ratio": 0.10640614750880277
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.125,
+      "aperture_ratio": 0.1036398669185944
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.25,
+      "aperture_ratio": 0.10135481192319058
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.375,
+      "aperture_ratio": 0.0994839909652488
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.5,
+      "aperture_ratio": 0.09795095237201232
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.625,
+      "aperture_ratio": 0.09667926621274674
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.75,
+      "aperture_ratio": 0.09560345704178985
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 0.875,
+      "aperture_ratio": 0.09467825759275961
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_03",
+      "fraction": 1.0,
+      "aperture_ratio": 0.0938846581097149
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.0,
+      "aperture_ratio": 0.08267848340779188
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.125,
+      "aperture_ratio": 0.08203420200354408
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.25,
+      "aperture_ratio": 0.08126571793831021
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.375,
+      "aperture_ratio": 0.08037138277088822
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.5,
+      "aperture_ratio": 0.07935357272874599
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.625,
+      "aperture_ratio": 0.07821898706171981
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.75,
+      "aperture_ratio": 0.07697948214667902
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 0.875,
+      "aperture_ratio": 0.07565363032102726
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_04",
+      "fraction": 1.0,
+      "aperture_ratio": 0.07426929106424317
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.0,
+      "aperture_ratio": 0.0802901605766722
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.125,
+      "aperture_ratio": 0.08076253746145037
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.25,
+      "aperture_ratio": 0.08120759880291253
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.375,
+      "aperture_ratio": 0.0816252303393502
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.5,
+      "aperture_ratio": 0.08201534629152124
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.625,
+      "aperture_ratio": 0.08237789060717018
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.75,
+      "aperture_ratio": 0.08271283853246167
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 0.875,
+      "aperture_ratio": 0.08302019856020257
+    },
+    {
+      "quadrupole": "cla_s02_mag_quad_05",
+      "fraction": 1.0,
+      "aperture_ratio": 0.08330001481945759
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.2932625517632457
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.2941733279553274
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2949204297419782
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.2955034433699355
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.29592204670177397
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.29617600941298455
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.2962651931408409
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.2961895515855169
+    },
+    {
+      "quadrupole": "cla_s03_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.29594913056382116
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.19709345613348628
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19751187941568743
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.19787156881145368
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.19817221398833063
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.19841356974285418
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.19859544978428162
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.19871772231561452
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.19878030707880384
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.1987831736478737
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.19830981934569744
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19827248209095036
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.19821359832658905
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.1981331960620141
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.19803131090547157
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.1979079863897548
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.19776327437847524
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.19759723556313147
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.19740994006373405
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.0,
+      "aperture_ratio": 0.19414216750661129
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19396064297982485
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.25,
+      "aperture_ratio": 0.1938026073515054
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.375,
+      "aperture_ratio": 0.19366795338919626
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.5,
+      "aperture_ratio": 0.1935565844219719
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.625,
+      "aperture_ratio": 0.1934684155765688
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.75,
+      "aperture_ratio": 0.1934033749001264
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 0.875,
+      "aperture_ratio": 0.1933614043364664
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_03",
+      "fraction": 1.0,
+      "aperture_ratio": 0.19334246052663415
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.0,
+      "aperture_ratio": 0.1932212156291562
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19321983141751647
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.25,
+      "aperture_ratio": 0.19322984626175585
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.375,
+      "aperture_ratio": 0.19325125584802494
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.5,
+      "aperture_ratio": 0.19328406003252588
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.625,
+      "aperture_ratio": 0.19332826283419755
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.75,
+      "aperture_ratio": 0.1933838723965032
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 0.875,
+      "aperture_ratio": 0.19345090091905207
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_04",
+      "fraction": 1.0,
+      "aperture_ratio": 0.19352936456041875
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.0,
+      "aperture_ratio": 0.20784037559020543
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.125,
+      "aperture_ratio": 0.20791814721405738
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.25,
+      "aperture_ratio": 0.20797530379419327
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.375,
+      "aperture_ratio": 0.20801183633588544
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.5,
+      "aperture_ratio": 0.2080277402676184
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.625,
+      "aperture_ratio": 0.20802301542499796
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.75,
+      "aperture_ratio": 0.20799766605426065
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 0.875,
+      "aperture_ratio": 0.20795170083542763
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_05",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2078851329253837
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.0,
+      "aperture_ratio": 0.20660644365321681
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.125,
+      "aperture_ratio": 0.20651311804197126
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.25,
+      "aperture_ratio": 0.20638586175960696
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.375,
+      "aperture_ratio": 0.20622473139125488
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.5,
+      "aperture_ratio": 0.20602979798339002
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.625,
+      "aperture_ratio": 0.20580114769264585
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.75,
+      "aperture_ratio": 0.2055388825987526
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 0.875,
+      "aperture_ratio": 0.20524312170650677
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_06",
+      "fraction": 1.0,
+      "aperture_ratio": 0.20491400216837707
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.0,
+      "aperture_ratio": 0.19920336209884956
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19884808138015608
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.25,
+      "aperture_ratio": 0.19845790447234044
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.375,
+      "aperture_ratio": 0.19803319643597808
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.5,
+      "aperture_ratio": 0.19757438124598606
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.625,
+      "aperture_ratio": 0.19708195153359492
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.75,
+      "aperture_ratio": 0.19655648080459773
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 0.875,
+      "aperture_ratio": 0.19599863884371088
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_07",
+      "fraction": 1.0,
+      "aperture_ratio": 0.1954092112531368
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.0,
+      "aperture_ratio": 0.18595535913051506
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.125,
+      "aperture_ratio": 0.18552055224171296
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.25,
+      "aperture_ratio": 0.1851219365193054
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.375,
+      "aperture_ratio": 0.18475857629364018
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.5,
+      "aperture_ratio": 0.18442926367958795
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.625,
+      "aperture_ratio": 0.18413251619176238
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.75,
+      "aperture_ratio": 0.1838665876349966
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 0.875,
+      "aperture_ratio": 0.1836294926385928
+    },
+    {
+      "quadrupole": "cla_s04_mag_quad_08",
+      "fraction": 1.0,
+      "aperture_ratio": 0.1834190437821017
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.1951820617241516
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.19543031153149604
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.19559530397893868
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.19567670987542268
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.19567432228245707
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.19558804906154706
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.1954179087440486
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.19516402939187164
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.19482665035308974
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.18396202570082926
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.1836272952418567
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.18335834051259753
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.18315477130395302
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.18301635029125282
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.1829429994488702
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.18293480064928513
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.18299199041427386
+    },
+    {
+      "quadrupole": "cla_s05_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.1831149492401571
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.23597660109653165
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.23617701410462358
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.23643854741725628
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.23676127185492768
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.23714527449062492
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.23759065865896203
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.2380975439683295
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.2386660663163452
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2392963779085505
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.26435076088448484
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.2649796596141419
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.265542284748295
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.2660384922856755
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.2664681551411992
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.26683116316781513
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.26712742317515475
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.26735685894495004
+    },
+    {
+      "quadrupole": "cla_s06_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.26751941124313566
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.2599904410336835
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.2603005614862195
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2611054986851556
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.26240678384651334
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.264206893021665
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.2665092517580102
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.26931824155911044
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.2726392081595265
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2764784716325215
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.3420925984435383
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.34589570286860444
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.3490988299722707
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.3516964197796219
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.3536839642158582
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.3550580149005222
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.35581618911679685
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.35595717394448395
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.3554807285491542
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.0,
+      "aperture_ratio": 0.2705578913486618
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.125,
+      "aperture_ratio": 0.26980149745892756
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2690994831402036
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.375,
+      "aperture_ratio": 0.26845170533813334
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.5,
+      "aperture_ratio": 0.26785803195599955
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.625,
+      "aperture_ratio": 0.2673183418304394
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.75,
+      "aperture_ratio": 0.2668325247094034
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 0.875,
+      "aperture_ratio": 0.26640048123217414
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_03",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2660221229115695
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.0,
+      "aperture_ratio": 0.2547792975697114
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.125,
+      "aperture_ratio": 0.2544129934564918
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2540163629510063
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.375,
+      "aperture_ratio": 0.25358945442711855
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.5,
+      "aperture_ratio": 0.2531323199084327
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.625,
+      "aperture_ratio": 0.2526450150631753
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.75,
+      "aperture_ratio": 0.25212759919874683
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 0.875,
+      "aperture_ratio": 0.25158013525592227
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_04",
+      "fraction": 1.0,
+      "aperture_ratio": 0.25100268980266366
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.0,
+      "aperture_ratio": 0.23426517838573152
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.125,
+      "aperture_ratio": 0.23366907811890436
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.25,
+      "aperture_ratio": 0.23306444317168448
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.375,
+      "aperture_ratio": 0.23245129633015962
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.5,
+      "aperture_ratio": 0.23182966070462782
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.625,
+      "aperture_ratio": 0.23119955972904607
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.75,
+      "aperture_ratio": 0.23056101716051733
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 0.875,
+      "aperture_ratio": 0.22991405707874663
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_05",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2292587038854949
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.0,
+      "aperture_ratio": 0.20816921043212044
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.125,
+      "aperture_ratio": 0.20750139835816636
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.25,
+      "aperture_ratio": 0.2068151380905417
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.375,
+      "aperture_ratio": 0.20611049278976412
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.5,
+      "aperture_ratio": 0.20538752732207122
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.625,
+      "aperture_ratio": 0.20464630825600846
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.75,
+      "aperture_ratio": 0.20388690385902095
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 0.875,
+      "aperture_ratio": 0.20310938409401091
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_06",
+      "fraction": 1.0,
+      "aperture_ratio": 0.2023138206158907
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.0,
+      "aperture_ratio": 0.15521525739022546
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.125,
+      "aperture_ratio": 0.1543926739460955
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.25,
+      "aperture_ratio": 0.1535261544009241
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.375,
+      "aperture_ratio": 0.1526159623099603
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.5,
+      "aperture_ratio": 0.15166237498271584
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.625,
+      "aperture_ratio": 0.15066568348652914
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.75,
+      "aperture_ratio": 0.14962619265603874
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 0.875,
+      "aperture_ratio": 0.14854422110971516
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_07",
+      "fraction": 1.0,
+      "aperture_ratio": 0.1474201012748166
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.0,
+      "aperture_ratio": 0.050537751727494584
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.125,
+      "aperture_ratio": 0.05028923892997153
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.25,
+      "aperture_ratio": 0.05006321975395306
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.375,
+      "aperture_ratio": 0.04984403167022355
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.5,
+      "aperture_ratio": 0.04961912466688052
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.625,
+      "aperture_ratio": 0.0493786562055459
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.75,
+      "aperture_ratio": 0.049115005410170554
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 0.875,
+      "aperture_ratio": 0.04882231910823152
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_08",
+      "fraction": 1.0,
+      "aperture_ratio": 0.04849613124523954
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.0,
+      "aperture_ratio": 0.04249566031206276
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.125,
+      "aperture_ratio": 0.04220991876128958
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.25,
+      "aperture_ratio": 0.04183775114734808
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.375,
+      "aperture_ratio": 0.04137941218091871
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.5,
+      "aperture_ratio": 0.040835467623661546
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.625,
+      "aperture_ratio": 0.040206766949811575
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.75,
+      "aperture_ratio": 0.0394944233857062
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 0.875,
+      "aperture_ratio": 0.03869979927100817
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_09",
+      "fraction": 1.0,
+      "aperture_ratio": 0.03782449562267332
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.0,
+      "aperture_ratio": 0.03753768767006226
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.125,
+      "aperture_ratio": 0.03809334034830321
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.25,
+      "aperture_ratio": 0.03848489877098669
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.375,
+      "aperture_ratio": 0.03871037590945582
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.5,
+      "aperture_ratio": 0.038768630769543656
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.625,
+      "aperture_ratio": 0.03865937113044005
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.75,
+      "aperture_ratio": 0.03838315969370011
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 0.875,
+      "aperture_ratio": 0.03794142463985702
+    },
+    {
+      "quadrupole": "cla_s07_mag_quad_10",
+      "fraction": 1.0,
+      "aperture_ratio": 0.03733647712533242
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.0,
+      "aperture_ratio": 0.5403846197026262
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.125,
+      "aperture_ratio": 0.5529278066659453
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.25,
+      "aperture_ratio": 0.5629705223935527
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.375,
+      "aperture_ratio": 0.5704673842857962
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.5,
+      "aperture_ratio": 0.5753845634323647
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.625,
+      "aperture_ratio": 0.5776999379155475
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.75,
+      "aperture_ratio": 0.5774031938825651
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 0.875,
+      "aperture_ratio": 0.5744958739693521
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_01",
+      "fraction": 1.0,
+      "aperture_ratio": 0.56899137299299
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.0,
+      "aperture_ratio": 0.4242358844938429
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.125,
+      "aperture_ratio": 0.4182322008696588
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.25,
+      "aperture_ratio": 0.41375050469598834
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.375,
+      "aperture_ratio": 0.41077422455719925
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.5,
+      "aperture_ratio": 0.40929225980113726
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.625,
+      "aperture_ratio": 0.4092989429227477
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.75,
+      "aperture_ratio": 0.4107940224044518
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 0.875,
+      "aperture_ratio": 0.4137826657288325
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_02",
+      "fraction": 1.0,
+      "aperture_ratio": 0.4182754822863924
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.0,
+      "aperture_ratio": 0.7640534340969795
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.125,
+      "aperture_ratio": 0.7680881294415751
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.25,
+      "aperture_ratio": 0.7694904071839903
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.375,
+      "aperture_ratio": 0.7682574114410687
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.5,
+      "aperture_ratio": 0.7643935982136619
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.625,
+      "aperture_ratio": 0.757911645841047
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.75,
+      "aperture_ratio": 0.7488330974099212
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 0.875,
+      "aperture_ratio": 0.7371885775460307
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_03",
+      "fraction": 1.0,
+      "aperture_ratio": 0.7230177513167423
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.0,
+      "aperture_ratio": 0.39460931024059737
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.125,
+      "aperture_ratio": 0.3798422047389725
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.25,
+      "aperture_ratio": 0.36622181907910384
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.375,
+      "aperture_ratio": 0.353707569868261
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.5,
+      "aperture_ratio": 0.3422622224554595
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.625,
+      "aperture_ratio": 0.331851770832135
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.75,
+      "aperture_ratio": 0.32244532551905963
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 0.875,
+      "aperture_ratio": 0.3140150091428132
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_04",
+      "fraction": 1.0,
+      "aperture_ratio": 0.3065358595353866
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.0,
+      "aperture_ratio": 0.36139817208965
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.125,
+      "aperture_ratio": 0.3669202433707093
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.25,
+      "aperture_ratio": 0.3714309500155801
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.375,
+      "aperture_ratio": 0.37491746072929566
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.5,
+      "aperture_ratio": 0.3773698116574943
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.625,
+      "aperture_ratio": 0.37878092950298636
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.75,
+      "aperture_ratio": 0.379146647675771
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 0.875,
+      "aperture_ratio": 0.3784657152167019
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_05",
+      "fraction": 1.0,
+      "aperture_ratio": 0.37673979831392956
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.0,
+      "aperture_ratio": 0.32922964429775525
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.125,
+      "aperture_ratio": 0.3272841153900923
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.25,
+      "aperture_ratio": 0.3258543607848166
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.375,
+      "aperture_ratio": 0.3249383207020606
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.5,
+      "aperture_ratio": 0.3245347327902194
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.625,
+      "aperture_ratio": 0.32464312921328087
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.75,
+      "aperture_ratio": 0.3252638351721869
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 0.875,
+      "aperture_ratio": 0.32639796888159595
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_06",
+      "fraction": 1.0,
+      "aperture_ratio": 0.3280474430187072
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.0,
+      "aperture_ratio": 0.46878795289184566
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.125,
+      "aperture_ratio": 0.4704398853138561
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.25,
+      "aperture_ratio": 0.4706428121422288
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.375,
+      "aperture_ratio": 0.4693958823383467
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.5,
+      "aperture_ratio": 0.46670273683531577
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.625,
+      "aperture_ratio": 0.46257149585000823
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.75,
+      "aperture_ratio": 0.4570147327428365
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 0.875,
+      "aperture_ratio": 0.4500494344441039
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_07",
+      "fraction": 1.0,
+      "aperture_ratio": 0.4416969485308006
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.0,
+      "aperture_ratio": 0.24904927052978856
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.125,
+      "aperture_ratio": 0.24038997239018067
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.25,
+      "aperture_ratio": 0.23243006690204324
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.375,
+      "aperture_ratio": 0.22514699500632454
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.5,
+      "aperture_ratio": 0.21852020171556724
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.625,
+      "aperture_ratio": 0.2125310744828849
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.75,
+      "aperture_ratio": 0.20716288569226432
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 0.875,
+      "aperture_ratio": 0.20240073898464228
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_08",
+      "fraction": 1.0,
+      "aperture_ratio": 0.19823151919767842
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.0,
+      "aperture_ratio": 0.6080041095107958
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.125,
+      "aperture_ratio": 0.6239464736048105
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.25,
+      "aperture_ratio": 0.6369518320366072
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.375,
+      "aperture_ratio": 0.6469583611134637
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.5,
+      "aperture_ratio": 0.6539184538248014
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.625,
+      "aperture_ratio": 0.6577989335269875
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.75,
+      "aperture_ratio": 0.658581202743713
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 0.875,
+      "aperture_ratio": 0.656261325497977
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_09",
+      "fraction": 1.0,
+      "aperture_ratio": 0.650850042236562
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.0,
+      "aperture_ratio": 0.5028227592654432
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.125,
+      "aperture_ratio": 0.4966233591679795
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.25,
+      "aperture_ratio": 0.49184917106985776
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.375,
+      "aperture_ratio": 0.48849004058452256
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.5,
+      "aperture_ratio": 0.48654181237317007
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.625,
+      "aperture_ratio": 0.48600693967102226
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.75,
+      "aperture_ratio": 0.4868938677539489
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 0.875,
+      "aperture_ratio": 0.4892136654901247
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_10",
+      "fraction": 1.0,
+      "aperture_ratio": 0.4929757160197268
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.0,
+      "aperture_ratio": 0.7938272436447079
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.125,
+      "aperture_ratio": 0.7973120282115794
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.25,
+      "aperture_ratio": 0.798536672594049
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.375,
+      "aperture_ratio": 0.7974975870763054
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.5,
+      "aperture_ratio": 0.7941976263190631
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.625,
+      "aperture_ratio": 0.7886460805604888
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.75,
+      "aperture_ratio": 0.7808586489031061
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 0.875,
+      "aperture_ratio": 0.770857394750804
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_11",
+      "fraction": 1.0,
+      "aperture_ratio": 0.7586706835379344
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.0,
+      "aperture_ratio": 0.47569891951266446
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.125,
+      "aperture_ratio": 0.462401218441195
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.25,
+      "aperture_ratio": 0.4490252503349017
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.375,
+      "aperture_ratio": 0.4355734139670889
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.5,
+      "aperture_ratio": 0.42204813493374077
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.625,
+      "aperture_ratio": 0.40845186766838726
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.75,
+      "aperture_ratio": 0.39478709799069933
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 0.875,
+      "aperture_ratio": 0.3810563463337741
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_12",
+      "fraction": 1.0,
+      "aperture_ratio": 0.36726217184242205
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.0,
+      "aperture_ratio": 0.05866919716513367
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.125,
+      "aperture_ratio": 0.05908550707103815
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.25,
+      "aperture_ratio": 0.05991265230902116
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.375,
+      "aperture_ratio": 0.06115545264022997
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.5,
+      "aperture_ratio": 0.06282185616869532
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.625,
+      "aperture_ratio": 0.06492297731107687
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.75,
+      "aperture_ratio": 0.06747315636596204
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 0.875,
+      "aperture_ratio": 0.07049004463222079
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_13",
+      "fraction": 1.0,
+      "aperture_ratio": 0.07399471703710059
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.0,
+      "aperture_ratio": 0.1542814527546994
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.125,
+      "aperture_ratio": 0.15782616924425455
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.25,
+      "aperture_ratio": 0.16092014966094165
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.375,
+      "aperture_ratio": 0.16355452412250998
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.5,
+      "aperture_ratio": 0.16572180021308355
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.625,
+      "aperture_ratio": 0.16741588357015
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.75,
+      "aperture_ratio": 0.168632095056326
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 0.875,
+      "aperture_ratio": 0.16936718431370962
+    },
+    {
+      "quadrupole": "cla_fea_mag_quad_14",
+      "fraction": 1.0,
+      "aperture_ratio": 0.16961933949966973
+    }
+  ]
+}

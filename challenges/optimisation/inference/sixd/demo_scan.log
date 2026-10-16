@@ -1,0 +1,19 @@
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+
+=== scan: 75 shots, chi2/dof-ish 4.82, nfev 40, 584 s
+quantity                                       true     linear  nonlinear
+eps_x (nm, geometric)                         25.56      67.03      15.87
+eps_y (nm, geometric)                           165       1583      698.6
+sigma_z (mm)                                 0.6734     0.7092     0.6794
+sigma_delta (%)                               2.098      2.084      2.114
+chirp corr(tau,delta)                        0.9999     0.9996     0.9813
+chirp h (1/m) <tau delta>/<tau tau>           31.16      29.37      30.53
+corr(x,tau)                                0.008736    0.02624    0.02118
+corr(y,tau)                               -0.001445   0.003634  -0.008347
+corr(x,delta)                               0.01277   0.003927    0.04521
+corr(y,delta)                             -0.001188    0.01414  0.0009725
+corr(x,y)                                   -0.1731    -0.1586    -0.1774
+corr(px,delta)                              0.01293  -0.001546    0.06396

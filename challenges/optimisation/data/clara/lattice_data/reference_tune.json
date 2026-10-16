@@ -2,7 +2,7 @@
  "_provenance": {
   "source": "CLARA archiver row 17993, captured 2026-04-17T14:49:42Z (camera CLA-FEH-DIA-CAM-01)",
   "built_by": "applying the archiver ':READI' values to CLARA_cheetah.json via data/clara/lattice_data/utils.update_cheetah_element",
-  "note": "Corrector angles are forced to zero. On the real machine they compensate misalignments that the ideal Cheetah lattice does not have, so replaying the captured currents (S01-HCOR-01 is at 7.3 mrad) steers the simulated beam ~130 mm off axis by FEBE. Quadrupole and sextupole strengths are taken as captured."
+  "note": "Corrector angles are forced to zero. On the real machine they compensate misalignments that the ideal Cheetah lattice does not have, so replaying the captured currents (S01-HCOR-01 is at 7.3 mrad) steers the simulated beam ~130 mm off axis by FEBE. Quadrupole strengths are taken as captured. Sextupole k2 is forced to zero: update_cheetah_element has no sextupole calibration, so it wrote the raw ':READI' current (-+226.17 A) straight into k2 [m^-3]. Until a calibration exists, the sextupoles are off."
  },
  "elements": {
   "cla_fea_mag_hvcor_01": {
@@ -78,10 +78,10 @@
    "k1": 0.0
   },
   "cla_fea_mag_sext_01": {
-   "k2": -226.1719970703125
+   "k2": 0.0
   },
   "cla_fea_mag_sext_02": {
-   "k2": 226.1719970703125
+   "k2": 0.0
   },
   "cla_fed_mag_hvcor_01": {
    "horizontal_angle": 0.0,

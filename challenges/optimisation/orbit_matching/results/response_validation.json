@@ -1,0 +1,103 @@
+{
+  "calibration_step_relative_change": {
+    "x": 2.055884542489271e-09,
+    "y": 5.483862053547893e-09
+  },
+  "checks": [
+    {
+      "sigma_x_m": 0.0001,
+      "sigma_y_m": 0.0001,
+      "plane": "x",
+      "weighted_response_relative_error": 2.9830290025915415e-14,
+      "max_abs_error_m_per_rad": 1.2285727990501982e-12,
+      "ip_relative_error": 1.5717399964945083e-13,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.0001,
+      "sigma_y_m": 0.0001,
+      "plane": "y",
+      "weighted_response_relative_error": 5.824332730542398e-15,
+      "max_abs_error_m_per_rad": 4.4586556668946287e-13,
+      "ip_relative_error": 4.539587015162241e-14,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.0001,
+      "sigma_y_m": 0.02,
+      "plane": "x",
+      "weighted_response_relative_error": 3.1867380422658085e-14,
+      "max_abs_error_m_per_rad": 3.5651481766763027e-12,
+      "ip_relative_error": 2.2536211762138892e-13,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.0001,
+      "sigma_y_m": 0.02,
+      "plane": "y",
+      "weighted_response_relative_error": 7.036756152789328e-15,
+      "max_abs_error_m_per_rad": 7.105427357601002e-12,
+      "ip_relative_error": 7.075855689786628e-15,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.02,
+      "sigma_y_m": 0.0001,
+      "plane": "x",
+      "weighted_response_relative_error": 2.1178907674133603e-14,
+      "max_abs_error_m_per_rad": 2.509636942704674e-11,
+      "ip_relative_error": 2.1314700394946174e-14,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.02,
+      "sigma_y_m": 0.0001,
+      "plane": "y",
+      "weighted_response_relative_error": 1.4757494108525054e-14,
+      "max_abs_error_m_per_rad": 1.305622276959184e-12,
+      "ip_relative_error": 2.96065272219568e-13,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.02,
+      "sigma_y_m": 0.02,
+      "plane": "x",
+      "weighted_response_relative_error": 1.8970988765026157e-14,
+      "max_abs_error_m_per_rad": 2.2424728740588762e-11,
+      "ip_relative_error": 1.9005966363882382e-14,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.02,
+      "sigma_y_m": 0.02,
+      "plane": "y",
+      "weighted_response_relative_error": 5.309841143783196e-15,
+      "max_abs_error_m_per_rad": 5.6274984672199935e-12,
+      "ip_relative_error": 5.2171146405101075e-15,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.001,
+      "sigma_y_m": 0.003,
+      "plane": "x",
+      "weighted_response_relative_error": 2.747504012774299e-14,
+      "max_abs_error_m_per_rad": 2.533084852984757e-12,
+      "ip_relative_error": 3.081488785765831e-14,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    },
+    {
+      "sigma_x_m": 0.001,
+      "sigma_y_m": 0.003,
+      "plane": "y",
+      "weighted_response_relative_error": 6.52486601132607e-15,
+      "max_abs_error_m_per_rad": 1.0871303857129533e-12,
+      "ip_relative_error": 6.882533133626298e-15,
+      "cross_plane_max_abs_m_per_rad": 0.0
+    }
+  ],
+  "max_weighted_response_relative_error": 3.1867380422658085e-14,
+  "max_ip_relative_error": 2.96065272219568e-13,
+  "reference_delta": -1.0044988233435175e-05,
+  "wakefields": false,
+  "note": "Reference-orbit response; not a full nonlinear 200,000-particle centroid derivative"
+}

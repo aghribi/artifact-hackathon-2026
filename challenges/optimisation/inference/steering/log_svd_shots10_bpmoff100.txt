@@ -1,0 +1,4 @@
+{'iteration': 0, 'bpm_rms_um': [2215.7, 4201.6], 'bpm_max_um': [3372.7, 13598.4], 'beam_in_quads_rms_um': [2366.3, 3875.8], 'screen_at_readout_um': [-3372.7, 12214.5]}
+{'iteration': 1, 'max_kick_urad': 466.4385776978781, 'bpm_rms_um': [134.2, 128.7], 'bpm_max_um': [426.7, 362.1], 'beam_in_quads_rms_um': [274.6, 194.6], 'screen_at_readout_um': [-426.7, 56.7]}
+{'iteration': 2, 'max_kick_urad': 476.9705865947095, 'bpm_rms_um': [111.7, 126.9], 'bpm_max_um': [257.4, 337.1], 'beam_in_quads_rms_um': [234.2, 193.2], 'screen_at_readout_um': [21.0, -177.5]}
+{'iteration': 3, 'max_kick_urad': 474.56340359349207, 'bpm_rms_um': [112.5, 144.4], 'bpm_max_um': [257.0, 386.1], 'beam_in_quads_rms_um': [234.7, 211.2], 'screen_at_readout_um': [20.9, -288.7]}

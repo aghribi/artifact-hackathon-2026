@@ -1,0 +1,7 @@
+{
+  "data/clara/lattice_data/CLARA_cheetah.json": "cd29f19dd690ef1faff927cb05f6decae2971b757d0f70572f41aae481bff6d7",
+  "nominal_model/initial_distribution.npz": "9c3532d03fefb0b9a639d6246429fb8542c7fde5808ef9eae433953e30449e3d",
+  "inference/optics/matching/smooth_final_focus/matching_surface.npz": "d704379785fb4bef4e256fe7c7fdd305a1c07ca115ba56588b17fb39e4fb1977",
+  "inference/optics/matching/smooth_final_focus/beamlet_runtime.npz": "8c325a769810db35e9190dd7a89279dd99fc93160b18dc54c522f79d0dd12823",
+  "inference/optics/matching/smooth_final_focus/optics_response_model.npz": "ddf9bcae3bf50c68eddeb245dc4714690a9eeb6a16fea634e50251c20f28f8a3"
+}

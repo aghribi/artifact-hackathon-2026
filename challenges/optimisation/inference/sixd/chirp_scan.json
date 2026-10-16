@@ -1,0 +1,79 @@
+{
+ "note": "image chi2 per pixel (40k particles) vs S02 chirp; delta replaced by <delta> + c tau + s xi. 'reconstructed': transverse and tau from the MENT result (ment_test2), s = 1.5e-3 and 4e-3. 'true_transverse': the true beam with s = 1.3e-3 (diagnostic only). True chirp 13.46 /m.",
+ "reconstructed": [
+  {
+   "chirp": -10,
+   "chi2_s1.5e-3": 1.4052,
+   "chi2_s4e-3": 1.3329
+  },
+  {
+   "chirp": -5,
+   "chi2_s1.5e-3": 1.4551,
+   "chi2_s4e-3": 1.3531
+  },
+  {
+   "chirp": 0,
+   "chi2_s1.5e-3": 1.4911,
+   "chi2_s4e-3": 1.3645
+  },
+  {
+   "chirp": 5,
+   "chi2_s1.5e-3": 1.433,
+   "chi2_s4e-3": 1.3479
+  },
+  {
+   "chirp": 10,
+   "chi2_s1.5e-3": 1.4003,
+   "chi2_s4e-3": 1.3457
+  },
+  {
+   "chirp": 14,
+   "chi2_s1.5e-3": 1.4291,
+   "chi2_s4e-3": 1.3765
+  },
+  {
+   "chirp": 18,
+   "chi2_s1.5e-3": 1.4792,
+   "chi2_s4e-3": 1.424
+  },
+  {
+   "chirp": 22,
+   "chi2_s1.5e-3": 1.5287,
+   "chi2_s4e-3": 1.4774
+  }
+ ],
+ "true_transverse": [
+  {
+   "chirp": -13.5,
+   "chi2_s1.3e-3": 1.3832
+  },
+  {
+   "chirp": -6,
+   "chi2_s1.3e-3": 1.3387
+  },
+  {
+   "chirp": 0,
+   "chi2_s1.3e-3": 1.3621
+  },
+  {
+   "chirp": 6,
+   "chi2_s1.3e-3": 1.2579
+  },
+  {
+   "chirp": 10,
+   "chi2_s1.3e-3": 1.141
+  },
+  {
+   "chirp": 13.5,
+   "chi2_s1.3e-3": 1.0783
+  },
+  {
+   "chirp": 17,
+   "chi2_s1.3e-3": 1.1166
+  },
+  {
+   "chirp": 22,
+   "chi2_s1.3e-3": 1.2097
+  }
+ ]
+}

@@ -1,0 +1,875 @@
+[
+  {
+    "sigma_x_mm": 0.1,
+    "sigma_y_mm": 0.1,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m_per_rad": 120.94575472832602,
+        "cumulative_squared_fraction": 0.8019283753911511,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.001710501639580091,
+          "cla_s02_mag_hvcor_02": -0.004661125301187384,
+          "cla_s02_mag_hvcor_03": -0.010178884892699228,
+          "cla_s02_mag_hvcor_04": 0.01077828996850176,
+          "cla_s03_mag_hvcor_01": 0.1271355783089462,
+          "cla_s04_mag_hvcor_01": 0.38655107702924874,
+          "cla_s04_mag_hvcor_02": 0.3862517418625665,
+          "cla_s04_mag_hvcor_03": 0.3972255870585446,
+          "cla_s04_mag_hvcor_04": 0.4181689703659013,
+          "cla_s04_mag_hvcor_05": 0.3814371423325162,
+          "cla_s05_mag_hvcor_01": 0.3030155095608026,
+          "cla_s06_mag_hvcor_01": 0.1022428050618854,
+          "cla_s06_mag_hvcor_02": 0.014804446113723859,
+          "cla_s07_mag_hvcor_01": -0.18078863058449948,
+          "cla_s07_mag_hvcor_02": -0.13417073341154462,
+          "cla_s07_mag_hvcor_03": -0.12367909857406202,
+          "cla_s07_mag_hvcor_04": -0.0968683810840617,
+          "cla_s07_mag_hvcor_05": -0.08472373098796869,
+          "cla_s07_mag_hvcor_06": -0.0887356645207537,
+          "cla_s07_mag_hvcor_07": -0.03186869120008614,
+          "cla_fea_mag_hvcor_01": 0.06513107971872756,
+          "cla_fea_mag_hvcor_02": -0.08335028094469062,
+          "cla_fea_mag_hvcor_03": 0.039373601373989625,
+          "cla_fea_mag_hvcor_04": -0.0011376182331763703,
+          "cla_fea_mag_hvcor_05": 0.008684300711419356,
+          "cla_fea_mag_hvcor_06": 0.009496315004774419,
+          "cla_feh_mag_hvcor_01": 0.0006758218568909953,
+          "cla_feh_mag_hvcor_02": 0.00020795850754554544
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s04_mag_hvcor_04",
+            "coefficient": 0.4181689703659013
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_03",
+            "coefficient": 0.3972255870585446
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": 0.38655107702924874
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_02",
+            "coefficient": 0.3862517418625665
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_05",
+            "coefficient": 0.3814371423325162
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m_per_rad": 49.42844124535393,
+        "cumulative_squared_fraction": 0.9358677148382573,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.8303515427904408,
+          "cla_s02_mag_hvcor_02": 0.17469582637149306,
+          "cla_s02_mag_hvcor_03": -0.1432786318324178,
+          "cla_s02_mag_hvcor_04": -0.31388789235852843,
+          "cla_s03_mag_hvcor_01": -0.2510979486848868,
+          "cla_s04_mag_hvcor_01": -0.16656193542713205,
+          "cla_s04_mag_hvcor_02": -0.06440329408502707,
+          "cla_s04_mag_hvcor_03": -0.017672118951096556,
+          "cla_s04_mag_hvcor_04": 0.05932994515623903,
+          "cla_s04_mag_hvcor_05": 0.08055839125855688,
+          "cla_s05_mag_hvcor_01": 0.10873825846406833,
+          "cla_s06_mag_hvcor_01": 0.09381235560695385,
+          "cla_s06_mag_hvcor_02": 0.06548709570918777,
+          "cla_s07_mag_hvcor_01": 0.020788911527326145,
+          "cla_s07_mag_hvcor_02": -0.0003973666965207513,
+          "cla_s07_mag_hvcor_03": -0.02204742501774669,
+          "cla_s07_mag_hvcor_04": -0.044534721168447575,
+          "cla_s07_mag_hvcor_05": -0.07105295083072014,
+          "cla_s07_mag_hvcor_06": -0.08837970083216172,
+          "cla_s07_mag_hvcor_07": -0.04306717510028847,
+          "cla_fea_mag_hvcor_01": 0.06556284146500065,
+          "cla_fea_mag_hvcor_02": -0.07689585756987656,
+          "cla_fea_mag_hvcor_03": 0.0407047268445465,
+          "cla_fea_mag_hvcor_04": -0.017431284293039803,
+          "cla_fea_mag_hvcor_05": -0.024402299638439366,
+          "cla_fea_mag_hvcor_06": -0.019555170201438123,
+          "cla_feh_mag_hvcor_01": -0.0009729231730941036,
+          "cla_feh_mag_hvcor_02": -0.00029938015317216974
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s02_mag_hvcor_01",
+            "coefficient": 0.8303515427904408
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_04",
+            "coefficient": -0.31388789235852843
+          },
+          {
+            "corrector": "cla_s03_mag_hvcor_01",
+            "coefficient": -0.2510979486848868
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_02",
+            "coefficient": 0.17469582637149306
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": -0.16656193542713205
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m_per_rad": 23.851302078554777,
+        "cumulative_squared_fraction": 0.9670550673044942,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.1741428465030541,
+          "cla_s02_mag_hvcor_02": 0.03553642054749853,
+          "cla_s02_mag_hvcor_03": -0.03221219330218181,
+          "cla_s02_mag_hvcor_04": -0.06341591633427127,
+          "cla_s03_mag_hvcor_01": -0.029895681708325374,
+          "cla_s04_mag_hvcor_01": 0.024656631083874364,
+          "cla_s04_mag_hvcor_02": 0.03503602899492843,
+          "cla_s04_mag_hvcor_03": 0.03661936097093568,
+          "cla_s04_mag_hvcor_04": 0.020257260157799023,
+          "cla_s04_mag_hvcor_05": 0.005791086359577613,
+          "cla_s05_mag_hvcor_01": -0.04023737968971232,
+          "cla_s06_mag_hvcor_01": -0.20402533244915888,
+          "cla_s06_mag_hvcor_02": -0.24202435363514327,
+          "cla_s07_mag_hvcor_01": -0.4109417776655328,
+          "cla_s07_mag_hvcor_02": -0.22718981280610281,
+          "cla_s07_mag_hvcor_03": -0.09310583511533747,
+          "cla_s07_mag_hvcor_04": 0.09224274447272826,
+          "cla_s07_mag_hvcor_05": 0.28532192143438834,
+          "cla_s07_mag_hvcor_06": 0.38967702274001736,
+          "cla_s07_mag_hvcor_07": 0.2148484445982901,
+          "cla_fea_mag_hvcor_01": -0.29016489218053554,
+          "cla_fea_mag_hvcor_02": 0.3244856093487716,
+          "cla_fea_mag_hvcor_03": -0.18434391006522724,
+          "cla_fea_mag_hvcor_04": 0.14027095974690004,
+          "cla_fea_mag_hvcor_05": 0.23753620483293225,
+          "cla_fea_mag_hvcor_06": 0.2005945667904398,
+          "cla_feh_mag_hvcor_01": 0.010801813501123763,
+          "cla_feh_mag_hvcor_02": 0.003323847832937634
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": -0.4109417776655328
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_06",
+            "coefficient": 0.38967702274001736
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_02",
+            "coefficient": 0.3244856093487716
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_01",
+            "coefficient": -0.29016489218053554
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_05",
+            "coefficient": 0.28532192143438834
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m_per_rad": 18.406241593579473,
+        "cumulative_squared_fraction": 0.9856281742362618,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.07756691560777876,
+          "cla_s02_mag_hvcor_02": 0.014169804747865389,
+          "cla_s02_mag_hvcor_03": -0.017611879771655573,
+          "cla_s02_mag_hvcor_04": -0.02451054327620155,
+          "cla_s03_mag_hvcor_01": 0.026719751131191,
+          "cla_s04_mag_hvcor_01": 0.12867963981249222,
+          "cla_s04_mag_hvcor_02": 0.1303377865242735,
+          "cla_s04_mag_hvcor_03": 0.13208239245772294,
+          "cla_s04_mag_hvcor_04": 0.1290451526405971,
+          "cla_s04_mag_hvcor_05": 0.11361074631621947,
+          "cla_s05_mag_hvcor_01": 0.08652851763229456,
+          "cla_s06_mag_hvcor_01": 0.13856997037587862,
+          "cla_s06_mag_hvcor_02": 0.19703574333488721,
+          "cla_s07_mag_hvcor_01": 0.5309924013199999,
+          "cla_s07_mag_hvcor_02": 0.36685059130053305,
+          "cla_s07_mag_hvcor_03": 0.31983383893102135,
+          "cla_s07_mag_hvcor_04": 0.2566879237984209,
+          "cla_s07_mag_hvcor_05": 0.24577586015848818,
+          "cla_s07_mag_hvcor_06": 0.26843344532480856,
+          "cla_s07_mag_hvcor_07": 0.10484566520595162,
+          "cla_fea_mag_hvcor_01": -0.19882739858051154,
+          "cla_fea_mag_hvcor_02": 0.2513966890510872,
+          "cla_fea_mag_hvcor_03": -0.12158075174070075,
+          "cla_fea_mag_hvcor_04": 0.012389672080315644,
+          "cla_fea_mag_hvcor_05": -0.008676669970391827,
+          "cla_fea_mag_hvcor_06": -0.01338677026985602,
+          "cla_feh_mag_hvcor_01": -0.0011818987573181952,
+          "cla_feh_mag_hvcor_02": -0.0003636844519538392
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": 0.5309924013199999
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_02",
+            "coefficient": 0.36685059130053305
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_03",
+            "coefficient": 0.31983383893102135
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_06",
+            "coefficient": 0.26843344532480856
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_04",
+            "coefficient": 0.2566879237984209
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m_per_rad": 13.006373795379584,
+        "cumulative_squared_fraction": 0.9949021676966487,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.044198381492864466,
+          "cla_s02_mag_hvcor_02": 0.008327040792554197,
+          "cla_s02_mag_hvcor_03": -0.009535283001497611,
+          "cla_s02_mag_hvcor_04": -0.014593727730825469,
+          "cla_s03_mag_hvcor_01": 0.005865550765312748,
+          "cla_s04_mag_hvcor_01": 0.039732050703403146,
+          "cla_s04_mag_hvcor_02": 0.03469595653219096,
+          "cla_s04_mag_hvcor_03": 0.029312528233900372,
+          "cla_s04_mag_hvcor_04": 0.005759264835891921,
+          "cla_s04_mag_hvcor_05": -0.00760120432023616,
+          "cla_s05_mag_hvcor_01": -0.0414148687873496,
+          "cla_s06_mag_hvcor_01": -0.11531772468534,
+          "cla_s06_mag_hvcor_02": -0.11829078184908343,
+          "cla_s07_mag_hvcor_01": -0.15194037605775784,
+          "cla_s07_mag_hvcor_02": -0.07771418671555318,
+          "cla_s07_mag_hvcor_03": -0.021384853971294113,
+          "cla_s07_mag_hvcor_04": 0.041201672041767314,
+          "cla_s07_mag_hvcor_05": 0.09352813498955559,
+          "cla_s07_mag_hvcor_06": 0.1168125018039865,
+          "cla_s07_mag_hvcor_07": 0.04171546409134353,
+          "cla_fea_mag_hvcor_01": -0.09917354971906767,
+          "cla_fea_mag_hvcor_02": 0.14745789882837507,
+          "cla_fea_mag_hvcor_03": -0.04460874900162415,
+          "cla_fea_mag_hvcor_04": -0.3094960107551839,
+          "cla_fea_mag_hvcor_05": -0.6600646412631322,
+          "cla_fea_mag_hvcor_06": -0.585833060626683,
+          "cla_feh_mag_hvcor_01": -0.033715906112681694,
+          "cla_feh_mag_hvcor_02": -0.0103747895162703
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_fea_mag_hvcor_05",
+            "coefficient": -0.6600646412631322
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_06",
+            "coefficient": -0.585833060626683
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_04",
+            "coefficient": -0.3094960107551839
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": -0.15194037605775784
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_02",
+            "coefficient": 0.14745789882837507
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sigma_x_mm": 1,
+    "sigma_y_mm": 3,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m_per_rad": 236.51381131961327,
+        "cumulative_squared_fraction": 0.9388647093398804,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.06637884259199331,
+          "cla_s02_mag_hvcor_02": 0.009191152701684802,
+          "cla_s02_mag_hvcor_03": -0.020852035006290234,
+          "cla_s02_mag_hvcor_04": -0.014219195787044758,
+          "cla_s03_mag_hvcor_01": 0.1018706016109852,
+          "cla_s04_mag_hvcor_01": 0.3572926238086112,
+          "cla_s04_mag_hvcor_02": 0.3661287300669032,
+          "cla_s04_mag_hvcor_03": 0.3813227617985708,
+          "cla_s04_mag_hvcor_04": 0.4109792658720449,
+          "cla_s04_mag_hvcor_05": 0.3786970616749597,
+          "cla_s05_mag_hvcor_01": 0.3091821059348296,
+          "cla_s06_mag_hvcor_01": 0.12165185514827903,
+          "cla_s06_mag_hvcor_02": 0.03332826536547425,
+          "cla_s07_mag_hvcor_01": -0.1646705177921021,
+          "cla_s07_mag_hvcor_02": -0.12964106442912304,
+          "cla_s07_mag_hvcor_03": -0.13160336706577164,
+          "cla_s07_mag_hvcor_04": -0.12142561844982377,
+          "cla_s07_mag_hvcor_05": -0.1291015721505278,
+          "cla_s07_mag_hvcor_06": -0.14518306472100298,
+          "cla_s07_mag_hvcor_07": -0.059436577020456356,
+          "cla_fea_mag_hvcor_01": 0.10796785189521912,
+          "cla_fea_mag_hvcor_02": -0.13547377730756244,
+          "cla_fea_mag_hvcor_03": 0.06594573319806787,
+          "cla_fea_mag_hvcor_04": 0.004988382960996639,
+          "cla_fea_mag_hvcor_05": 0.03254684774249528,
+          "cla_fea_mag_hvcor_06": 0.029106463215863045,
+          "cla_feh_mag_hvcor_01": 0.0022133824063312237,
+          "cla_feh_mag_hvcor_02": 0.0005805837452187739
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s04_mag_hvcor_04",
+            "coefficient": 0.4109792658720449
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_03",
+            "coefficient": 0.3813227617985708
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_05",
+            "coefficient": 0.3786970616749597
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_02",
+            "coefficient": 0.3661287300669032
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": 0.3572926238086112
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m_per_rad": 50.62301693713824,
+        "cumulative_squared_fraction": 0.9818763540106792,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.8149167151121021,
+          "cla_s02_mag_hvcor_02": 0.17211074678051486,
+          "cla_s02_mag_hvcor_03": -0.13931202203985343,
+          "cla_s02_mag_hvcor_04": -0.30955390307747105,
+          "cla_s03_mag_hvcor_01": -0.2629172794478945,
+          "cla_s04_mag_hvcor_01": -0.2128100642869234,
+          "cla_s04_mag_hvcor_02": -0.11179403695058879,
+          "cla_s04_mag_hvcor_03": -0.06670229818863468,
+          "cla_s04_mag_hvcor_04": 0.008266157018753178,
+          "cla_s04_mag_hvcor_05": 0.03446071431539205,
+          "cla_s05_mag_hvcor_01": 0.07379681248995874,
+          "cla_s06_mag_hvcor_01": 0.08553030834437185,
+          "cla_s06_mag_hvcor_02": 0.0661773617894005,
+          "cla_s07_mag_hvcor_01": 0.03708197887516342,
+          "cla_s07_mag_hvcor_02": 0.009508321743633384,
+          "cla_s07_mag_hvcor_03": -0.017047213787015816,
+          "cla_s07_mag_hvcor_04": -0.047299313808658615,
+          "cla_s07_mag_hvcor_05": -0.08161750594666156,
+          "cla_s07_mag_hvcor_06": -0.10275234060372324,
+          "cla_s07_mag_hvcor_07": -0.04986155549809098,
+          "cla_fea_mag_hvcor_01": 0.07728510360089191,
+          "cla_fea_mag_hvcor_02": -0.0927447382347887,
+          "cla_fea_mag_hvcor_03": 0.04738301032272838,
+          "cla_fea_mag_hvcor_04": 0.002223733480951747,
+          "cla_fea_mag_hvcor_05": 0.020565721906874602,
+          "cla_fea_mag_hvcor_06": 0.0187319276871696,
+          "cla_feh_mag_hvcor_01": 0.0014634075037992093,
+          "cla_feh_mag_hvcor_02": 0.0003838607404245619
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s02_mag_hvcor_01",
+            "coefficient": 0.8149167151121021
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_04",
+            "coefficient": -0.30955390307747105
+          },
+          {
+            "corrector": "cla_s03_mag_hvcor_01",
+            "coefficient": -0.2629172794478945
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": -0.2128100642869234
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_02",
+            "coefficient": 0.17211074678051486
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m_per_rad": 24.489045135923032,
+        "cumulative_squared_fraction": 0.9919418158098613,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.24023731308012028,
+          "cla_s02_mag_hvcor_02": 0.04820689554368181,
+          "cla_s02_mag_hvcor_03": -0.046046830404131614,
+          "cla_s02_mag_hvcor_04": -0.08561777799555569,
+          "cla_s03_mag_hvcor_01": -0.020009340002542654,
+          "cla_s04_mag_hvcor_01": 0.09925484017464842,
+          "cla_s04_mag_hvcor_02": 0.11496994968948479,
+          "cla_s04_mag_hvcor_03": 0.12040935265733553,
+          "cla_s04_mag_hvcor_04": 0.10845838167160068,
+          "cla_s04_mag_hvcor_05": 0.08591821707836408,
+          "cla_s05_mag_hvcor_01": 0.023652051254636354,
+          "cla_s06_mag_hvcor_01": -0.14404258844617404,
+          "cla_s06_mag_hvcor_02": -0.17157880496668929,
+          "cla_s07_mag_hvcor_01": -0.24587549611850137,
+          "cla_s07_mag_hvcor_02": -0.11434691237616011,
+          "cla_s07_mag_hvcor_03": 0.003973599928825018,
+          "cla_s07_mag_hvcor_04": 0.16631713336591286,
+          "cla_s07_mag_hvcor_05": 0.3480067741856514,
+          "cla_s07_mag_hvcor_06": 0.4526107948927322,
+          "cla_s07_mag_hvcor_07": 0.22858180992367638,
+          "cla_fea_mag_hvcor_01": -0.34232021891057546,
+          "cla_fea_mag_hvcor_02": 0.40761436726184136,
+          "cla_fea_mag_hvcor_03": -0.21060931408889597,
+          "cla_fea_mag_hvcor_04": -0.009808704601033127,
+          "cla_fea_mag_hvcor_05": -0.09170470594429796,
+          "cla_fea_mag_hvcor_06": -0.08359594168412873,
+          "cla_feh_mag_hvcor_01": -0.0065392593700177,
+          "cla_feh_mag_hvcor_02": -0.0017152877357034942
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_06",
+            "coefficient": 0.4526107948927322
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_02",
+            "coefficient": 0.40761436726184136
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_05",
+            "coefficient": 0.3480067741856514
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_01",
+            "coefficient": -0.34232021891057546
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": -0.24587549611850137
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m_per_rad": 18.899942782550696,
+        "cumulative_squared_fraction": 0.9979371166472348,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.03070560148684733,
+          "cla_s02_mag_hvcor_02": 0.004862866161410871,
+          "cla_s02_mag_hvcor_03": -0.008441154659386113,
+          "cla_s02_mag_hvcor_04": -0.008003403718477377,
+          "cla_s03_mag_hvcor_01": 0.029624463469913768,
+          "cla_s04_mag_hvcor_01": 0.10888175209132916,
+          "cla_s04_mag_hvcor_02": 0.11035463821482841,
+          "cla_s04_mag_hvcor_03": 0.11359960836070525,
+          "cla_s04_mag_hvcor_04": 0.1216853344223716,
+          "cla_s04_mag_hvcor_05": 0.1137528205362096,
+          "cla_s05_mag_hvcor_01": 0.10748155991292105,
+          "cla_s06_mag_hvcor_01": 0.21544189194468089,
+          "cla_s06_mag_hvcor_02": 0.28047087142305055,
+          "cla_s07_mag_hvcor_01": 0.6470695929585241,
+          "cla_s07_mag_hvcor_02": 0.4245239403198654,
+          "cla_s07_mag_hvcor_03": 0.3293486406597258,
+          "cla_s07_mag_hvcor_04": 0.2019273124250154,
+          "cla_s07_mag_hvcor_05": 0.12166167634863269,
+          "cla_s07_mag_hvcor_06": 0.10524063515437934,
+          "cla_s07_mag_hvcor_07": 0.02035958199633162,
+          "cla_fea_mag_hvcor_01": -0.07647953702976258,
+          "cla_fea_mag_hvcor_02": 0.109629591594833,
+          "cla_fea_mag_hvcor_03": -0.04662735750594657,
+          "cla_fea_mag_hvcor_04": -0.009052470325527641,
+          "cla_fea_mag_hvcor_05": -0.034960537174297535,
+          "cla_fea_mag_hvcor_06": -0.02994254866986922,
+          "cla_feh_mag_hvcor_01": -0.0021262486128354463,
+          "cla_feh_mag_hvcor_02": -0.0005577280181567928
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": 0.6470695929585241
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_02",
+            "coefficient": 0.4245239403198654
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_03",
+            "coefficient": 0.3293486406597258
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_02",
+            "coefficient": 0.28047087142305055
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_01",
+            "coefficient": 0.21544189194468089
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m_per_rad": 7.718679236020622,
+        "cumulative_squared_fraction": 0.9989370613599647,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": -0.2225478887361035,
+          "cla_s02_mag_hvcor_02": -0.03604554517961257,
+          "cla_s02_mag_hvcor_03": 0.05955134967148859,
+          "cla_s02_mag_hvcor_04": 0.06110239445567459,
+          "cla_s03_mag_hvcor_01": -0.12310493515973484,
+          "cla_s04_mag_hvcor_01": -0.3885681698243821,
+          "cla_s04_mag_hvcor_02": -0.27819911444084366,
+          "cla_s04_mag_hvcor_03": -0.1842217886861942,
+          "cla_s04_mag_hvcor_04": 0.10660379993820027,
+          "cla_s04_mag_hvcor_05": 0.22727168558154906,
+          "cla_s05_mag_hvcor_01": 0.45319341264275365,
+          "cla_s06_mag_hvcor_01": 0.46490989273820327,
+          "cla_s06_mag_hvcor_02": 0.2745677828679098,
+          "cla_s07_mag_hvcor_01": -0.14900712911349276,
+          "cla_s07_mag_hvcor_02": -0.13439628526858494,
+          "cla_s07_mag_hvcor_03": -0.12624190845081615,
+          "cla_s07_mag_hvcor_04": -0.04077938525463648,
+          "cla_s07_mag_hvcor_05": 0.06305194874916784,
+          "cla_s07_mag_hvcor_06": 0.11268688304049768,
+          "cla_s07_mag_hvcor_07": 0.07502498707968876,
+          "cla_fea_mag_hvcor_01": -0.09014218153029842,
+          "cla_fea_mag_hvcor_02": 0.1029967229383193,
+          "cla_fea_mag_hvcor_03": -0.05755626727190958,
+          "cla_fea_mag_hvcor_04": -0.006558461216923952,
+          "cla_fea_mag_hvcor_05": -0.03531453947027636,
+          "cla_fea_mag_hvcor_06": -0.03130954688519746,
+          "cla_feh_mag_hvcor_01": -0.002353405162610256,
+          "cla_feh_mag_hvcor_02": -0.0006173125707591772
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s06_mag_hvcor_01",
+            "coefficient": 0.46490989273820327
+          },
+          {
+            "corrector": "cla_s05_mag_hvcor_01",
+            "coefficient": 0.45319341264275365
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": -0.3885681698243821
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_02",
+            "coefficient": -0.27819911444084366
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_02",
+            "coefficient": 0.2745677828679098
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sigma_x_mm": 20,
+    "sigma_y_mm": 20,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m_per_rad": 3726.4297050875803,
+        "cumulative_squared_fraction": 0.9997208376036263,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.09540097926244645,
+          "cla_s02_mag_hvcor_02": 0.01545491406433852,
+          "cla_s02_mag_hvcor_03": -0.025549336519364262,
+          "cla_s02_mag_hvcor_04": -0.025544159716915697,
+          "cla_s03_mag_hvcor_01": 0.08937152932157036,
+          "cla_s04_mag_hvcor_01": 0.3407118662341315,
+          "cla_s04_mag_hvcor_02": 0.35374517822421797,
+          "cla_s04_mag_hvcor_03": 0.37082249978495907,
+          "cla_s04_mag_hvcor_04": 0.4045749030254923,
+          "cla_s04_mag_hvcor_05": 0.3747835069549447,
+          "cla_s05_mag_hvcor_01": 0.31056380356544827,
+          "cla_s06_mag_hvcor_01": 0.13383696156435507,
+          "cla_s06_mag_hvcor_02": 0.046960976098453164,
+          "cla_s07_mag_hvcor_01": -0.14517820945329798,
+          "cla_s07_mag_hvcor_02": -0.12010992828937075,
+          "cla_s07_mag_hvcor_03": -0.13056734940489212,
+          "cla_s07_mag_hvcor_04": -0.13236368841698182,
+          "cla_s07_mag_hvcor_05": -0.1536896970220001,
+          "cla_s07_mag_hvcor_06": -0.17773569795095337,
+          "cla_s07_mag_hvcor_07": -0.07689209590153748,
+          "cla_fea_mag_hvcor_01": 0.13212581442573412,
+          "cla_fea_mag_hvcor_02": -0.16283574057466618,
+          "cla_fea_mag_hvcor_03": 0.0816653743488895,
+          "cla_fea_mag_hvcor_04": -0.0083639641383,
+          "cla_fea_mag_hvcor_05": 0.0034158514794406223,
+          "cla_fea_mag_hvcor_06": 0.003007168939895588,
+          "cla_feh_mag_hvcor_01": 0.00019577079660865567,
+          "cla_feh_mag_hvcor_02": 4.3961524829761005e-05
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s04_mag_hvcor_04",
+            "coefficient": 0.4045749030254923
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_05",
+            "coefficient": 0.3747835069549447
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_03",
+            "coefficient": 0.37082249978495907
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_02",
+            "coefficient": 0.35374517822421797
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": 0.3407118662341315
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m_per_rad": 51.901986022300036,
+        "cumulative_squared_fraction": 0.9999147746739916,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.7924109723994461,
+          "cla_s02_mag_hvcor_02": 0.16777994289138787,
+          "cla_s02_mag_hvcor_03": -0.13463334265718765,
+          "cla_s02_mag_hvcor_04": -0.30196013450069104,
+          "cla_s03_mag_hvcor_01": -0.2660597120638232,
+          "cla_s04_mag_hvcor_01": -0.23785938720539998,
+          "cla_s04_mag_hvcor_02": -0.13889358460453263,
+          "cla_s04_mag_hvcor_03": -0.09528766754131412,
+          "cla_s04_mag_hvcor_04": -0.021823609329881442,
+          "cla_s04_mag_hvcor_05": 0.007389295992592623,
+          "cla_s05_mag_hvcor_01": 0.05421632947202289,
+          "cla_s06_mag_hvcor_01": 0.08740080137999473,
+          "cla_s06_mag_hvcor_02": 0.07524592577633595,
+          "cla_s07_mag_hvcor_01": 0.06342943837310294,
+          "cla_s07_mag_hvcor_02": 0.025005275122663817,
+          "cla_s07_mag_hvcor_03": -0.009341104369010141,
+          "cla_s07_mag_hvcor_04": -0.05148250680939287,
+          "cla_s07_mag_hvcor_05": -0.09837071241211866,
+          "cla_s07_mag_hvcor_06": -0.12618927616965983,
+          "cla_s07_mag_hvcor_07": -0.06312947106934591,
+          "cla_fea_mag_hvcor_01": 0.09484372525651165,
+          "cla_fea_mag_hvcor_02": -0.11244134869214417,
+          "cla_fea_mag_hvcor_03": 0.05883409160201512,
+          "cla_fea_mag_hvcor_04": -0.006180884296361144,
+          "cla_fea_mag_hvcor_05": 0.0025129235404889785,
+          "cla_fea_mag_hvcor_06": 0.00224074789567995,
+          "cla_feh_mag_hvcor_01": 0.00014857568439663563,
+          "cla_feh_mag_hvcor_02": 3.3363574914383616e-05
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s02_mag_hvcor_01",
+            "coefficient": 0.7924109723994461
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_04",
+            "coefficient": -0.30196013450069104
+          },
+          {
+            "corrector": "cla_s03_mag_hvcor_01",
+            "coefficient": -0.2660597120638232
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": -0.23785938720539998
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_02",
+            "coefficient": 0.16777994289138787
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m_per_rad": 27.14779347646355,
+        "cumulative_squared_fraction": 0.9999678340271743,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.2983507784872741,
+          "cla_s02_mag_hvcor_02": 0.060297597170039616,
+          "cla_s02_mag_hvcor_03": -0.056341790625480406,
+          "cla_s02_mag_hvcor_04": -0.10726919089087963,
+          "cla_s03_mag_hvcor_01": -0.0336925624526028,
+          "cla_s04_mag_hvcor_01": 0.10016516910191314,
+          "cla_s04_mag_hvcor_02": 0.12381826788224244,
+          "cla_s04_mag_hvcor_03": 0.13358981478895945,
+          "cla_s04_mag_hvcor_04": 0.12988865990689116,
+          "cla_s04_mag_hvcor_05": 0.10828277463468917,
+          "cla_s05_mag_hvcor_01": 0.04683031864551806,
+          "cla_s06_mag_hvcor_01": -0.1289307679794386,
+          "cla_s06_mag_hvcor_02": -0.16388283151263147,
+          "cla_s07_mag_hvcor_01": -0.2554543598572173,
+          "cla_s07_mag_hvcor_02": -0.12333975855654733,
+          "cla_s07_mag_hvcor_03": -0.006944659980038413,
+          "cla_s07_mag_hvcor_04": 0.1555266820221218,
+          "cla_s07_mag_hvcor_05": 0.3373616665282061,
+          "cla_s07_mag_hvcor_06": 0.44163357430676625,
+          "cla_s07_mag_hvcor_07": 0.22629815413001345,
+          "cla_fea_mag_hvcor_01": -0.3331837597776524,
+          "cla_fea_mag_hvcor_02": 0.3933377567690665,
+          "cla_fea_mag_hvcor_03": -0.20721573532517015,
+          "cla_fea_mag_hvcor_04": 0.021854457345775943,
+          "cla_fea_mag_hvcor_05": -0.008879715897502074,
+          "cla_fea_mag_hvcor_06": -0.007934870363647343,
+          "cla_feh_mag_hvcor_01": -0.0005277456226578302,
+          "cla_feh_mag_hvcor_02": -0.00011850849409704094
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_06",
+            "coefficient": 0.44163357430676625
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_02",
+            "coefficient": 0.3933377567690665
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_05",
+            "coefficient": 0.3373616665282061
+          },
+          {
+            "corrector": "cla_fea_mag_hvcor_01",
+            "coefficient": -0.3331837597776524
+          },
+          {
+            "corrector": "cla_s02_mag_hvcor_01",
+            "coefficient": 0.2983507784872741
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m_per_rad": 18.792273980472974,
+        "cumulative_squared_fraction": 0.9999932584761487,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": 0.031153893899780266,
+          "cla_s02_mag_hvcor_02": 0.00496282471147775,
+          "cla_s02_mag_hvcor_03": -0.008507364505902686,
+          "cla_s02_mag_hvcor_04": -0.008186529396838562,
+          "cla_s03_mag_hvcor_01": 0.029298977792483166,
+          "cla_s04_mag_hvcor_01": 0.10813347336653342,
+          "cla_s04_mag_hvcor_02": 0.10957070970780697,
+          "cla_s04_mag_hvcor_03": 0.11274054367134642,
+          "cla_s04_mag_hvcor_04": 0.12055451752991794,
+          "cla_s04_mag_hvcor_05": 0.11260093942685814,
+          "cla_s05_mag_hvcor_01": 0.10621959379399698,
+          "cla_s06_mag_hvcor_01": 0.2139672276695439,
+          "cla_s06_mag_hvcor_02": 0.27922005611193557,
+          "cla_s07_mag_hvcor_01": 0.6462743546035146,
+          "cla_s07_mag_hvcor_02": 0.42446778710331606,
+          "cla_s07_mag_hvcor_03": 0.330206299123894,
+          "cla_s07_mag_hvcor_04": 0.20430444806075987,
+          "cla_s07_mag_hvcor_05": 0.12628036398312098,
+          "cla_s07_mag_hvcor_06": 0.11140623073602376,
+          "cla_s07_mag_hvcor_07": 0.02418894028028289,
+          "cla_fea_mag_hvcor_01": -0.080617153356371,
+          "cla_fea_mag_hvcor_02": 0.11312388631602627,
+          "cla_fea_mag_hvcor_03": -0.049699160483052625,
+          "cla_fea_mag_hvcor_04": 0.004642459102620833,
+          "cla_fea_mag_hvcor_05": -0.0019292819923303695,
+          "cla_fea_mag_hvcor_06": -0.0016178881586168864,
+          "cla_feh_mag_hvcor_01": -9.771476127636376e-05,
+          "cla_feh_mag_hvcor_02": -2.194244483089113e-05
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s07_mag_hvcor_01",
+            "coefficient": 0.6462743546035146
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_02",
+            "coefficient": 0.42446778710331606
+          },
+          {
+            "corrector": "cla_s07_mag_hvcor_03",
+            "coefficient": 0.330206299123894
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_02",
+            "coefficient": 0.27922005611193557
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_01",
+            "coefficient": 0.2139672276695439
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m_per_rad": 7.724038646916575,
+        "cumulative_squared_fraction": 0.9999975536599615,
+        "coefficients": {
+          "cla_s02_mag_hvcor_01": -0.22291488447273206,
+          "cla_s02_mag_hvcor_02": -0.03611581880369279,
+          "cla_s02_mag_hvcor_03": 0.05962831849176575,
+          "cla_s02_mag_hvcor_04": 0.06122560183242287,
+          "cla_s03_mag_hvcor_01": -0.1231543689228689,
+          "cla_s04_mag_hvcor_01": -0.38894602909399995,
+          "cla_s04_mag_hvcor_02": -0.2785604192518487,
+          "cla_s04_mag_hvcor_03": -0.18455828818918618,
+          "cla_s04_mag_hvcor_04": 0.10646055925673849,
+          "cla_s04_mag_hvcor_05": 0.22726861946751467,
+          "cla_s05_mag_hvcor_01": 0.4536085707633259,
+          "cla_s06_mag_hvcor_01": 0.466379351879655,
+          "cla_s06_mag_hvcor_02": 0.2760259272245119,
+          "cla_s07_mag_hvcor_01": -0.14748221111723045,
+          "cla_s07_mag_hvcor_02": -0.13370051370850386,
+          "cla_s07_mag_hvcor_03": -0.1262099236710182,
+          "cla_s07_mag_hvcor_04": -0.041190276151752796,
+          "cla_s07_mag_hvcor_05": 0.06265075259319372,
+          "cla_s07_mag_hvcor_06": 0.11249035653059986,
+          "cla_s07_mag_hvcor_07": 0.07573634836727737,
+          "cla_fea_mag_hvcor_01": -0.08951611470051145,
+          "cla_fea_mag_hvcor_02": 0.10088630805471742,
+          "cla_fea_mag_hvcor_03": -0.05778903840915894,
+          "cla_fea_mag_hvcor_04": 0.006373974843596683,
+          "cla_fea_mag_hvcor_05": -0.0025725598376849837,
+          "cla_fea_mag_hvcor_06": -0.002356454794419455,
+          "cla_feh_mag_hvcor_01": -0.00016225720900459509,
+          "cla_feh_mag_hvcor_02": -3.643584460006152e-05
+        },
+        "largest_components": [
+          {
+            "corrector": "cla_s06_mag_hvcor_01",
+            "coefficient": 0.466379351879655
+          },
+          {
+            "corrector": "cla_s05_mag_hvcor_01",
+            "coefficient": 0.4536085707633259
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_01",
+            "coefficient": -0.38894602909399995
+          },
+          {
+            "corrector": "cla_s04_mag_hvcor_02",
+            "coefficient": -0.2785604192518487
+          },
+          {
+            "corrector": "cla_s06_mag_hvcor_02",
+            "coefficient": 0.2760259272245119
+          }
+        ]
+      }
+    ]
+  }
+]

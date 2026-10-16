@@ -1,0 +1,138 @@
+{
+  "x": {
+    "shape": [
+      32,
+      28
+    ],
+    "rank": 26,
+    "grid_shape": [
+      49,
+      49
+    ],
+    "minimum_nonzero_singular_value_m_per_rad": 0.05988304901354672,
+    "maximum_discarded_singular_value_m_per_rad": 1.0554890495092017e-11,
+    "minimum_s1_m_per_rad": 119.89569588571091,
+    "maximum_s1_m_per_rad": 3726.4297050875803,
+    "n_modes_99percent_range": [
+      1,
+      5
+    ],
+    "varying_monitors": [
+      "cla_fea_dia_bpm_08",
+      "cla_fea_dia_bpm_09",
+      "cla_feh_dia_bpm_01",
+      "cla_feh_dia_scr_01"
+    ],
+    "negative_sign_plaquettes_by_mode": [
+      0,
+      0,
+      0,
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "heldout_points": 100,
+    "raw_max_response_relative_error": 0.30591766464339926,
+    "raw_max_singular_relative_error": 0.25077133602970614,
+    "raw_max_vector_angle_deg": 15.150978682284869,
+    "default_max_orthogonality_error": 6.783952591760913e-15,
+    "default_max_reconstruction_relative_error": 7.826852756054388e-14,
+    "path_validation": {
+      "internal_evaluations": 62,
+      "unresolved_segments": 0,
+      "minimum_accepted_overlap": 0.9998667824310806
+    }
+  },
+  "y": {
+    "shape": [
+      32,
+      29
+    ],
+    "rank": 27,
+    "grid_shape": [
+      49,
+      49
+    ],
+    "minimum_nonzero_singular_value_m_per_rad": 0.046338278313006034,
+    "maximum_discarded_singular_value_m_per_rad": 1.6895696044590298e-12,
+    "minimum_s1_m_per_rad": 185.23121804254447,
+    "maximum_s1_m_per_rad": 3848.8379907455146,
+    "n_modes_99percent_range": [
+      1,
+      4
+    ],
+    "varying_monitors": [
+      "cla_fea_dia_bpm_08",
+      "cla_fea_dia_bpm_09",
+      "cla_feh_dia_bpm_01",
+      "cla_feh_dia_scr_01"
+    ],
+    "negative_sign_plaquettes_by_mode": [
+      0,
+      0,
+      2,
+      2,
+      13,
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      10,
+      10,
+      0
+    ],
+    "heldout_points": 100,
+    "raw_max_response_relative_error": 0.21315580407815343,
+    "raw_max_singular_relative_error": 0.1719847946108577,
+    "raw_max_vector_angle_deg": 89.99999999999991,
+    "default_max_orthogonality_error": 6.899999668502248e-15,
+    "default_max_reconstruction_relative_error": 6.403008438704253e-15,
+    "path_validation": {
+      "internal_evaluations": 72,
+      "unresolved_segments": 0,
+      "minimum_accepted_overlap": 0.9829567888975461
+    }
+  },
+  "weights": {
+    "each_bpm": 1.0,
+    "ip": 5.0,
+    "ip_row_multiplier": 2.23606797749979
+  },
+  "model": "Matched 2D size family; reference-orbit angular-kick response; wakes off, VBC=0",
+  "method": "Cubic log-size response/vector gauge interpolation with default analytic response refinement"
+}

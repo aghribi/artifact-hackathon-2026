@@ -1,0 +1,13 @@
+{
+  "random_points": 12,
+  "max_k1_difference_from_original": 3.552713678800501e-15,
+  "max_log_derivative_difference_from_original": 1.7263968032921184e-14,
+  "cheetah_quadrupoles_verified": 46,
+  "xsuite_quadrupoles_verified": 46,
+  "lattice_export_verified": true,
+  "no_grad_context_verified": true,
+  "inference_mode_verified": true,
+  "domain_rejection_verified": true,
+  "all_144_grid_max_strength_difference": 2.2176394054440607e-10,
+  "fresh_inference_mode_verified": true
+}

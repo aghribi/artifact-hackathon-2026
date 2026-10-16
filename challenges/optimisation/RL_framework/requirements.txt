@@ -1,0 +1,12 @@
+cheetah-accelerator
+gymnasium
+stable-baselines3
+torch
+requests
+scikit-image
+# SimEnv tracks through the nominal model in ../nominal_model, at the versions it was
+# validated with.
+xtrack==0.115.5
+xpart==0.23.22
+xobjects==0.7.1
+xdeps==0.10.21

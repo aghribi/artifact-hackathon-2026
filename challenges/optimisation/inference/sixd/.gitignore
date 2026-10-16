@@ -1,0 +1,3 @@
+# generated data: images, polynomial maps, reconstruction arrays
+*.npz
+simenv_kicks.json

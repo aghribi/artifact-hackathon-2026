@@ -1,0 +1,9 @@
+The plot's finding is that there is no jitter term to speak of. I isolated it by taking, for each magnet, every reading at an unchanged setpoint and subtracting that setpoint group's median readback — so the fixed calibration offset and any setpoint dependence are removed and only shot-to-shot scatter is left. 521,076 such repeat readings across 81 supplies.
+
+Panel A — 59% of repeat readings are bit-identical: the readback returns the exact same float. The ECDF is a step function, not a Gaussian. p90 = 0.01 A, which is exactly one readback quantum; p99 = 0.02 A, two quanta. The readback doesn't wander, it flicks by one LSB or not at all. Quadrupoles repeat exactly 77% of the time, dipoles/solenoids 71%, correctors 42% (they have a finer quantum, so their LSB flicker shows up more often).
+
+Panel B — jitter p95 sits in a flat band at 0.005–0.01 A across three decades of calibration offset, and 10 quadrupoles have identically zero jitter across their whole history. The horizontal row of blue points pinned at 0.01 A is the one-quantum ceiling. Jitter scales with neither the offset nor the setpoint.
+
+The p99.9 of 1.01 A in the corner of panel A is the remnant tail — 0.16% of samples, mostly supply-off transitions that survived my filter, not analogue noise.
+
+What this means for beam_jitter in sim_env.py: a Gaussian current-jitter term on the magnets isn't supported by the archive. If you want the magnet channel to be realistic, quantise the readback to 0.01 A and add the per-magnet fixed offset; the residual noise is below what the archive can resolve. Note the caveat that this bounds the readback's stability, not the true coil current — a real drift smaller than 0.01 A, or one common to set and readback, would be invisible here.

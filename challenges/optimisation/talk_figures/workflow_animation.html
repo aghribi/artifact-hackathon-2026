@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow to Done</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --fg: #e8e8ea;
+    --muted: #8a8f98;
+    --done: #2ca02c;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --fg: #1d1f23;
+    --muted: #6b7079;
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; cursor: pointer; }
+  #hint {
+    position: fixed; right: 14px; bottom: 10px;
+    font: 12px system-ui, sans-serif; color: var(--muted); opacity: 0.6;
+    transition: opacity 0.6s;
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="hint">click or space: replay &middot; p: pause &middot; t: theme &middot; c: captions</div>
+<script>
+"use strict";
+
+// ---------- configuration ----------
+const VIRTUAL_WIDTH = 1600;
+const VIRTUAL_HEIGHT = 900;
+const STEP_SECONDS = 1 / 60;
+
+const WORKSTREAM_NAMES = [
+  "steering / SVD",
+  "6D tomography",
+  "apertures",
+  "VBC bunch compressor",
+  "SimEnv",
+  "optics nodes",
+  "MFopt",
+];
+
+// matplotlib default colour cycle (tab10)
+const STRAND_COLORS = [
+  "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
+  "#9467bd", "#8c564b", "#e377c2",
+];
+
+// timeline in seconds
+const CHAOS_START = 0.6;
+const CONVERGE_START = 8.5;
+const CONVERGE_FULL = 12.0;
+const DONE_REVEAL_DELAY = 0.4;
+const ARRIVAL_DEADLINE = 5.0; // steer any straggler straight home this long after full convergence
+
+const CHAOS_BOX = { left: 90, right: 980, top: 150, bottom: 800 };
+const FUNNEL_START_X = 760;
+const DONE_POINT = { x: 1420, y: 470 };
+const FUNNEL_HALF_GAP = 34;
+
+const urlParams = new URLSearchParams(location.search);
+let captionsVisible = !urlParams.has("clean");
+if (urlParams.get("theme") === "light") document.documentElement.dataset.theme = "light";
+// ?speed=2.5 plays the same trajectories 2.5x faster: the simulation still steps
+// at STEP_SECONDS, it just consumes real time quicker, so nothing moves or wanders
+// differently, the whole thing is simply over sooner.
+const TIME_SCALE = Math.max(0.1, parseFloat(urlParams.get("speed") || "1") || 1);
+
+// ---------- helpers ----------
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return function () {
+    state = (state + 0x6D2B79F5) >>> 0;
+    let mixed = state;
+    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+const smoothstep = (edgeLow, edgeHigh, value) => {
+  const fraction = clamp((value - edgeLow) / (edgeHigh - edgeLow), 0, 1);
+  return fraction * fraction * (3 - 2 * fraction);
+};
+const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
+const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+// ---------- strand model ----------
+function createStrands() {
+  const random = seededRandom(20261015);
+  return WORKSTREAM_NAMES.map((name, index) => {
+    const startX = CHAOS_BOX.left + 40 + random() * 300;
+    const startY = CHAOS_BOX.top + 40 + random() * (CHAOS_BOX.bottom - CHAOS_BOX.top - 80);
+    return {
+      name,
+      color: STRAND_COLORS[index],
+      laneOffset: (index - (WORKSTREAM_NAMES.length - 1) / 2) * FUNNEL_HALF_GAP,
+      x: startX,
+      y: startY,
+      heading: random() * Math.PI * 2,
+      speed: 150 + random() * 70,
+      wobbleFreqs: [0.7 + random() * 0.9, 1.9 + random() * 1.6, 3.7 + random() * 2.0],
+      wobblePhases: [random() * 6.28, random() * 6.28, random() * 6.28],
+      wobbleAmps: [1.8 + random() * 1.4, 1.2 + random(), 0.6 + random() * 0.5],
+      trail: [{ x: startX, y: startY }],
+      convergeIndex: null,
+      arrived: false,
+    };
+  });
+}
+
+function advanceStrand(strand, simTime) {
+  if (strand.arrived) return;
+  const convergeWeight = smoothstep(CONVERGE_START, CONVERGE_FULL, simTime);
+  if (convergeWeight > 0 && strand.convergeIndex === null) {
+    strand.convergeIndex = strand.trail.length - 1;
+  }
+
+  // wandering turn rate: sum of incommensurate sines gives loops and crossings
+  let turnRate = 0;
+  for (let k = 0; k < 3; k++) {
+    turnRate += strand.wobbleAmps[k] * Math.sin(strand.wobbleFreqs[k] * simTime + strand.wobblePhases[k]);
+  }
+
+  // soft walls keep the mess inside the chaos box
+  const centerX = (CHAOS_BOX.left + CHAOS_BOX.right) / 2;
+  const centerY = (CHAOS_BOX.top + CHAOS_BOX.bottom) / 2;
+  const outside =
+    strand.x < CHAOS_BOX.left || strand.x > CHAOS_BOX.right ||
+    strand.y < CHAOS_BOX.top || strand.y > CHAOS_BOX.bottom;
+  turnRate *= 1 - convergeWeight;
+  let wanderHeading = strand.heading + turnRate * STEP_SECONDS;
+  if (outside && convergeWeight === 0) {
+    const homeHeading = Math.atan2(centerY - strand.y, centerX - strand.x);
+    wanderHeading += wrapAngle(homeHeading - wanderHeading) * 0.12;
+  }
+
+  // converging: follow a lane that funnels into the done point
+  const funnelFraction = clamp((DONE_POINT.x - strand.x) / (DONE_POINT.x - FUNNEL_START_X), 0, 1);
+  const laneY = DONE_POINT.y + strand.laneOffset * Math.pow(funnelFraction, 0.8);
+  const lookAhead = 140;
+  const overdue = simTime > CONVERGE_FULL + ARRIVAL_DEADLINE;
+  const laneHeading = overdue
+    ? Math.atan2(DONE_POINT.y - strand.y, DONE_POINT.x - strand.x)
+    : Math.atan2(laneY - strand.y, lookAhead);
+
+  const steering = overdue ? 0.2 : convergeWeight * 0.12;
+  strand.heading = wanderHeading + wrapAngle(laneHeading - wanderHeading) * steering;
+  const currentSpeed = strand.speed * (1 + 0.9 * convergeWeight);
+
+  strand.x += Math.cos(strand.heading) * currentSpeed * STEP_SECONDS;
+  strand.y += Math.sin(strand.heading) * currentSpeed * STEP_SECONDS;
+
+  const reachedDone = strand.x >= DONE_POINT.x - 6 ||
+    Math.hypot(DONE_POINT.x - strand.x, DONE_POINT.y - strand.y) < 10;
+  if (convergeWeight > 0.5 && reachedDone) {
+    strand.x = DONE_POINT.x;
+    strand.y = DONE_POINT.y;
+    strand.arrived = true;
+  }
+  strand.trail.push({ x: strand.x, y: strand.y });
+}
+
+// ---------- rendering ----------
+const canvas = document.getElementById("stage");
+const context = canvas.getContext("2d");
+let viewScale = 1, viewOffsetX = 0, viewOffsetY = 0;
+
+function resizeCanvas() {
+  const pixelRatio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(innerWidth * pixelRatio);
+  canvas.height = Math.round(innerHeight * pixelRatio);
+  viewScale = Math.min(canvas.width / VIRTUAL_WIDTH, canvas.height / VIRTUAL_HEIGHT);
+  viewOffsetX = (canvas.width - VIRTUAL_WIDTH * viewScale) / 2;
+  viewOffsetY = (canvas.height - VIRTUAL_HEIGHT * viewScale) / 2;
+}
+addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function strokeTrail(points, fromIndex, toIndex, color, alpha, width) {
+  if (toIndex - fromIndex < 1) return;
+  context.globalAlpha = alpha;
+  context.strokeStyle = color;
+  context.lineWidth = width;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.beginPath();
+  context.moveTo(points[fromIndex].x, points[fromIndex].y);
+  for (let i = fromIndex + 1; i <= toIndex; i++) context.lineTo(points[i].x, points[i].y);
+  context.stroke();
+}
+
+function drawCaption(text, alpha) {
+  if (!captionsVisible || alpha <= 0) return;
+  context.globalAlpha = alpha;
+  context.fillStyle = cssVar("--fg");
+  context.font = "600 40px system-ui, -apple-system, Segoe UI, sans-serif";
+  context.textBaseline = "alphabetic";
+  context.textAlign = "left";
+  context.fillText(text, 90, 100);
+}
+
+function drawDoneBadge(revealTime) {
+  const pop = smoothstep(0, 0.5, revealTime);
+  const overshoot = 1 + 0.18 * Math.sin(clamp(revealTime / 0.5, 0, 1) * Math.PI);
+  const radius = 46 * pop * overshoot;
+  const doneColor = cssVar("--done");
+
+  // pulse rings
+  for (let ring = 0; ring < 2; ring++) {
+    const phase = ((revealTime * 0.7 + ring * 0.5) % 1);
+    context.globalAlpha = (1 - phase) * 0.35 * pop;
+    context.strokeStyle = doneColor;
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(DONE_POINT.x, DONE_POINT.y, 46 + phase * 70, 0, Math.PI * 2);
+    context.stroke();
+  }
+
+  context.globalAlpha = 1;
+  context.fillStyle = doneColor;
+  context.beginPath();
+  context.arc(DONE_POINT.x, DONE_POINT.y, radius, 0, Math.PI * 2);
+  context.fill();
+
+  // check mark drawn progressively
+  const checkProgress = smoothstep(0.25, 0.75, revealTime);
+  if (checkProgress > 0) {
+    const checkPoints = [[-18, 1], [-5, 15], [20, -13]];
+    context.strokeStyle = "#ffffff";
+    context.lineWidth = 8;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.beginPath();
+    context.moveTo(DONE_POINT.x + checkPoints[0][0], DONE_POINT.y + checkPoints[0][1]);
+    const firstLeg = Math.min(checkProgress * 2, 1);
+    context.lineTo(
+      DONE_POINT.x + checkPoints[0][0] + (checkPoints[1][0] - checkPoints[0][0]) * firstLeg,
+      DONE_POINT.y + checkPoints[0][1] + (checkPoints[1][1] - checkPoints[0][1]) * firstLeg
+    );
+    if (checkProgress > 0.5) {
+      const secondLeg = (checkProgress - 0.5) * 2;
+      context.lineTo(
+        DONE_POINT.x + checkPoints[1][0] + (checkPoints[2][0] - checkPoints[1][0]) * secondLeg,
+        DONE_POINT.y + checkPoints[1][1] + (checkPoints[2][1] - checkPoints[1][1]) * secondLeg
+      );
+    }
+    context.stroke();
+  }
+
+  context.globalAlpha = smoothstep(0.4, 0.9, revealTime);
+  context.fillStyle = cssVar("--fg");
+  context.font = "700 44px system-ui, -apple-system, Segoe UI, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "top";
+  context.fillText("done", DONE_POINT.x, DONE_POINT.y + 70);
+}
+
+function render(simTime) {
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.globalAlpha = 1;
+  context.fillStyle = cssVar("--bg");
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.setTransform(viewScale, 0, 0, viewScale, viewOffsetX, viewOffsetY);
+
+  const convergeWeight = smoothstep(CONVERGE_START, CONVERGE_FULL, simTime);
+  const chaosTrailAlpha = 0.9 - 0.65 * convergeWeight;
+
+  for (const strand of strands) {
+    const lastIndex = strand.trail.length - 1;
+    const splitIndex = strand.convergeIndex === null ? lastIndex : strand.convergeIndex;
+    strokeTrail(strand.trail, 0, splitIndex, strand.color, chaosTrailAlpha, 3);
+    strokeTrail(strand.trail, splitIndex, lastIndex, strand.color, 0.95, 4);
+  }
+
+  // heads and labels
+  const labelAlpha = 1 - smoothstep(CONVERGE_START + 1.0, CONVERGE_FULL, simTime);
+  for (const strand of strands) {
+    if (strand.arrived) continue;
+    context.globalAlpha = 1;
+    context.fillStyle = strand.color;
+    context.beginPath();
+    context.arc(strand.x, strand.y, 6.5, 0, Math.PI * 2);
+    context.fill();
+    if (labelAlpha > 0) {
+      context.globalAlpha = labelAlpha;
+      context.font = "600 20px system-ui, -apple-system, Segoe UI, sans-serif";
+      context.textAlign = "left";
+      context.textBaseline = "middle";
+      context.fillText(strand.name, strand.x + 12, strand.y - 14);
+    }
+  }
+
+  // captions per phase
+  const chaosCaptionAlpha = smoothstep(CHAOS_START, CHAOS_START + 0.8, simTime) *
+    (1 - smoothstep(CONVERGE_START - 0.6, CONVERGE_START + 0.2, simTime));
+  drawCaption("Seven workstreams, in practice", chaosCaptionAlpha);
+  const convergeCaptionAlpha = smoothstep(CONVERGE_START + 0.3, CONVERGE_START + 1.2, simTime) *
+    (1 - smoothstep(0, 0.6, doneRevealTime ?? 0));
+  drawCaption("Then it all pointed one way", convergeCaptionAlpha);
+
+  if (doneRevealTime !== null) drawDoneBadge(doneRevealTime);
+}
+
+// ---------- animation loop ----------
+let strands, simTime, accumulator, lastFrameTime, paused, allArrivedAt, doneRevealTime;
+
+function restart() {
+  strands = createStrands();
+  simTime = 0;
+  accumulator = 0;
+  lastFrameTime = null;
+  paused = false;
+  allArrivedAt = null;
+  doneRevealTime = null;
+}
+
+function frame(now) {
+  if (lastFrameTime === null) lastFrameTime = now;
+  const elapsed = Math.min((now - lastFrameTime) / 1000, 0.1);
+  lastFrameTime = now;
+  if (!paused) {
+    accumulator += elapsed * TIME_SCALE;
+    while (accumulator >= STEP_SECONDS) {
+      simTime += STEP_SECONDS;
+      if (simTime >= CHAOS_START) for (const strand of strands) advanceStrand(strand, simTime);
+      if (allArrivedAt === null && strands.every((strand) => strand.arrived)) allArrivedAt = simTime;
+      accumulator -= STEP_SECONDS;
+    }
+    if (allArrivedAt !== null) {
+      doneRevealTime = Math.max(0, simTime - allArrivedAt - DONE_REVEAL_DELAY);
+      if (simTime - allArrivedAt < DONE_REVEAL_DELAY) doneRevealTime = null;
+    }
+  }
+  render(simTime);
+  requestAnimationFrame(frame);
+}
+
+canvas.addEventListener("click", restart);
+addEventListener("keydown", (event) => {
+  if (event.key === " ") { event.preventDefault(); restart(); }
+  else if (event.key === "p") paused = !paused;
+  else if (event.key === "c") captionsVisible = !captionsVisible;
+  else if (event.key === "t") {
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
+  }
+});
+setTimeout(() => { document.getElementById("hint").style.opacity = "0"; }, 4000);
+
+restart();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

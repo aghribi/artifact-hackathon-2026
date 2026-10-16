@@ -1,0 +1,48 @@
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Compiling ContextCpu kernels...
+Done compiling ContextCpu kernels.
+Traceback (most recent call last):
+  File "challenges/optimisation/inference/sixd/run_demo.py", line 42, in <module>
+    main()
+  File "challenges/optimisation/inference/sixd/run_demo.py", line 26, in main
+    sigma_nl, result = fit.solve(sigma_lin_psd)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/sixd/reconstruct.py", line 146, in solve
+    result = least_squares(lambda t: self.residual(theta0 + t * scale),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/_lib/_util.py", line 662, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/optimize/_lsq/least_squares.py", line 926, in least_squares
+    vector_fun = VectorFunction(
+                 ^^^^^^^^^^^^^^^
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 614, in __init__
+    self._update_fun()
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 707, in _update_fun
+    self.f = self.fun_wrapped(xp_copy(self.x))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 424, in __call__
+    return np.atleast_1d(self.fun(x))
+                         ^^^^^^^^^^^
+  File "environments/optimisation/lib/python3.12/site-packages/scipy/optimize/_lsq/least_squares.py", line 263, in __call__
+    return self.f(x, *self.args, **self.kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/sixd/reconstruct.py", line 146, in <lambda>
+    result = least_squares(lambda t: self.residual(theta0 + t * scale),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/sixd/reconstruct.py", line 141, in residual
+    return ((self.predict(theta) - self.measured) / self.noise).reshape(-1)
+             ^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/sixd/reconstruct.py", line 129, in predict
+    tracked[(setting, voltage)] = self.model.track_through(sample, wanted)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/clara_virtual.py", line 144, in track_through
+    recorded[name] = _coordinates_keep_order(particles, allow_losses)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/inference/clara_virtual.py", line 184, in _coordinates_keep_order
+    return xsuite_model._coordinates(particles)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "challenges/optimisation/nominal_model/xsuite_model.py", line 336, in _coordinates
+    raise RuntimeError(
+RuntimeError: 2103 particles lost while tracking

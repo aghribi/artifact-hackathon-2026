@@ -1,0 +1,5419 @@
+{
+  "metadata": {
+    "policy": "Adaptive model-assisted SVD BO/RCDS",
+    "source": "model-svd_opt/results/adaptive_100_episodes/adaptive_summary.json",
+    "source_sha256": "81a5206ed7e63ecbff67c4ddb9749f564159b963686327b1bd0687977aee5a17",
+    "episodes_per_method": 100,
+    "backend": "cheetah",
+    "seed_range": [
+      42,
+      141
+    ],
+    "target_rms_m": [
+      0.001,
+      0.001
+    ],
+    "target_centroid_m": [
+      0.0,
+      0.0
+    ],
+    "particles_per_shot": 10000,
+    "steps_definition": "One env.step per shot, including every correction and restoration; one reset reading per branch is excluded. No threading replay.",
+    "score_definition": "Last actual single-shot SimEnv benchmark_score, including mismatch, loss and shot-count penalty; lower is better.",
+    "time_definition": "Local simulation/model/optimizer compute wall time; no real-machine setting, settling, trigger or camera acquisition latency.",
+    "figures": [
+      "model_svd_opt_100_episodes_steps.png",
+      "model_svd_opt_100_episodes_steps.pdf",
+      "model_svd_opt_100_episodes_score.png",
+      "model_svd_opt_100_episodes_score.pdf",
+      "model_svd_opt_100_episodes_all.png",
+      "model_svd_opt_100_episodes_all.pdf"
+    ],
+    "parallel_workers": 8,
+    "batch_compute_wall_time_s": 177.78118920885026,
+    "total_steps": 1184,
+    "reset_readings": 200,
+    "screen_changes": 0
+  },
+  "episodes": 100,
+  "summary": {
+    "bo": {
+      "shots": {
+        "n": 100,
+        "mean": 5.64,
+        "median": 6.0,
+        "std": 2.969610388348252,
+        "min": 1.0,
+        "max": 13.0,
+        "p10": 2.0,
+        "p90": 9.0
+      },
+      "score": {
+        "n": 100,
+        "mean": 0.4301662273925801,
+        "median": 0.38175442739460314,
+        "std": 0.2422216968645581,
+        "min": 0.1162137451925882,
+        "max": 1.2370182370768639,
+        "p10": 0.17709940983551595,
+        "p90": 0.7809973060869281
+      },
+      "physical_mismatch": {
+        "n": 100,
+        "mean": 0.3540769281833686,
+        "median": 0.29435904682954417,
+        "std": 0.21851320634875246,
+        "min": 0.08792198100940445,
+        "max": 1.1299558344004401,
+        "p10": 0.14203183136588637,
+        "p90": 0.6375567321928474
+      },
+      "wall_time_s": {
+        "n": 100,
+        "mean": 4.1441753750131465,
+        "median": 4.56337554147467,
+        "std": 1.387374293596768,
+        "min": 0.7404819577932358,
+        "max": 6.69194829207845,
+        "p10": 2.356905437889509,
+        "p90": 5.559362766891719
+      },
+      "statuses": {
+        "completed": 100
+      },
+      "shot_histogram": {
+        "1": 3,
+        "2": 13,
+        "3": 20,
+        "4": 7,
+        "5": 5,
+        "6": 9,
+        "7": 12,
+        "8": 16,
+        "9": 6,
+        "11": 7,
+        "12": 1,
+        "13": 1
+      },
+      "strict_final_target_met": 30,
+      "benchmark_hit_rates": {
+        "0.1": 0.51,
+        "0.25": 0.87,
+        "0.5": 0.99
+      },
+      "shot_reduction_vs_192": 0.970625,
+      "optics_stops": {
+        "existing_reading_adequate": 43,
+        "no_significant_improvement": 23,
+        "expected_improvement_below_shot_cost": 27,
+        "target_tolerance": 7
+      },
+      "centering_stops": {
+        "inverse_response": 46,
+        "restored_better_measured_setting": 11,
+        "shot_cap": 12,
+        "measured_response_secant": 25,
+        "target_tolerance": 6
+      },
+      "paired": {
+        "n": 99,
+        "old_physical_mismatch_mean": 0.4312224030409817,
+        "new_physical_mismatch_mean": 0.3561279401411712
+      }
+    },
+    "rcds": {
+      "shots": {
+        "n": 100,
+        "mean": 6.2,
+        "median": 6.0,
+        "std": 3.4873508801977704,
+        "min": 1.0,
+        "max": 15.0,
+        "p10": 2.0,
+        "p90": 11.0
+      },
+      "score": {
+        "n": 100,
+        "mean": 0.5002772105217344,
+        "median": 0.43252467825313146,
+        "std": 0.31913484924621227,
+        "min": 0.1162137451925882,
+        "max": 1.60580860243689,
+        "p10": 0.17823440933032259,
+        "p90": 0.9839340740705682
+      },
+      "physical_mismatch": {
+        "n": 100,
+        "mean": 0.4173194663667074,
+        "median": 0.3317627323035363,
+        "std": 0.2890335287334784,
+        "min": 0.08792198100940445,
+        "max": 1.474291399519993,
+        "p10": 0.1482318525300947,
+        "p90": 0.8731068358346754
+      },
+      "wall_time_s": {
+        "n": 100,
+        "mean": 4.011152179609053,
+        "median": 4.4415085829095915,
+        "std": 1.3738832123165554,
+        "min": 0.751966165844351,
+        "max": 6.054697999963537,
+        "p10": 2.2701972166541964,
+        "p90": 5.448318724846468
+      },
+      "statuses": {
+        "completed": 100
+      },
+      "shot_histogram": {
+        "1": 3,
+        "2": 13,
+        "3": 20,
+        "4": 7,
+        "5": 2,
+        "6": 7,
+        "7": 7,
+        "8": 12,
+        "9": 7,
+        "10": 10,
+        "11": 6,
+        "12": 3,
+        "13": 2,
+        "15": 1
+      },
+      "strict_final_target_met": 26,
+      "benchmark_hit_rates": {
+        "0.1": 0.44,
+        "0.25": 0.77,
+        "0.5": 0.97
+      },
+      "shot_reduction_vs_192": 0.9677083333333333,
+      "optics_stops": {
+        "existing_reading_adequate": 43,
+        "no_significant_improvement": 50,
+        "target_tolerance": 7
+      },
+      "centering_stops": {
+        "inverse_response": 47,
+        "restored_better_measured_setting": 16,
+        "measured_response_secant": 21,
+        "shot_cap": 8,
+        "target_tolerance": 8
+      },
+      "paired": {
+        "n": 98,
+        "old_physical_mismatch_mean": 0.35634341308779655,
+        "new_physical_mismatch_mean": 0.41536681489707916
+      }
+    }
+  },
+  "per_episode": [
+    {
+      "episode": 0,
+      "seed": 42,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.22365373335997957,
+          "physical_mismatch": 0.18162160096574229,
+          "relative_error": 0.07351080048287116,
+          "transmission": 0.9827,
+          "on_screen_fraction": 0.9827,
+          "sigma_m": [
+            0.0008272950866616886,
+            0.000935599058705915
+          ],
+          "centroid_m": [
+            -4.232615651243143e-05,
+            -1.4611190786656746e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.70619387505576,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.22365373335997957,
+          "physical_mismatch": 0.18162160096574229,
+          "relative_error": 0.07351080048287116,
+          "transmission": 0.9827,
+          "on_screen_fraction": 0.9827,
+          "sigma_m": [
+            0.0008272950866616886,
+            0.000935599058705915
+          ],
+          "centroid_m": [
+            -4.232615651243143e-05,
+            -1.4611190786656746e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.5475708751473576,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 1,
+      "seed": 43,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.323246579797636,
+          "physical_mismatch": 0.267730923603264,
+          "relative_error": 0.09686546180163197,
+          "transmission": 0.963,
+          "on_screen_fraction": 0.963,
+          "sigma_m": [
+            0.0012657068859256585,
+            0.000990374276493031
+          ],
+          "centroid_m": [
+            9.511553168289019e-05,
+            1.7013706091010196e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 1.8708938751369715,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.323246579797636,
+          "physical_mismatch": 0.267730923603264,
+          "relative_error": 0.09686546180163197,
+          "transmission": 0.963,
+          "on_screen_fraction": 0.963,
+          "sigma_m": [
+            0.0012657068859256585,
+            0.000990374276493031
+          ],
+          "centroid_m": [
+            9.511553168289019e-05,
+            1.7013706091010196e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 1.307833000086248,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 2,
+      "seed": 44,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.2317700519107416,
+          "physical_mismatch": 0.18973791951650432,
+          "relative_error": 0.0801689597582521,
+          "transmission": 0.9853,
+          "on_screen_fraction": 0.9853,
+          "sigma_m": [
+            0.0011415658796425977,
+            0.0011052089921484306
+          ],
+          "centroid_m": [
+            5.337300005059647e-06,
+            6.856366723692058e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.7027716250158846,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.23179753953344467,
+          "physical_mismatch": 0.1897654071392074,
+          "relative_error": 0.08018270356960366,
+          "transmission": 0.9853,
+          "on_screen_fraction": 0.9853,
+          "sigma_m": [
+            0.0011417310046240932,
+            0.0011051090484877567
+          ],
+          "centroid_m": [
+            5.33464792192121e-06,
+            6.85561132446435e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.5381459170021117,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 3,
+      "seed": 45,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.30459220783514707,
+          "physical_mismatch": 0.2763004436519633,
+          "relative_error": 0.12275022182598168,
+          "transmission": 0.9846,
+          "on_screen_fraction": 0.9846,
+          "sigma_m": [
+            0.0014070624676485377,
+            0.0009359805870128988
+          ],
+          "centroid_m": [
+            1.6702671491675323e-05,
+            -3.2163351766125464e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.4431693330407143,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.30459220783514707,
+          "physical_mismatch": 0.2763004436519633,
+          "relative_error": 0.12275022182598168,
+          "transmission": 0.9846,
+          "on_screen_fraction": 0.9846,
+          "sigma_m": [
+            0.0014070624676485377,
+            0.0009359805870128988
+          ],
+          "centroid_m": [
+            1.6702671491675323e-05,
+            -3.2163351766125464e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.2845318750478327,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 4,
+      "seed": 46,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.4843344947377085,
+          "physical_mismatch": 0.37727209206128487,
+          "relative_error": 0.13513604603064247,
+          "transmission": 0.9465,
+          "on_screen_fraction": 0.9463,
+          "sigma_m": [
+            0.001326883658409267,
+            0.0011677872156328464
+          ],
+          "centroid_m": [
+            -3.7588240291526787e-06,
+            -4.2114486051303715e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.547924541868269,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.46049061848957107,
+          "physical_mismatch": 0.3787412523481313,
+          "relative_error": 0.1311706261740656,
+          "transmission": 0.9418,
+          "on_screen_fraction": 0.9414,
+          "sigma_m": [
+            0.0013481836027632995,
+            0.0010580364962663935
+          ],
+          "centroid_m": [
+            3.4309229935892415e-05,
+            8.415317573067705e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.922669457970187,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 5,
+      "seed": 47,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.6472384117286148,
+          "physical_mismatch": 0.5401760090521912,
+          "relative_error": 0.24458800452609564,
+          "transmission": 0.9745,
+          "on_screen_fraction": 0.9745,
+          "sigma_m": [
+            0.0011632028082272535,
+            0.0015199688608273367
+          ],
+          "centroid_m": [
+            6.350572630310637e-05,
+            -0.0002316746227466861
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.845436292001978,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.8359847257302069,
+          "physical_mismatch": 0.7289223230537832,
+          "relative_error": 0.30826116152689165,
+          "transmission": 0.9438,
+          "on_screen_fraction": 0.941,
+          "sigma_m": [
+            0.0010775771556857886,
+            0.0020375240319585827
+          ],
+          "centroid_m": [
+            6.161119561135329e-05,
+            5.633226285184205e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.738370458828285,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 6,
+      "seed": 48,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.5536801816861349,
+          "physical_mismatch": 0.4466177790097112,
+          "relative_error": 0.2196088895048556,
+          "transmission": 0.9963,
+          "on_screen_fraction": 0.9955,
+          "sigma_m": [
+            0.0011174782035632117,
+            0.001606225829650584
+          ],
+          "centroid_m": [
+            1.881261921114626e-05,
+            -0.00013591890559448033
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 6.145996290957555,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 0.7671052920559491,
+          "physical_mismatch": 0.6236647181618683,
+          "relative_error": 0.30493235908093413,
+          "transmission": 0.9931,
+          "on_screen_fraction": 0.9854,
+          "sigma_m": [
+            0.0010233906426746608,
+            0.0020626633962130313
+          ],
+          "centroid_m": [
+            1.5974794848804407e-05,
+            -0.00011770060258724017
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.537317791953683,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 7,
+      "seed": 49,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.8322541662795766,
+          "physical_mismatch": 0.6888135923854959,
+          "relative_error": 0.28500679619274794,
+          "transmission": 0.9406,
+          "on_screen_fraction": 0.9399,
+          "sigma_m": [
+            0.001203745521929429,
+            0.0015905245319538333
+          ],
+          "centroid_m": [
+            -9.457885014644071e-05,
+            0.0002511782807412889
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 6.69194829207845,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 0.7260823276676238,
+          "physical_mismatch": 0.5826417537735431,
+          "relative_error": 0.22312087688677146,
+          "transmission": 0.9318,
+          "on_screen_fraction": 0.9311,
+          "sigma_m": [
+            0.0011560975600719797,
+            0.0014074047140202406
+          ],
+          "centroid_m": [
+            -9.911048016753253e-05,
+            0.0002298707532873331
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.432750791776925,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 8,
+      "seed": 50,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.290749047286385,
+          "physical_mismatch": 0.24871691489214776,
+          "relative_error": 0.09635845744607384,
+          "transmission": 0.972,
+          "on_screen_fraction": 0.972,
+          "sigma_m": [
+            0.001165750643439034,
+            0.0009237294238769661
+          ],
+          "centroid_m": [
+            6.398901292547834e-05,
+            -7.942359729674916e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.754868125077337,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.290749047286385,
+          "physical_mismatch": 0.24871691489214776,
+          "relative_error": 0.09635845744607384,
+          "transmission": 0.972,
+          "on_screen_fraction": 0.972,
+          "sigma_m": [
+            0.001165750643439034,
+            0.0009237294238769661
+          ],
+          "centroid_m": [
+            6.398901292547834e-05,
+            -7.942359729674916e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.556114458013326,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 9,
+      "seed": 51,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.3618100467808131,
+          "physical_mismatch": 0.25474764410438944,
+          "relative_error": 0.1064738220521947,
+          "transmission": 0.9791,
+          "on_screen_fraction": 0.9791,
+          "sigma_m": [
+            0.0008451101147042934,
+            0.0012443397766902034
+          ],
+          "centroid_m": [
+            -4.929581229645696e-06,
+            2.1736044993223136e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.433226707857102,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.6856600551887786,
+          "physical_mismatch": 0.5541428522718818,
+          "relative_error": 0.26347142613594093,
+          "transmission": 0.9864,
+          "on_screen_fraction": 0.9851,
+          "sigma_m": [
+            0.0008275975452037204,
+            0.0017840059655430357
+          ],
+          "centroid_m": [
+            -5.88464143712471e-05,
+            -3.863086983320131e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.574566750088707,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 10,
+      "seed": 52,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.49865968743643946,
+          "physical_mismatch": 0.41691032129499966,
+          "relative_error": 0.19715516064749986,
+          "transmission": 0.9887,
+          "on_screen_fraction": 0.9887,
+          "sigma_m": [
+            0.0015081665555370409,
+            0.0012211198072055083
+          ],
+          "centroid_m": [
+            -3.7245244229512746e-05,
+            2.208903561793754e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.945724667049944,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.5047306392652713,
+          "physical_mismatch": 0.385337209471713,
+          "relative_error": 0.18196860473585647,
+          "transmission": 0.9893,
+          "on_screen_fraction": 0.9893,
+          "sigma_m": [
+            0.0013881491606431975,
+            0.0012521357177667984
+          ],
+          "centroid_m": [
+            8.285356135536309e-05,
+            4.735979178066906e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.3443978750146925,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 11,
+      "seed": 53,
+      "methods": {
+        "bo": {
+          "shots": 1,
+          "score": 0.13973239414812347,
+          "physical_mismatch": 0.125447818049738,
+          "relative_error": 0.06272390902486899,
+          "transmission": 1.0,
+          "on_screen_fraction": 1.0,
+          "sigma_m": [
+            0.0011225032503342882,
+            0.0011065671646008593
+          ],
+          "centroid_m": [
+            5.2902537812653804e-06,
+            1.6534967383063125e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.7404819577932358,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 1,
+          "score": 0.13973239414812347,
+          "physical_mismatch": 0.125447818049738,
+          "relative_error": 0.06272390902486899,
+          "transmission": 1.0,
+          "on_screen_fraction": 1.0,
+          "sigma_m": [
+            0.0011225032503342882,
+            0.0011065671646008593
+          ],
+          "centroid_m": [
+            5.2902537812653804e-06,
+            1.6534967383063125e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.751966165844351,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 12,
+      "seed": 54,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.4066212693687264,
+          "physical_mismatch": 0.2631806954746456,
+          "relative_error": 0.12479034773732277,
+          "transmission": 0.9932,
+          "on_screen_fraction": 0.9932,
+          "sigma_m": [
+            0.0011592754840599759,
+            0.0011290532143626772
+          ],
+          "centroid_m": [
+            0.00015269097822467236,
+            5.814171430196565e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.672312707873061,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.5838193341989248,
+          "physical_mismatch": 0.48930242200391627,
+          "relative_error": 0.23275121100195809,
+          "transmission": 0.9881,
+          "on_screen_fraction": 0.9877,
+          "sigma_m": [
+            0.0007878322390895696,
+            0.0016332014465890805
+          ],
+          "centroid_m": [
+            -2.0809846754090134e-05,
+            6.482578975423134e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.639169457834214,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 13,
+      "seed": 55,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.40713770288199946,
+          "physical_mismatch": 0.2877442730884412,
+          "relative_error": 0.0894721365442206,
+          "transmission": 0.9456,
+          "on_screen_fraction": 0.9456,
+          "sigma_m": [
+            0.0010824760603751866,
+            0.0012420367805126033
+          ],
+          "centroid_m": [
+            -1.335980946674143e-05,
+            2.001589582235115e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.529648374998942,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.6173080069724955,
+          "physical_mismatch": 0.4979145771789373,
+          "relative_error": 0.19525728858946867,
+          "transmission": 0.9463,
+          "on_screen_fraction": 0.9462,
+          "sigma_m": [
+            0.0011169018480454182,
+            0.0016315014297867167
+          ],
+          "centroid_m": [
+            4.758733933448099e-06,
+            2.786714259229175e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.285459874896333,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 14,
+      "seed": 56,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.7143408815274946,
+          "physical_mismatch": 0.6198239693324861,
+          "relative_error": 0.23741198466624305,
+          "transmission": 0.9275,
+          "on_screen_fraction": 0.9275,
+          "sigma_m": [
+            0.0017124835994729239,
+            0.0011526832037795664
+          ],
+          "centroid_m": [
+            -4.6708047255406654e-05,
+            3.777308815707528e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.730866166995838,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 13,
+          "score": 0.9966890717244459,
+          "physical_mismatch": 0.82997720486185,
+          "relative_error": 0.35438860243092496,
+          "transmission": 0.9394,
+          "on_screen_fraction": 0.9298,
+          "sigma_m": [
+            0.0017049741773425098,
+            0.0015050644541868313
+          ],
+          "centroid_m": [
+            -9.319618303753785e-05,
+            0.000114319595156821
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.4653351658489555,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 15,
+      "seed": 57,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.28250930290491993,
+          "physical_mismatch": 0.22699364671054797,
+          "relative_error": 0.10209682335527402,
+          "transmission": 0.9886,
+          "on_screen_fraction": 0.9886,
+          "sigma_m": [
+            0.0012511645733322301,
+            0.0010458780055666544
+          ],
+          "centroid_m": [
+            9.460432361737074e-05,
+            1.674039090484083e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 1.2928555831313133,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.28250930290491993,
+          "physical_mismatch": 0.22699364671054797,
+          "relative_error": 0.10209682335527402,
+          "transmission": 0.9886,
+          "on_screen_fraction": 0.9886,
+          "sigma_m": [
+            0.0012511645733322301,
+            0.0010458780055666544
+          ],
+          "centroid_m": [
+            9.460432361737074e-05,
+            1.674039090484083e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 1.3063173331320286,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 16,
+      "seed": 58,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.18443001028549144,
+          "physical_mismatch": 0.15613824610230767,
+          "relative_error": 0.07686912305115386,
+          "transmission": 0.9988,
+          "on_screen_fraction": 0.9988,
+          "sigma_m": [
+            0.0009095043121995977,
+            0.0011461324785713416
+          ],
+          "centroid_m": [
+            -4.6541243690144155e-05,
+            2.430708214272729e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.314111625077203,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.18443001028549144,
+          "physical_mismatch": 0.15613824610230767,
+          "relative_error": 0.07686912305115386,
+          "transmission": 0.9988,
+          "on_screen_fraction": 0.9988,
+          "sigma_m": [
+            0.0009095043121995977,
+            0.0011461324785713416
+          ],
+          "centroid_m": [
+            -4.6541243690144155e-05,
+            2.430708214272729e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.1536487080156803,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 17,
+      "seed": 59,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.9672394943404359,
+          "physical_mismatch": 0.8727225821454273,
+          "relative_error": 0.3176612910727136,
+          "transmission": 0.8813,
+          "on_screen_fraction": 0.8813,
+          "sigma_m": [
+            0.0018993856766098586,
+            0.0012477487390498193
+          ],
+          "centroid_m": [
+            -7.813577650022662e-05,
+            -4.537497213094992e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.024623041972518,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 1.2319131922298063,
+          "physical_mismatch": 1.1373962800347979,
+          "relative_error": 0.35329814001739895,
+          "transmission": 0.7846,
+          "on_screen_fraction": 0.7846,
+          "sigma_m": [
+            0.002057493724290016,
+            0.001197869477625503
+          ],
+          "centroid_m": [
+            -9.830747882802638e-05,
+            -5.952187932605055e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.713971958030015,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 18,
+      "seed": 60,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.2502905533148496,
+          "physical_mismatch": 0.20825842092061234,
+          "relative_error": 0.06712921046030612,
+          "transmission": 0.963,
+          "on_screen_fraction": 0.963,
+          "sigma_m": [
+            0.0009660254434992197,
+            0.0008438646983800999
+          ],
+          "centroid_m": [
+            -4.3216470786989085e-05,
+            3.519051293355496e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.853059208020568,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.2502905533148496,
+          "physical_mismatch": 0.20825842092061234,
+          "relative_error": 0.06712921046030612,
+          "transmission": 0.963,
+          "on_screen_fraction": 0.963,
+          "sigma_m": [
+            0.0009660254434992197,
+            0.0008438646983800999
+          ],
+          "centroid_m": [
+            -4.3216470786989085e-05,
+            3.519051293355496e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.7742527090013027,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 19,
+      "seed": 61,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.4956577571667797,
+          "physical_mismatch": 0.4401421009724077,
+          "relative_error": 0.07977105048620386,
+          "transmission": 0.8597,
+          "on_screen_fraction": 0.8595,
+          "sigma_m": [
+            0.0011472326217656355,
+            0.0010442331915283681
+          ],
+          "centroid_m": [
+            -9.841025648007019e-05,
+            -2.9208132170741706e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.376461791805923,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.4956577571667797,
+          "physical_mismatch": 0.4401421009724077,
+          "relative_error": 0.07977105048620386,
+          "transmission": 0.8597,
+          "on_screen_fraction": 0.8595,
+          "sigma_m": [
+            0.0011472326217656355,
+            0.0010442331915283681
+          ],
+          "centroid_m": [
+            -9.841025648007019e-05,
+            -2.9208132170741706e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.281934834085405,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 20,
+      "seed": 62,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.315798984511056,
+          "physical_mismatch": 0.2737668521168187,
+          "relative_error": 0.0951834260584094,
+          "transmission": 0.9583,
+          "on_screen_fraction": 0.9578,
+          "sigma_m": [
+            0.0011995886791027275,
+            0.0009903474042561346
+          ],
+          "centroid_m": [
+            -8.148047784161053e-05,
+            9.001195154543414e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.250411665998399,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.3311378757260859,
+          "physical_mismatch": 0.28910574333184863,
+          "relative_error": 0.10345287166592429,
+          "transmission": 0.9589,
+          "on_screen_fraction": 0.9585,
+          "sigma_m": [
+            0.001228683967908705,
+            0.0009830170971331458
+          ],
+          "centroid_m": [
+            -8.015658513636361e-05,
+            8.798803075177442e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.194045958807692,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 21,
+      "seed": 63,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.3555469684981184,
+          "physical_mismatch": 0.2737976023566786,
+          "relative_error": 0.03549880117833925,
+          "transmission": 0.8986,
+          "on_screen_fraction": 0.8986,
+          "sigma_m": [
+            0.0010812086520144671,
+            0.0010273260710502534
+          ],
+          "centroid_m": [
+            3.6606998624449606e-07,
+            -3.309441166239201e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.148070916999131,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.5100994950928486,
+          "physical_mismatch": 0.3785822921759517,
+          "relative_error": 0.03909114608797583,
+          "transmission": 0.8498,
+          "on_screen_fraction": 0.8498,
+          "sigma_m": [
+            0.0010189974192703196,
+            0.0010336214233099472
+          ],
+          "centroid_m": [
+            -4.033661425942108e-05,
+            6.340912751221547e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.804901915835217,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 22,
+      "seed": 64,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.442001774461908,
+          "physical_mismatch": 0.3349393717854844,
+          "relative_error": 0.15456968589274217,
+          "transmission": 0.9871,
+          "on_screen_fraction": 0.9871,
+          "sigma_m": [
+            0.0011634950319121238,
+            0.0013085488919621301
+          ],
+          "centroid_m": [
+            -6.106113717507907e-05,
+            8.517368252163573e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.42485879198648,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.4096724771073022,
+          "physical_mismatch": 0.3541568209129302,
+          "relative_error": 0.16157841045646515,
+          "transmission": 0.9845,
+          "on_screen_fraction": 0.9845,
+          "sigma_m": [
+            0.0012186289000002237,
+            0.0013058481369583133
+          ],
+          "centroid_m": [
+            3.0764995548662245e-05,
+            -9.10716093186614e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.36692229192704,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 23,
+      "seed": 65,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.2626926514070596,
+          "physical_mismatch": 0.1809432852656198,
+          "relative_error": 0.08197164263280995,
+          "transmission": 0.9915,
+          "on_screen_fraction": 0.9915,
+          "sigma_m": [
+            0.0009765006910726603,
+            0.0012556912912453104
+          ],
+          "centroid_m": [
+            3.398319542654691e-05,
+            1.4712774932042817e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.714223250048235,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.43631237377776694,
+          "physical_mismatch": 0.38079671758339495,
+          "relative_error": 0.1821983587916975,
+          "transmission": 0.9918,
+          "on_screen_fraction": 0.9918,
+          "sigma_m": [
+            0.0006257548055894848,
+            0.001205299683328606
+          ],
+          "centroid_m": [
+            7.169627158497018e-05,
+            -7.755228584269876e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.962043832987547,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 24,
+      "seed": 66,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.5051601019991913,
+          "physical_mismatch": 0.38576667220563304,
+          "relative_error": 0.19218333610281652,
+          "transmission": 0.9993,
+          "on_screen_fraction": 0.999,
+          "sigma_m": [
+            0.0010871109244465092,
+            0.001485049665442252
+          ],
+          "centroid_m": [
+            6.07060735163532e-07,
+            0.00019596569378734128
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.7723878340329975,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 12,
+          "score": 0.7651490648023815,
+          "physical_mismatch": 0.6099790044963063,
+          "relative_error": 0.2953895022481531,
+          "transmission": 0.9904,
+          "on_screen_fraction": 0.9857,
+          "sigma_m": [
+            0.0007626196094110271,
+            0.0018102286501294486
+          ],
+          "centroid_m": [
+            7.645792343840902e-05,
+            -5.749104483578165e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.924315792042762,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 25,
+      "seed": 67,
+      "methods": {
+        "bo": {
+          "shots": 1,
+          "score": 0.1369391974836384,
+          "physical_mismatch": 0.12265462138525293,
+          "relative_error": 0.018127310692626457,
+          "transmission": 0.9568,
+          "on_screen_fraction": 0.9568,
+          "sigma_m": [
+            0.000998356596826892,
+            0.0010514385215254212
+          ],
+          "centroid_m": [
+            -1.4129368748002293e-05,
+            5.297949323974446e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.8138093750458211,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 1,
+          "score": 0.1369391974836384,
+          "physical_mismatch": 0.12265462138525293,
+          "relative_error": 0.018127310692626457,
+          "transmission": 0.9568,
+          "on_screen_fraction": 0.9568,
+          "sigma_m": [
+            0.000998356596826892,
+            0.0010514385215254212
+          ],
+          "centroid_m": [
+            -1.4129368748002293e-05,
+            5.297949323974446e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.8228154999669641,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 26,
+      "seed": 68,
+      "methods": {
+        "bo": {
+          "shots": 13,
+          "score": 0.6471462074217122,
+          "physical_mismatch": 0.4804343405591164,
+          "relative_error": 0.18841717027955826,
+          "transmission": 0.9482,
+          "on_screen_fraction": 0.9482,
+          "sigma_m": [
+            0.0012521059016581853,
+            0.0013988984265376175
+          ],
+          "centroid_m": [
+            7.631915391560688e-05,
+            -2.6345199006823437e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 6.22362000006251,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 12,
+          "score": 1.15207899305878,
+          "physical_mismatch": 0.9969089327527048,
+          "relative_error": 0.4557544663763524,
+          "transmission": 0.9573,
+          "on_screen_fraction": 0.9455,
+          "sigma_m": [
+            0.0008928383987789836,
+            0.0025133797179674763
+          ],
+          "centroid_m": [
+            -0.0001529719037914341,
+            4.950464252548299e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.657768666977063,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 27,
+      "seed": 69,
+      "methods": {
+        "bo": {
+          "shots": 5,
+          "score": 0.2540315432834285,
+          "physical_mismatch": 0.18527978140846094,
+          "relative_error": 0.08113989070423051,
+          "transmission": 0.9885,
+          "on_screen_fraction": 0.9884,
+          "sigma_m": [
+            0.0009747240674432589,
+            0.0008496872644560174
+          ],
+          "centroid_m": [
+            -0.00013822526133180986,
+            1.0745633384388526e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 3.1736977079417557,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 5,
+          "score": 0.2540315432834285,
+          "physical_mismatch": 0.18527978140846094,
+          "relative_error": 0.08113989070423051,
+          "transmission": 0.9885,
+          "on_screen_fraction": 0.9884,
+          "sigma_m": [
+            0.0009747240674432589,
+            0.0008496872644560174
+          ],
+          "centroid_m": [
+            -0.00013822526133180986,
+            1.0745633384388526e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 3.045310332905501,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 28,
+      "seed": 70,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.5432676837475788,
+          "physical_mismatch": 0.4362052810711552,
+          "relative_error": 0.09350264053557754,
+          "transmission": 0.8754,
+          "on_screen_fraction": 0.8746,
+          "sigma_m": [
+            0.001180998593544288,
+            0.0008981517690729697
+          ],
+          "centroid_m": [
+            -4.899103238623815e-05,
+            4.217270528475364e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.871466125128791,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.5440627523689133,
+          "physical_mismatch": 0.4370003496924897,
+          "relative_error": 0.09390017484624481,
+          "transmission": 0.8754,
+          "on_screen_fraction": 0.8746,
+          "sigma_m": [
+            0.0011805147472496516,
+            0.000898180918647672
+          ],
+          "centroid_m": [
+            -5.104842903678995e-05,
+            4.2218441746209675e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.556145083159208,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 29,
+      "seed": 71,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.2941194441934203,
+          "physical_mismatch": 0.19960253199841171,
+          "relative_error": 0.06870126599920583,
+          "transmission": 0.9689,
+          "on_screen_fraction": 0.9689,
+          "sigma_m": [
+            0.0009089090390557999,
+            0.0010376686890402058
+          ],
+          "centroid_m": [
+            -2.0454240657109713e-05,
+            0.0001255911733553077
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 4.828551957849413,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.49882790849929715,
+          "physical_mismatch": 0.36731070558240025,
+          "relative_error": 0.16595535279120008,
+          "transmission": 0.9823,
+          "on_screen_fraction": 0.9823,
+          "sigma_m": [
+            0.0009561302361989262,
+            0.0015186489817479718
+          ],
+          "centroid_m": [
+            -5.748300922078347e-05,
+            4.381965639497126e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.018918874906376,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 30,
+      "seed": 72,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.6385773290395999,
+          "physical_mismatch": 0.5440604168445913,
+          "relative_error": 0.23833020842229571,
+          "transmission": 0.9663,
+          "on_screen_fraction": 0.9651,
+          "sigma_m": [
+            0.0009081307771370474,
+            0.0018348010899057097
+          ],
+          "centroid_m": [
+            2.827824765260643e-06,
+            -2.382269615525996e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.178075667005032,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 1.0446968146013818,
+          "physical_mismatch": 0.9131796116844849,
+          "relative_error": 0.43038980584224246,
+          "transmission": 0.9738,
+          "on_screen_fraction": 0.9596,
+          "sigma_m": [
+            0.0009675771365612337,
+            0.002457287763907602
+          ],
+          "centroid_m": [
+            7.17036926667032e-05,
+            -0.00016014490335589858
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.318773832870647,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 31,
+      "seed": 73,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.3082805368065875,
+          "physical_mismatch": 0.22653117066514772,
+          "relative_error": 0.05866558533257387,
+          "transmission": 0.9454,
+          "on_screen_fraction": 0.9454,
+          "sigma_m": [
+            0.0009383496963292078,
+            0.0010580009433100053
+          ],
+          "centroid_m": [
+            -9.850171109990029e-05,
+            1.6509383249597704e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.62670487514697,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.3677750825377383,
+          "physical_mismatch": 0.2860257163962985,
+          "relative_error": 0.08601285819814919,
+          "transmission": 0.943,
+          "on_screen_fraction": 0.943,
+          "sigma_m": [
+            0.0008568206809179058,
+            0.0010956921472405564
+          ],
+          "centroid_m": [
+            -9.489784164173726e-05,
+            1.0282124828208892e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.34614208387211,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 32,
+      "seed": 74,
+      "methods": {
+        "bo": {
+          "shots": 5,
+          "score": 0.17393136477724389,
+          "physical_mismatch": 0.10517960290227638,
+          "relative_error": 0.03498980145113823,
+          "transmission": 0.9824,
+          "on_screen_fraction": 0.9821,
+          "sigma_m": [
+            0.0010207330988573325,
+            0.0009921591430335705
+          ],
+          "centroid_m": [
+            2.8066184528969337e-05,
+            -8.331906545182162e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.4784005840774626,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.4279143932648247,
+          "physical_mismatch": 0.30852096347126645,
+          "relative_error": 0.12096048173563323,
+          "transmission": 0.9667,
+          "on_screen_fraction": 0.9629,
+          "sigma_m": [
+            0.0011439969396230666,
+            0.0012721333132309685
+          ],
+          "centroid_m": [
+            -2.9348599739042714e-05,
+            3.836307434945517e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 4.995506208855659,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 33,
+      "seed": 75,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.25808914703733554,
+          "physical_mismatch": 0.1510267443609119,
+          "relative_error": 0.05471337218045592,
+          "transmission": 0.9792,
+          "on_screen_fraction": 0.9792,
+          "sigma_m": [
+            0.001117549899147133,
+            0.0009544980106800497
+          ],
+          "centroid_m": [
+            -4.453327894924551e-05,
+            1.1268321305494836e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.37008324987255,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.4400072718340806,
+          "physical_mismatch": 0.3329448691576569,
+          "relative_error": 0.14637243457882845,
+          "transmission": 0.9799,
+          "on_screen_fraction": 0.9788,
+          "sigma_m": [
+            0.0010361729898556028,
+            0.0014465213687053229
+          ],
+          "centroid_m": [
+            -4.974990751464783e-05,
+            5.304547223974042e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.068669749889523,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 34,
+      "seed": 76,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.44805168480452084,
+          "physical_mismatch": 0.35353477260951227,
+          "relative_error": 0.07336738630475607,
+          "transmission": 0.8966,
+          "on_screen_fraction": 0.8966,
+          "sigma_m": [
+            0.0011226821219589916,
+            0.0008548713941931302
+          ],
+          "centroid_m": [
+            -2.2495649361602874e-05,
+            -3.16316809156002e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.5323295830748975,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.47027368460965946,
+          "physical_mismatch": 0.36321128193323576,
+          "relative_error": 0.1299056409666179,
+          "transmission": 0.9483,
+          "on_screen_fraction": 0.9483,
+          "sigma_m": [
+            0.0010932528054357238,
+            0.001272095478304266
+          ],
+          "centroid_m": [
+            -7.120565203059166e-05,
+            -8.306862809589026e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.553698374889791,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 35,
+      "seed": 77,
+      "methods": {
+        "bo": {
+          "shots": 1,
+          "score": 0.4895558048629651,
+          "physical_mismatch": 0.47527122876457967,
+          "relative_error": 0.23453561438228981,
+          "transmission": 0.9969,
+          "on_screen_fraction": 0.9969,
+          "sigma_m": [
+            0.001659645341162392,
+            0.0008908964938242702
+          ],
+          "centroid_m": [
+            9.840044740766997e-05,
+            -7.099316278336763e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.8449318751227111,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 1,
+          "score": 0.4895558048629651,
+          "physical_mismatch": 0.47527122876457967,
+          "relative_error": 0.23453561438228981,
+          "transmission": 0.9969,
+          "on_screen_fraction": 0.9969,
+          "sigma_m": [
+            0.001659645341162392,
+            0.0008908964938242702
+          ],
+          "centroid_m": [
+            9.840044740766997e-05,
+            -7.099316278336763e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 0.7737707500346005,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 36,
+      "seed": 78,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.26438337826202113,
+          "physical_mismatch": 0.22235124586778388,
+          "relative_error": 0.0651756229338919,
+          "transmission": 0.954,
+          "on_screen_fraction": 0.954,
+          "sigma_m": [
+            0.001069931142653981,
+            0.0008596895460442391
+          ],
+          "centroid_m": [
+            -4.629573406892443e-05,
+            4.165161056901307e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.8299974999390543,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.25637916523570076,
+          "physical_mismatch": 0.2143470328414635,
+          "relative_error": 0.06117351642073172,
+          "transmission": 0.954,
+          "on_screen_fraction": 0.954,
+          "sigma_m": [
+            0.0010612783535509352,
+            0.0008590419957833234
+          ],
+          "centroid_m": [
+            -3.876659850074449e-05,
+            3.6911094145705578e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.6116608339361846,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 37,
+      "seed": 79,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.6778712336297227,
+          "physical_mismatch": 0.5584778038361644,
+          "relative_error": 0.19983890191808218,
+          "transmission": 0.9206,
+          "on_screen_fraction": 0.9202,
+          "sigma_m": [
+            0.0010468145686895385,
+            0.0016992739900155102
+          ],
+          "centroid_m": [
+            2.442637040371948e-05,
+            -2.8840678563560635e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.4078670418821275,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.8442952982902706,
+          "physical_mismatch": 0.7249018684967123,
+          "relative_error": 0.2633509342483562,
+          "transmission": 0.9009,
+          "on_screen_fraction": 0.8987,
+          "sigma_m": [
+            0.0010576476695468465,
+            0.0018959754894661085
+          ],
+          "centroid_m": [
+            1.451848084369385e-05,
+            -8.526209713677606e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.14422354195267,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 38,
+      "seed": 80,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.4283740906372375,
+          "physical_mismatch": 0.3213116879608139,
+          "relative_error": 0.12485584398040687,
+          "transmission": 0.9642,
+          "on_screen_fraction": 0.9642,
+          "sigma_m": [
+            0.0007731757538297329,
+            0.0007928080973584247
+          ],
+          "centroid_m": [
+            -1.619765545731748e-05,
+            4.92095716524676e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 4.8711640001274645,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.34507902879416197,
+          "physical_mismatch": 0.23801662611773833,
+          "relative_error": 0.09190831305886916,
+          "transmission": 0.9729,
+          "on_screen_fraction": 0.9729,
+          "sigma_m": [
+            0.0007696527929715542,
+            0.0009366574248614634
+          ],
+          "centroid_m": [
+            -2.4821302007236773e-05,
+            4.912216806125747e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 4.7244237079285085,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 39,
+      "seed": 81,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.20497420374786976,
+          "physical_mismatch": 0.16294207135363248,
+          "relative_error": 0.04647103567681621,
+          "transmission": 0.965,
+          "on_screen_fraction": 0.965,
+          "sigma_m": [
+            0.0009474416299838545,
+            0.0008872235075503635
+          ],
+          "centroid_m": [
+            1.0060151192789495e-05,
+            -1.0489129048693314e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.5686597919557244,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.2048450223197115,
+          "physical_mismatch": 0.1628128899254742,
+          "relative_error": 0.04640644496273708,
+          "transmission": 0.965,
+          "on_screen_fraction": 0.965,
+          "sigma_m": [
+            0.0009474418362151894,
+            0.0008872235105845418
+          ],
+          "centroid_m": [
+            9.801552061897361e-06,
+            -1.0489574588782098e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.494073959067464,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 40,
+      "seed": 82,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.8596070825262268,
+          "physical_mismatch": 0.777857716384787,
+          "relative_error": 0.19942885819239348,
+          "transmission": 0.8105,
+          "on_screen_fraction": 0.8085,
+          "sigma_m": [
+            0.0013295806615991699,
+            0.0013748137294413536
+          ],
+          "centroid_m": [
+            -8.096239732163693e-06,
+            -8.522480199688676e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.020379707915708,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.49372563103549294,
+          "physical_mismatch": 0.3866632283590693,
+          "relative_error": 0.1453316141795346,
+          "transmission": 0.952,
+          "on_screen_fraction": 0.9475,
+          "sigma_m": [
+            0.0009576653271217196,
+            0.0014633663746270779
+          ],
+          "centroid_m": [
+            4.143289408998588e-05,
+            3.419251512279428e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.190308999968693,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 41,
+      "seed": 83,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.388967256867284,
+          "physical_mismatch": 0.3072178907258442,
+          "relative_error": 0.12820894536292213,
+          "transmission": 0.9746,
+          "on_screen_fraction": 0.9746,
+          "sigma_m": [
+            0.001390736930899897,
+            0.0010353721561486805
+          ],
+          "centroid_m": [
+            2.0874789403016378e-05,
+            6.585190500009479e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.345453416928649,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 0.4442941610237978,
+          "physical_mismatch": 0.30085358712971705,
+          "relative_error": 0.12772679356485847,
+          "transmission": 0.9773,
+          "on_screen_fraction": 0.9773,
+          "sigma_m": [
+            0.0010198908851980462,
+            0.0013932148009198142
+          ],
+          "centroid_m": [
+            -5.9917933602472826e-05,
+            -3.788355453910067e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.0421810410916805,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 42,
+      "seed": 84,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.3480398969147723,
+          "physical_mismatch": 0.306007764520535,
+          "relative_error": 0.08950388226026752,
+          "transmission": 0.9365,
+          "on_screen_fraction": 0.9358,
+          "sigma_m": [
+            0.0008894772729362,
+            0.0008889934965284022
+          ],
+          "centroid_m": [
+            5.099114251289102e-05,
+            8.549515599278121e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.4988962078932673,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.3480398969147723,
+          "physical_mismatch": 0.306007764520535,
+          "relative_error": 0.08950388226026752,
+          "transmission": 0.9365,
+          "on_screen_fraction": 0.9358,
+          "sigma_m": [
+            0.0008894772729362,
+            0.0008889934965284022
+          ],
+          "centroid_m": [
+            5.099114251289102e-05,
+            8.549515599278121e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.4505454590544105,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 43,
+      "seed": 85,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.26412223409963886,
+          "physical_mismatch": 0.2358304699164551,
+          "relative_error": 0.10561523495822758,
+          "transmission": 0.9877,
+          "on_screen_fraction": 0.9877,
+          "sigma_m": [
+            0.0013159434734523769,
+            0.0009455074200319869
+          ],
+          "centroid_m": [
+            3.748302086229427e-05,
+            1.4541865550226045e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.427869124803692,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.26412223409963886,
+          "physical_mismatch": 0.2358304699164551,
+          "relative_error": 0.10561523495822758,
+          "transmission": 0.9877,
+          "on_screen_fraction": 0.9877,
+          "sigma_m": [
+            0.0013159434734523769,
+            0.0009455074200319869
+          ],
+          "centroid_m": [
+            3.748302086229427e-05,
+            1.4541865550226045e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.360704709077254,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 44,
+      "seed": 86,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.3825891516563673,
+          "physical_mismatch": 0.3270734954619953,
+          "relative_error": 0.07773674773099767,
+          "transmission": 0.9142,
+          "on_screen_fraction": 0.9142,
+          "sigma_m": [
+            0.000954097663989297,
+            0.0011004617015696945
+          ],
+          "centroid_m": [
+            8.416253589169754e-05,
+            -8.042041745189563e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.095714832888916,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.5275338921075947,
+          "physical_mismatch": 0.445784525966155,
+          "relative_error": 0.12669226298307754,
+          "transmission": 0.9038,
+          "on_screen_fraction": 0.9037,
+          "sigma_m": [
+            0.001082468716337353,
+            0.0013149654869474617
+          ],
+          "centroid_m": [
+            9.99904332106482e-05,
+            9.344415436847276e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.3146195420995355,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 45,
+      "seed": 87,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.16103533927300462,
+          "physical_mismatch": 0.11900320687876734,
+          "relative_error": 0.05310160343938371,
+          "transmission": 0.9936,
+          "on_screen_fraction": 0.9936,
+          "sigma_m": [
+            0.0009224331159021982,
+            0.0011058101169361414
+          ],
+          "centroid_m": [
+            -1.804135111634632e-05,
+            1.0988061607245312e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.6655550829600543,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.16067427785608454,
+          "physical_mismatch": 0.11864214546184726,
+          "relative_error": 0.05292107273092367,
+          "transmission": 0.9936,
+          "on_screen_fraction": 0.9936,
+          "sigma_m": [
+            0.0009224352656342593,
+            0.0011058225640493342
+          ],
+          "centroid_m": [
+            -1.8943523343951263e-05,
+            9.353469164668522e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.4687604589853436,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 46,
+      "seed": 88,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.20472932617081102,
+          "physical_mismatch": 0.17643756198762725,
+          "relative_error": 0.07561878099381368,
+          "transmission": 0.9874,
+          "on_screen_fraction": 0.9874,
+          "sigma_m": [
+            0.0008800717531162794,
+            0.0009774390891005202
+          ],
+          "centroid_m": [
+            -6.720119994138083e-05,
+            -9.278476625067348e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.358990417094901,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.20472932617081102,
+          "physical_mismatch": 0.17643756198762725,
+          "relative_error": 0.07561878099381368,
+          "transmission": 0.9874,
+          "on_screen_fraction": 0.9874,
+          "sigma_m": [
+            0.0008800717531162794,
+            0.0009774390891005202
+          ],
+          "centroid_m": [
+            -6.720119994138083e-05,
+            -9.278476625067348e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.3513600409496576,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 47,
+      "seed": 89,
+      "methods": {
+        "bo": {
+          "shots": 5,
+          "score": 0.41489929549421073,
+          "physical_mismatch": 0.3461475336192432,
+          "relative_error": 0.15757376680962168,
+          "transmission": 0.9845,
+          "on_screen_fraction": 0.9845,
+          "sigma_m": [
+            0.0011988155016659295,
+            0.0006539190273873673
+          ],
+          "centroid_m": [
+            -4.839370590672182e-05,
+            -3.7004887053202695e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.4312310421373695,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.5689422464857199,
+          "physical_mismatch": 0.43742504356882295,
+          "relative_error": 0.13521252178441145,
+          "transmission": 0.9165,
+          "on_screen_fraction": 0.9165,
+          "sigma_m": [
+            0.0012888685780602382,
+            0.0011712902536252857
+          ],
+          "centroid_m": [
+            1.0804417282425233e-05,
+            6.988683816969674e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.087927791988477,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 48,
+      "seed": 90,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.22787085969705637,
+          "physical_mismatch": 0.18583872730281908,
+          "relative_error": 0.09071936365140955,
+          "transmission": 0.9978,
+          "on_screen_fraction": 0.9978,
+          "sigma_m": [
+            0.0010520332589925173,
+            0.0011731755694296391
+          ],
+          "centroid_m": [
+            -4.646886052280265e-05,
+            -9.119976566067919e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.751677791820839,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.22775242715028243,
+          "physical_mismatch": 0.18572029475604515,
+          "relative_error": 0.0906601473780226,
+          "transmission": 0.9978,
+          "on_screen_fraction": 0.9978,
+          "sigma_m": [
+            0.0010502068412077418,
+            0.001174862123126363
+          ],
+          "centroid_m": [
+            -4.863856043638683e-05,
+            -8.893306474159868e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.5753296248149127,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 49,
+      "seed": 91,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.32969360601735004,
+          "physical_mismatch": 0.23517669382234146,
+          "relative_error": 0.05868834691117079,
+          "transmission": 0.9411,
+          "on_screen_fraction": 0.9411,
+          "sigma_m": [
+            0.0009535111670631122,
+            0.0010716019711575963
+          ],
+          "centroid_m": [
+            2.4649647109792526e-05,
+            9.201293644040655e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.653782249893993,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.4250975076444243,
+          "physical_mismatch": 0.3305805954494157,
+          "relative_error": 0.12069029772470787,
+          "transmission": 0.9554,
+          "on_screen_fraction": 0.9554,
+          "sigma_m": [
+            0.0011331478600625912,
+            0.0012429633081543225
+          ],
+          "centroid_m": [
+            7.027471870112476e-05,
+            3.6375303980793075e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.494508625008166,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 50,
+      "seed": 92,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.38091970313283896,
+          "physical_mismatch": 0.2615262733392807,
+          "relative_error": 0.0816631366696403,
+          "transmission": 0.9509,
+          "on_screen_fraction": 0.9509,
+          "sigma_m": [
+            0.0009925139252100028,
+            0.0008921837882191471
+          ],
+          "centroid_m": [
+            7.031966205012309e-05,
+            0.00014103059805758801
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.0231770421378314,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.3676735559511575,
+          "physical_mismatch": 0.28592418980971773,
+          "relative_error": 0.08176209490485882,
+          "transmission": 0.9388,
+          "on_screen_fraction": 0.9388,
+          "sigma_m": [
+            0.0012160455643561712,
+            0.000994801071699171
+          ],
+          "centroid_m": [
+            -6.43870421385776e-05,
+            -4.1416844823857435e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.264235500013456,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 51,
+      "seed": 93,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.48924053834858217,
+          "physical_mismatch": 0.3947236261535736,
+          "relative_error": 0.18776181307678677,
+          "transmission": 0.9904,
+          "on_screen_fraction": 0.9904,
+          "sigma_m": [
+            0.0006753192899618791,
+            0.0013969603253314452
+          ],
+          "centroid_m": [
+            6.871245807144366e-06,
+            -2.2534971130436607e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.676573375007138,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.5166548760890436,
+          "physical_mismatch": 0.422137963894035,
+          "relative_error": 0.20156898194701756,
+          "transmission": 0.9905,
+          "on_screen_fraction": 0.9905,
+          "sigma_m": [
+            0.00062888433416116,
+            0.0014004328439323089
+          ],
+          "centroid_m": [
+            1.2139058150873228e-05,
+            -2.2588359866048234e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.5245475419797,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 52,
+      "seed": 94,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.46395630053782155,
+          "physical_mismatch": 0.35689389786139786,
+          "relative_error": 0.14924694893069892,
+          "transmission": 0.9708,
+          "on_screen_fraction": 0.9707,
+          "sigma_m": [
+            0.0013346403818811753,
+            0.000874681563056911
+          ],
+          "centroid_m": [
+            3.408570357085045e-05,
+            -0.0001029432733276809
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.177368625067174,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.33979013061181773,
+          "physical_mismatch": 0.24527321841680916,
+          "relative_error": 0.11493660920840454,
+          "transmission": 0.9923,
+          "on_screen_fraction": 0.9923,
+          "sigma_m": [
+            0.0008300866571315879,
+            0.0012633256709623818
+          ],
+          "centroid_m": [
+            6.522088167807521e-06,
+            1.9985334835016768e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 4.829908165847883,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 53,
+      "seed": 95,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.5292874562906761,
+          "physical_mismatch": 0.4222250536142524,
+          "relative_error": 0.20871252680712624,
+          "transmission": 0.9976,
+          "on_screen_fraction": 0.9967,
+          "sigma_m": [
+            0.00105915366004512,
+            0.0017603778651470799
+          ],
+          "centroid_m": [
+            -8.818754840717219e-06,
+            -6.499827195587884e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.233661457896233,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 15,
+          "score": 1.3367948430526828,
+          "physical_mismatch": 1.1475390314258178,
+          "relative_error": 0.4994695157129089,
+          "transmission": 0.9257,
+          "on_screen_fraction": 0.9215,
+          "sigma_m": [
+            0.0012588241652974918,
+            0.0023867891248199546
+          ],
+          "centroid_m": [
+            0.00012009559599466385,
+            -0.00023216917673952542
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 6.054697999963537,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 54,
+      "seed": 96,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.17832140871791502,
+          "physical_mismatch": 0.13628927632367774,
+          "relative_error": 0.06594463816183889,
+          "transmission": 0.9978,
+          "on_screen_fraction": 0.9978,
+          "sigma_m": [
+            0.0009413411988196857,
+            0.001085406910455516
+          ],
+          "centroid_m": [
+            -5.583818029536417e-05,
+            6.387466071616107e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.799878041027114,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.17832140871791502,
+          "physical_mismatch": 0.13628927632367774,
+          "relative_error": 0.06594463816183889,
+          "transmission": 0.9978,
+          "on_screen_fraction": 0.9978,
+          "sigma_m": [
+            0.0009413411988196857,
+            0.001085406910455516
+          ],
+          "centroid_m": [
+            -5.583818029536417e-05,
+            6.387466071616107e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.519001708133146,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 55,
+      "seed": 97,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.22531236699755164,
+          "physical_mismatch": 0.18328023460331436,
+          "relative_error": 0.07304011730165723,
+          "transmission": 0.9814,
+          "on_screen_fraction": 0.9814,
+          "sigma_m": [
+            0.0008864316051454987,
+            0.0009006398450376396
+          ],
+          "centroid_m": [
+            -4.767349471549431e-05,
+            3.155842467427296e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.8246213330421597,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.22531236699755164,
+          "physical_mismatch": 0.18328023460331436,
+          "relative_error": 0.07304011730165723,
+          "transmission": 0.9814,
+          "on_screen_fraction": 0.9814,
+          "sigma_m": [
+            0.0008864316051454987,
+            0.0009006398450376396
+          ],
+          "centroid_m": [
+            -4.767349471549431e-05,
+            3.155842467427296e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.6836350420489907,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 56,
+      "seed": 98,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.4894678916931616,
+          "physical_mismatch": 0.382405489016738,
+          "relative_error": 0.130602744508369,
+          "transmission": 0.9394,
+          "on_screen_fraction": 0.9394,
+          "sigma_m": [
+            0.0013773552200344846,
+            0.0010411748961786556
+          ],
+          "centroid_m": [
+            4.164959048823002e-05,
+            6.223127133210584e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.221299916971475,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.6382051277815824,
+          "physical_mismatch": 0.5311427251051588,
+          "relative_error": 0.1557713625525794,
+          "transmission": 0.8902,
+          "on_screen_fraction": 0.8902,
+          "sigma_m": [
+            0.0011782414344976401,
+            0.0012682977914764443
+          ],
+          "centroid_m": [
+            9.209260391117043e-05,
+            8.445362032506276e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.003318583127111,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 57,
+      "seed": 99,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.24913677967255043,
+          "physical_mismatch": 0.19362112347817845,
+          "relative_error": 0.08381056173908921,
+          "transmission": 0.987,
+          "on_screen_fraction": 0.987,
+          "sigma_m": [
+            0.0011607074900950888,
+            0.0009440587104469427
+          ],
+          "centroid_m": [
+            0.00011184881488434218,
+            6.744652423868578e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 2.9890300419647247,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.24918624886563656,
+          "physical_mismatch": 0.1936705926712646,
+          "relative_error": 0.08383529633563229,
+          "transmission": 0.987,
+          "on_screen_fraction": 0.987,
+          "sigma_m": [
+            0.0011607074895693473,
+            0.0009440591365236898
+          ],
+          "centroid_m": [
+            0.00011184822031055335,
+            6.844611986318372e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 2.7408207079861313,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 58,
+      "seed": 100,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.5295829385016945,
+          "physical_mismatch": 0.48755080610745716,
+          "relative_error": 0.20687540305372853,
+          "transmission": 0.9631,
+          "on_screen_fraction": 0.9631,
+          "sigma_m": [
+            0.0012330715779727466,
+            0.0014847009991703966
+          ],
+          "centroid_m": [
+            5.0201200519960434e-05,
+            -5.952783455181054e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.1722539169713855,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.5295829385016945,
+          "physical_mismatch": 0.48755080610745716,
+          "relative_error": 0.20687540305372853,
+          "transmission": 0.9631,
+          "on_screen_fraction": 0.9631,
+          "sigma_m": [
+            0.0012330715779727466,
+            0.0014847009991703966
+          ],
+          "centroid_m": [
+            5.0201200519960434e-05,
+            -5.952783455181054e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.992030124878511,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 59,
+      "seed": 101,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.14224142885812252,
+          "physical_mismatch": 0.10020929646388524,
+          "relative_error": 0.029004648231942605,
+          "transmission": 0.9789,
+          "on_screen_fraction": 0.9789,
+          "sigma_m": [
+            0.0009776772552027152,
+            0.0009933489246723264
+          ],
+          "centroid_m": [
+            1.2691418854721219e-05,
+            -7.435335394809075e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.827547750202939,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.14224142885812252,
+          "physical_mismatch": 0.10020929646388524,
+          "relative_error": 0.029004648231942605,
+          "transmission": 0.9789,
+          "on_screen_fraction": 0.9789,
+          "sigma_m": [
+            0.0009776772552027152,
+            0.0009933489246723264
+          ],
+          "centroid_m": [
+            1.2691418854721219e-05,
+            -7.435335394809075e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.6851418339647353,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 60,
+      "seed": 102,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.23931996641180128,
+          "physical_mismatch": 0.197287834017564,
+          "relative_error": 0.09654391700878202,
+          "transmission": 0.9979,
+          "on_screen_fraction": 0.9979,
+          "sigma_m": [
+            0.0012115118771341773,
+            0.0011089620143133773
+          ],
+          "centroid_m": [
+            1.7914094713027617e-05,
+            -4.778768187454585e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 1.132689458085224,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.2418276569124637,
+          "physical_mismatch": 0.1997955245182264,
+          "relative_error": 0.09779776225911321,
+          "transmission": 0.9979,
+          "on_screen_fraction": 0.9979,
+          "sigma_m": [
+            0.0012127993938170908,
+            0.0011080083992592497
+          ],
+          "centroid_m": [
+            2.163194536817373e-05,
+            -4.8751310591938624e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 1.1330087080132216,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 61,
+      "seed": 103,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.13671790872407263,
+          "physical_mismatch": 0.09468577632983537,
+          "relative_error": 0.03304288816491771,
+          "transmission": 0.9857,
+          "on_screen_fraction": 0.9856,
+          "sigma_m": [
+            0.001032665819442773,
+            0.001082585650491012
+          ],
+          "centroid_m": [
+            -1.5736503632081578e-05,
+            -1.1835790938042051e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.886792042059824,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.13671790872407263,
+          "physical_mismatch": 0.09468577632983537,
+          "relative_error": 0.03304288816491771,
+          "transmission": 0.9857,
+          "on_screen_fraction": 0.9856,
+          "sigma_m": [
+            0.001032665819442773,
+            0.001082585650491012
+          ],
+          "centroid_m": [
+            -1.5736503632081578e-05,
+            -1.1835790938042051e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.7584166249725968,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 62,
+      "seed": 104,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.5819582695898466,
+          "physical_mismatch": 0.48744135739483807,
+          "relative_error": 0.222720678697419,
+          "transmission": 0.979,
+          "on_screen_fraction": 0.979,
+          "sigma_m": [
+            0.0016465342701839493,
+            0.0011428895401703362
+          ],
+          "centroid_m": [
+            8.684388502226566e-05,
+            1.4615019413124923e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.0190452500246465,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.7167101581631096,
+          "physical_mismatch": 0.622193245968101,
+          "relative_error": 0.2899966229840505,
+          "transmission": 0.9789,
+          "on_screen_fraction": 0.9789,
+          "sigma_m": [
+            0.001654797640570905,
+            0.0011354933654487754
+          ],
+          "centroid_m": [
+            -0.00014754365879496772,
+            0.00022215182712155391
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 4.911981167038903,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 63,
+      "seed": 105,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.6172900177518649,
+          "physical_mismatch": 0.5227731055568563,
+          "relative_error": 0.08838655277842815,
+          "transmission": 0.827,
+          "on_screen_fraction": 0.827,
+          "sigma_m": [
+            0.0010132188502471736,
+            0.0008140755692977816
+          ],
+          "centroid_m": [
+            -9.511768052942084e-05,
+            5.928524963489969e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.553061957936734,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 7,
+          "score": 0.6142037973638529,
+          "physical_mismatch": 0.5196868851688443,
+          "relative_error": 0.0868434425844221,
+          "transmission": 0.827,
+          "on_screen_fraction": 0.827,
+          "sigma_m": [
+            0.0010113033903434011,
+            0.0008147421355518529
+          ],
+          "centroid_m": [
+            -9.509373868515759e-05,
+            5.571877686098258e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.418577499920502,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 64,
+      "seed": 106,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.512102052602112,
+          "physical_mismatch": 0.4303526864606722,
+          "relative_error": 0.12587634323033606,
+          "transmission": 0.9107,
+          "on_screen_fraction": 0.9106,
+          "sigma_m": [
+            0.001276427965842539,
+            0.0011298566382221891
+          ],
+          "centroid_m": [
+            6.0457282471258915e-05,
+            3.676348638535713e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.578003250062466,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.7634474053887804,
+          "physical_mismatch": 0.6563850027123568,
+          "relative_error": 0.17189250135617842,
+          "transmission": 0.8437,
+          "on_screen_fraction": 0.8436,
+          "sigma_m": [
+            0.0014122194111158384,
+            0.001147336003249879
+          ],
+          "centroid_m": [
+            8.606837060029366e-05,
+            4.1946220458702734e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.7955796658061445,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 65,
+      "seed": 107,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.16539928051959074,
+          "physical_mismatch": 0.137107516336407,
+          "relative_error": 0.0554537581682035,
+          "transmission": 0.9869,
+          "on_screen_fraction": 0.9869,
+          "sigma_m": [
+            0.0009834981428124097,
+            0.000947564323253538
+          ],
+          "centroid_m": [
+            -5.549167317069352e-05,
+            -9.738582556806808e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 1.0291400419082493,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.16732960384091167,
+          "physical_mismatch": 0.1390378396577279,
+          "relative_error": 0.05641891982886395,
+          "transmission": 0.9869,
+          "on_screen_fraction": 0.9869,
+          "sigma_m": [
+            0.000983488587663207,
+            0.0009475628904178435
+          ],
+          "centroid_m": [
+            -5.9132227007425216e-05,
+            -9.759493038908102e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 0.9730010421480983,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 66,
+      "seed": 108,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.22400871237058306,
+          "physical_mismatch": 0.18197657997634578,
+          "relative_error": 0.07988828998817289,
+          "transmission": 0.9889,
+          "on_screen_fraction": 0.9889,
+          "sigma_m": [
+            0.0009181128860522654,
+            0.0008599692371055011
+          ],
+          "centroid_m": [
+            -6.783339494135509e-06,
+            9.08519436163225e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.194956250023097,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.2255337261209469,
+          "physical_mismatch": 0.18350159372670963,
+          "relative_error": 0.08065079686335482,
+          "transmission": 0.9889,
+          "on_screen_fraction": 0.9889,
+          "sigma_m": [
+            0.0009053547399437044,
+            0.000867340593729693
+          ],
+          "centroid_m": [
+            -5.1213666118562376e-06,
+            9.01771545149604e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.8643363339360803,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 67,
+      "seed": 109,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.21379953972566873,
+          "physical_mismatch": 0.17176740733143145,
+          "relative_error": 0.04058370366571572,
+          "transmission": 0.9547,
+          "on_screen_fraction": 0.9547,
+          "sigma_m": [
+            0.0009633118073046538,
+            0.0010391314371548928
+          ],
+          "centroid_m": [
+            5.127903152785639e-05,
+            -3.5236153284767494e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.6682943331543356,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.21379953972566873,
+          "physical_mismatch": 0.17176740733143145,
+          "relative_error": 0.04058370366571572,
+          "transmission": 0.9547,
+          "on_screen_fraction": 0.9547,
+          "sigma_m": [
+            0.0009633118073046538,
+            0.0010391314371548928
+          ],
+          "centroid_m": [
+            5.127903152785639e-05,
+            -3.5236153284767494e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.4756082089152187,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 68,
+      "seed": 110,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.4357744648041578,
+          "physical_mismatch": 0.34125755260914925,
+          "relative_error": 0.039728776304574616,
+          "transmission": 0.8691,
+          "on_screen_fraction": 0.8691,
+          "sigma_m": [
+            0.001050343826020741,
+            0.000970533676385093
+          ],
+          "centroid_m": [
+            -1.2500072646694535e-05,
+            6.660488293595596e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.064232292119414,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.320129951215202,
+          "physical_mismatch": 0.23838058507376222,
+          "relative_error": 0.060890292536881094,
+          "transmission": 0.9417,
+          "on_screen_fraction": 0.9417,
+          "sigma_m": [
+            0.0010886107940896838,
+            0.001089793249200415
+          ],
+          "centroid_m": [
+            4.99005212485628e-05,
+            1.5256605608862803e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.464439665898681,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 69,
+      "seed": 111,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.14485964222054512,
+          "physical_mismatch": 0.10282750982630785,
+          "relative_error": 0.034713754913153885,
+          "transmission": 0.9833,
+          "on_screen_fraction": 0.9833,
+          "sigma_m": [
+            0.000896356254924252,
+            0.0009813593011296963
+          ],
+          "centroid_m": [
+            -6.777948007963116e-06,
+            -9.792627698600654e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.735450374893844,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.1568206429867613,
+          "physical_mismatch": 0.11478851059252401,
+          "relative_error": 0.04069425529626195,
+          "transmission": 0.9833,
+          "on_screen_fraction": 0.9833,
+          "sigma_m": [
+            0.0009312485547304681,
+            0.0009675407377893567
+          ],
+          "centroid_m": [
+            -1.86742528912413e-05,
+            -4.289206081363127e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 2.4925427502021194,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 70,
+      "seed": 112,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.7139391301796473,
+          "physical_mismatch": 0.6194222179846387,
+          "relative_error": 0.30971110899231935,
+          "transmission": 1.0,
+          "on_screen_fraction": 1.0,
+          "sigma_m": [
+            0.0010991976849228794,
+            0.0017196834100519976
+          ],
+          "centroid_m": [
+            8.682258597976356e-05,
+            -0.00033314075501463696
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 4.9907795421313494,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.6458026943151887,
+          "physical_mismatch": 0.5142854913982918,
+          "relative_error": 0.25574274569914596,
+          "transmission": 0.9986,
+          "on_screen_fraction": 0.9984,
+          "sigma_m": [
+            0.0010341548952602908,
+            0.001871340443264319
+          ],
+          "centroid_m": [
+            5.7647654173173665e-05,
+            -5.982799009880054e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.382224082946777,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 71,
+      "seed": 113,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.5750234751733325,
+          "physical_mismatch": 0.4315829012792518,
+          "relative_error": 0.16599145063962598,
+          "transmission": 0.9502,
+          "on_screen_fraction": 0.95,
+          "sigma_m": [
+            0.001263081478558025,
+            0.0007604661696724791
+          ],
+          "centroid_m": [
+            9.355001702175904e-05,
+            -6.780047665119899e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 5.448315958958119,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.4494650297285238,
+          "physical_mismatch": 0.3179478268116269,
+          "relative_error": 0.1165739134058135,
+          "transmission": 0.9576,
+          "on_screen_fraction": 0.9576,
+          "sigma_m": [
+            0.0011492201305045753,
+            0.0011482826975429481
+          ],
+          "centroid_m": [
+            0.00014484250159890372,
+            2.3950323976826838e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 4.9887827089987695,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 72,
+      "seed": 114,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 1.0171160013528289,
+          "physical_mismatch": 0.9100535986764051,
+          "relative_error": 0.4260267993382024,
+          "transmission": 0.971,
+          "on_screen_fraction": 0.9692,
+          "sigma_m": [
+            0.0015961276418039513,
+            0.0020687663068313204
+          ],
+          "centroid_m": [
+            -2.60574358021661e-05,
+            1.3155812915372112e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.191436290973797,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 1.031911232910457,
+          "physical_mismatch": 0.9501618667690173,
+          "relative_error": 0.3917809333845086,
+          "transmission": 0.9167,
+          "on_screen_fraction": 0.9151,
+          "sigma_m": [
+            0.0014014417923187397,
+            0.002082918633491086
+          ],
+          "centroid_m": [
+            1.7902873147111256e-05,
+            -6.486043458109756e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.537152500124648,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 73,
+      "seed": 115,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 1.0383344665254886,
+          "physical_mismatch": 0.9312720638490649,
+          "relative_error": 0.28283603192453255,
+          "transmission": 0.8172,
+          "on_screen_fraction": 0.8172,
+          "sigma_m": [
+            0.0015770276479266994,
+            0.0014728622458883853
+          ],
+          "centroid_m": [
+            4.8741437892629797e-05,
+            3.271279599041553e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.136546000139788,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 1.0386086630093292,
+          "physical_mismatch": 0.9315462603329054,
+          "relative_error": 0.28297313016645276,
+          "transmission": 0.8172,
+          "on_screen_fraction": 0.8172,
+          "sigma_m": [
+            0.0015774818336263701,
+            0.0014725096541258365
+          ],
+          "centroid_m": [
+            4.838238018602451e-05,
+            3.351865272758002e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.899025416933,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 74,
+      "seed": 116,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.5306981383248691,
+          "physical_mismatch": 0.4489487721834293,
+          "relative_error": 0.17187438609171468,
+          "transmission": 0.9474,
+          "on_screen_fraction": 0.9474,
+          "sigma_m": [
+            0.0015697964003660572,
+            0.001065981040877147
+          ],
+          "centroid_m": [
+            -4.490097490443234e-05,
+            6.81912821922213e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.025834291009232,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.8001163102757507,
+          "physical_mismatch": 0.6930539075993271,
+          "relative_error": 0.28982695379966356,
+          "transmission": 0.9433,
+          "on_screen_fraction": 0.9336,
+          "sigma_m": [
+            0.0013222093091725094,
+            0.001689577607086332
+          ],
+          "centroid_m": [
+            -6.371000518505619e-05,
+            -8.38108937547567e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.046411250019446,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 75,
+      "seed": 117,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.35550573141571545,
+          "physical_mismatch": 0.3272139672325317,
+          "relative_error": 0.11850698361626583,
+          "transmission": 0.9549,
+          "on_screen_fraction": 0.9549,
+          "sigma_m": [
+            0.0012378997362176966,
+            0.0011849903849091353
+          ],
+          "centroid_m": [
+            7.0392121323125245e-06,
+            -4.4098601205918915e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.50360762514174,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.35550573141571545,
+          "physical_mismatch": 0.3272139672325317,
+          "relative_error": 0.11850698361626583,
+          "transmission": 0.9549,
+          "on_screen_fraction": 0.9549,
+          "sigma_m": [
+            0.0012378997362176966,
+            0.0011849903849091353
+          ],
+          "centroid_m": [
+            7.0392121323125245e-06,
+            -4.4098601205918915e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.3948556249961257,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 76,
+      "seed": 118,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 1.0320806258811315,
+          "physical_mismatch": 0.9250182232047078,
+          "relative_error": 0.42730911160235385,
+          "transmission": 0.9648,
+          "on_screen_fraction": 0.9648,
+          "sigma_m": [
+            0.0014245016453511062,
+            0.0017849236910440077
+          ],
+          "centroid_m": [
+            6.13619367001995e-05,
+            0.0004384491733141021
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.10506329103373,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 1.60580860243689,
+          "physical_mismatch": 1.474291399519993,
+          "relative_error": 0.6205456997599965,
+          "transmission": 0.8834,
+          "on_screen_fraction": 0.8705,
+          "sigma_m": [
+            0.0013618078440375942,
+            0.002523878196310705
+          ],
+          "centroid_m": [
+            0.0002465968426178965,
+            -0.0003498999160737904
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.140158500056714,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 77,
+      "seed": 119,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 1.2370182370768639,
+          "physical_mismatch": 1.1299558344004401,
+          "relative_error": 0.50997791720022,
+          "transmission": 0.945,
+          "on_screen_fraction": 0.9339,
+          "sigma_m": [
+            0.0012855084286044853,
+            0.0021799907008178423
+          ],
+          "centroid_m": [
+            0.00019437472984372596,
+            0.00038003780953482655
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.354664749931544,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 1.2729906987945863,
+          "physical_mismatch": 1.1659282961181625,
+          "relative_error": 0.5683641480590813,
+          "transmission": 0.9854,
+          "on_screen_fraction": 0.9833,
+          "sigma_m": [
+            0.001259768278058411,
+            0.00226307001264527
+          ],
+          "centroid_m": [
+            0.0005993083204485766,
+            0.0001513099810840674
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.190053542144597,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 78,
+      "seed": 120,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.7753020993988555,
+          "physical_mismatch": 0.6318615255047748,
+          "relative_error": 0.28523076275238735,
+          "transmission": 0.9693,
+          "on_screen_fraction": 0.9688,
+          "sigma_m": [
+            0.001561781560128331,
+            0.0015729112935094949
+          ],
+          "centroid_m": [
+            6.221214423202685e-06,
+            8.982948521015318e-09
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.299041207879782,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 13,
+          "score": 0.5418475544543337,
+          "physical_mismatch": 0.3751356875917378,
+          "relative_error": 0.1401678437958689,
+          "transmission": 0.9526,
+          "on_screen_fraction": 0.9526,
+          "sigma_m": [
+            0.0014515814184945619,
+            0.000956377645108893
+          ],
+          "centroid_m": [
+            4.8916140103073434e-05,
+            -1.6551461694733346e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.448189708171412,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 79,
+      "seed": 121,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.20294794609940642,
+          "physical_mismatch": 0.17465618191622267,
+          "relative_error": 0.04252809095811138,
+          "transmission": 0.9552,
+          "on_screen_fraction": 0.9552,
+          "sigma_m": [
+            0.0009471833670083932,
+            0.001077529667123687
+          ],
+          "centroid_m": [
+            1.1198658298832878e-05,
+            2.8567405418318772e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.4384787920862436,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.20290795659518573,
+          "physical_mismatch": 0.174616192412002,
+          "relative_error": 0.04250809620600105,
+          "transmission": 0.9552,
+          "on_screen_fraction": 0.9552,
+          "sigma_m": [
+            0.0009471837172775936,
+            0.001077527898189132
+          ],
+          "centroid_m": [
+            1.1678168506598083e-05,
+            2.8010035405867753e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.4094164590351284,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 80,
+      "seed": 122,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.22920103120829266,
+          "physical_mismatch": 0.20090926702510892,
+          "relative_error": 0.07985463351255451,
+          "transmission": 0.9794,
+          "on_screen_fraction": 0.9794,
+          "sigma_m": [
+            0.0009522126946446471,
+            0.0008233755511808214
+          ],
+          "centroid_m": [
+            9.43713552249814e-05,
+            -6.354246507050209e-07
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.457053457852453,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.22920103120829266,
+          "physical_mismatch": 0.20090926702510892,
+          "relative_error": 0.07985463351255451,
+          "transmission": 0.9794,
+          "on_screen_fraction": 0.9794,
+          "sigma_m": [
+            0.0009522126946446471,
+            0.0008233755511808214
+          ],
+          "centroid_m": [
+            9.43713552249814e-05,
+            -6.354246507050209e-07
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.3986545000225306,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 81,
+      "seed": 123,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.20749424977733005,
+          "physical_mismatch": 0.17920248559414628,
+          "relative_error": 0.06800124279707317,
+          "transmission": 0.9784,
+          "on_screen_fraction": 0.9784,
+          "sigma_m": [
+            0.0009415367851134913,
+            0.0011121426379545056
+          ],
+          "centroid_m": [
+            -6.074980712991116e-05,
+            4.064931121736731e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.338140625040978,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.20749424977733005,
+          "physical_mismatch": 0.17920248559414628,
+          "relative_error": 0.06800124279707317,
+          "transmission": 0.9784,
+          "on_screen_fraction": 0.9784,
+          "sigma_m": [
+            0.0009415367851134913,
+            0.0011121426379545056
+          ],
+          "centroid_m": [
+            -6.074980712991116e-05,
+            4.064931121736731e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.273611499927938,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 82,
+      "seed": 124,
+      "methods": {
+        "bo": {
+          "shots": 6,
+          "score": 0.34388075486899666,
+          "physical_mismatch": 0.26213138872755687,
+          "relative_error": 0.08406569436377839,
+          "transmission": 0.953,
+          "on_screen_fraction": 0.9519,
+          "sigma_m": [
+            0.0008825792041232061,
+            0.0008840812238098548
+          ],
+          "centroid_m": [
+            9.408257510623093e-05,
+            8.840630281943384e-06
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.530593707924709,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.40262528257459884,
+          "physical_mismatch": 0.28323185278104057,
+          "relative_error": 0.03931592639052035,
+          "transmission": 0.8977,
+          "on_screen_fraction": 0.8964,
+          "sigma_m": [
+            0.0009568034459969697,
+            0.0009758829842298655
+          ],
+          "centroid_m": [
+            -6.422656223200555e-05,
+            2.5723573556911076e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.741588542005047,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 83,
+      "seed": 125,
+      "methods": {
+        "bo": {
+          "shots": 8,
+          "score": 0.4080362232470708,
+          "physical_mismatch": 0.30097382057064714,
+          "relative_error": 0.1388869102853235,
+          "transmission": 0.9884,
+          "on_screen_fraction": 0.987,
+          "sigma_m": [
+            0.0010907897725524857,
+            0.0011368921447230437
+          ],
+          "centroid_m": [
+            -6.922678883260044e-05,
+            0.0002586389350331642
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 4.984992749989033,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 12,
+          "score": 0.3870566254824962,
+          "physical_mismatch": 0.23188656517642092,
+          "relative_error": 0.10474328258821047,
+          "transmission": 0.9888,
+          "on_screen_fraction": 0.9888,
+          "sigma_m": [
+            0.0008493827057162404,
+            0.001152402275642927
+          ],
+          "centroid_m": [
+            5.660107032746166e-05,
+            -5.9352490098693715e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.490702874958515,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 84,
+      "seed": 126,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.9092872726676142,
+          "physical_mismatch": 0.7658466987735335,
+          "relative_error": 0.3812233493867668,
+          "transmission": 0.9983,
+          "on_screen_fraction": 0.9982,
+          "sigma_m": [
+            0.0007980403118744593,
+            0.0018197168328726193
+          ],
+          "centroid_m": [
+            3.713534418188651e-05,
+            0.00046608153236702056
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.668880915967748,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 8,
+          "score": 0.9825168521090261,
+          "physical_mismatch": 0.8754544494326024,
+          "relative_error": 0.39092722471630126,
+          "transmission": 0.9532,
+          "on_screen_fraction": 0.9529,
+          "sigma_m": [
+            0.0015305237004784153,
+            0.001970084124278295
+          ],
+          "centroid_m": [
+            -1.3075269784600343e-05,
+            5.0025804323894525e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 4.934242291143164,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 85,
+      "seed": 127,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.8857608585820635,
+          "physical_mismatch": 0.7663674287885053,
+          "relative_error": 0.36908371439425264,
+          "transmission": 0.9859,
+          "on_screen_fraction": 0.9813,
+          "sigma_m": [
+            0.0011670388287668705,
+            0.002051990866372196
+          ],
+          "centroid_m": [
+            0.0001136987967835975,
+            0.00014360636565434681
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.328266249969602,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.8810657375776151,
+          "physical_mismatch": 0.7616723077840568,
+          "relative_error": 0.36673615389202835,
+          "transmission": 0.9859,
+          "on_screen_fraction": 0.9808,
+          "sigma_m": [
+            0.0011616997789940825,
+            0.002074084588947649
+          ],
+          "centroid_m": [
+            0.00011709828288026982,
+            0.00011406196474611239
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.070146708050743,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 86,
+      "seed": 128,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.23715647191823053,
+          "physical_mismatch": 0.18164081572385857,
+          "relative_error": 0.08152040786192931,
+          "transmission": 0.9907,
+          "on_screen_fraction": 0.9907,
+          "sigma_m": [
+            0.0008362958531360025,
+            0.0010164390254379188
+          ],
+          "centroid_m": [
+            5.8198654232914955e-05,
+            8.773980491288605e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.3538879591505975,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 4,
+          "score": 0.23715647191823053,
+          "physical_mismatch": 0.18164081572385857,
+          "relative_error": 0.08152040786192931,
+          "transmission": 0.9907,
+          "on_screen_fraction": 0.9907,
+          "sigma_m": [
+            0.0008362958531360025,
+            0.0010164390254379188
+          ],
+          "centroid_m": [
+            5.8198654232914955e-05,
+            8.773980491288605e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.160442458000034,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 87,
+      "seed": 129,
+      "methods": {
+        "bo": {
+          "shots": 12,
+          "score": 0.4080336942855025,
+          "physical_mismatch": 0.25286363397942724,
+          "relative_error": 0.11383181698971369,
+          "transmission": 0.9874,
+          "on_screen_fraction": 0.9874,
+          "sigma_m": [
+            0.0009628841509351338,
+            0.0011643248176584943
+          ],
+          "centroid_m": [
+            0.00017468808536060576,
+            7.919851587488846e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.662306792102754,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 9,
+          "score": 0.5886533652687047,
+          "physical_mismatch": 0.4692599354751465,
+          "relative_error": 0.2001299677375733,
+          "transmission": 0.9655,
+          "on_screen_fraction": 0.9641,
+          "sigma_m": [
+            0.000960109448906057,
+            0.0016572346044365165
+          ],
+          "centroid_m": [
+            2.6971609002721333e-05,
+            7.642310641711227e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 4.858099667122588,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 88,
+      "seed": 130,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.17087074166345673,
+          "physical_mismatch": 0.14257897748027298,
+          "relative_error": 0.05068948874013654,
+          "transmission": 0.9794,
+          "on_screen_fraction": 0.9794,
+          "sigma_m": [
+            0.0009003777466844096,
+            0.0010376672382655385
+          ],
+          "centroid_m": [
+            -2.972399660398959e-05,
+            -3.5744466775427625e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.4767896248959005,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.1681734335548688,
+          "physical_mismatch": 0.13988166937168506,
+          "relative_error": 0.04934083468584258,
+          "transmission": 0.9794,
+          "on_screen_fraction": 0.9794,
+          "sigma_m": [
+            0.0009029488585706373,
+            0.0010376961677070946
+          ],
+          "centroid_m": [
+            -2.7017165052625314e-05,
+            -3.559886455428774e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.3861597920767963,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 89,
+      "seed": 131,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.6520881958317002,
+          "physical_mismatch": 0.5086476219376194,
+          "relative_error": 0.23742381096880966,
+          "transmission": 0.9831,
+          "on_screen_fraction": 0.9831,
+          "sigma_m": [
+            0.001025867125250865,
+            0.0015446461450604931
+          ],
+          "centroid_m": [
+            0.00016124013128575505,
+            -0.0002179418422781255
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.876783708110452,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 0.972785370309835,
+          "physical_mismatch": 0.8293447964157542,
+          "relative_error": 0.3995723982078771,
+          "transmission": 0.9849,
+          "on_screen_fraction": 0.9842,
+          "sigma_m": [
+            0.0010286703044343165,
+            0.0020812395660434863
+          ],
+          "centroid_m": [
+            0.0001478138661675111,
+            -0.0003405658561861945
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.776268000015989,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 90,
+      "seed": 132,
+      "methods": {
+        "bo": {
+          "shots": 11,
+          "score": 0.488159747933878,
+          "physical_mismatch": 0.34471917403979724,
+          "relative_error": 0.12245958701989856,
+          "transmission": 0.9501,
+          "on_screen_fraction": 0.9501,
+          "sigma_m": [
+            0.0013434305529377657,
+            0.0008726990633912961
+          ],
+          "centroid_m": [
+            1.029170203257715e-05,
+            -8.81515650054744e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "restored_better_measured_setting"
+          },
+          "wall_time_s": 5.905694791814312,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.5049360613380163,
+          "physical_mismatch": 0.3734188584211193,
+          "relative_error": 0.06390942921055963,
+          "transmission": 0.8772,
+          "on_screen_fraction": 0.8755,
+          "sigma_m": [
+            0.0009613411313244662,
+            0.0011430718318557642
+          ],
+          "centroid_m": [
+            6.180600330157444e-05,
+            -1.2101013009366025e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.441717792069539,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 91,
+      "seed": 133,
+      "methods": {
+        "bo": {
+          "shots": 7,
+          "score": 0.7100597578878595,
+          "physical_mismatch": 0.6155428456928509,
+          "relative_error": 0.29677142284642544,
+          "transmission": 0.989,
+          "on_screen_fraction": 0.9864,
+          "sigma_m": [
+            0.0011253335665338147,
+            0.0019863604632969767
+          ],
+          "centroid_m": [
+            1.0277939917644106e-05,
+            6.511372163726635e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 4.796272666892037,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 1.2694371335923522,
+          "physical_mismatch": 1.1259965596982715,
+          "relative_error": 0.5482982798491356,
+          "transmission": 0.9853,
+          "on_screen_fraction": 0.962,
+          "sigma_m": [
+            0.0007395942908313036,
+            0.0028231187620252995
+          ],
+          "centroid_m": [
+            1.4308510424469024e-05,
+            -9.536013777807765e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 5.350240750005469,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 92,
+      "seed": 134,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.1162137451925882,
+          "physical_mismatch": 0.08792198100940445,
+          "relative_error": 0.03356099050470226,
+          "transmission": 0.9896,
+          "on_screen_fraction": 0.9896,
+          "sigma_m": [
+            0.001034766441678777,
+            0.0010060676532158317
+          ],
+          "centroid_m": [
+            -7.66193000593535e-05,
+            -1.6790567064846848e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.513976041926071,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.1162137451925882,
+          "physical_mismatch": 0.08792198100940445,
+          "relative_error": 0.03356099050470226,
+          "transmission": 0.9896,
+          "on_screen_fraction": 0.9896,
+          "sigma_m": [
+            0.001034766441678777,
+            0.0010060676532158317
+          ],
+          "centroid_m": [
+            -7.66193000593535e-05,
+            -1.6790567064846848e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.406349165830761,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 93,
+      "seed": 135,
+      "methods": {
+        "bo": {
+          "shots": 4,
+          "score": 0.3686439637901578,
+          "physical_mismatch": 0.3131283075957858,
+          "relative_error": 0.13256415379789288,
+          "transmission": 0.976,
+          "on_screen_fraction": 0.976,
+          "sigma_m": [
+            0.001228802461940053,
+            0.001158245741750234
+          ],
+          "centroid_m": [
+            7.93247665937734e-05,
+            6.388364490751113e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "target_tolerance",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.67176620895043,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 10,
+          "score": 0.5498544717997627,
+          "physical_mismatch": 0.4183372688828658,
+          "relative_error": 0.18536863444143287,
+          "transmission": 0.9762,
+          "on_screen_fraction": 0.9762,
+          "sigma_m": [
+            0.0005642105960084133,
+            0.0011602126659454918
+          ],
+          "centroid_m": [
+            -5.61500124766736e-05,
+            -8.93224553519794e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.449479874921963,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 94,
+      "seed": 136,
+      "methods": {
+        "bo": {
+          "shots": 3,
+          "score": 0.2306955781904863,
+          "physical_mismatch": 0.18866344579624902,
+          "relative_error": 0.06693172289812453,
+          "transmission": 0.9726,
+          "on_screen_fraction": 0.9726,
+          "sigma_m": [
+            0.0008852124313438855,
+            0.0009080249115706749
+          ],
+          "centroid_m": [
+            3.1248845424426276e-05,
+            2.9715389082632228e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.935677125118673,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 3,
+          "score": 0.2306955781904863,
+          "physical_mismatch": 0.18866344579624902,
+          "relative_error": 0.06693172289812453,
+          "transmission": 0.9726,
+          "on_screen_fraction": 0.9726,
+          "sigma_m": [
+            0.0008852124313438855,
+            0.0009080249115706749
+          ],
+          "centroid_m": [
+            3.1248845424426276e-05,
+            2.9715389082632228e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 3.6249978330451995,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 95,
+      "seed": 137,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.17745141484199062,
+          "physical_mismatch": 0.14915965065880687,
+          "relative_error": 0.05947982532940344,
+          "transmission": 0.9849,
+          "on_screen_fraction": 0.9849,
+          "sigma_m": [
+            0.0009004875504695644,
+            0.0009844666369848828
+          ],
+          "centroid_m": [
+            9.067274293561358e-05,
+            -3.220074583644739e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.4815525840967894,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.17745141484199062,
+          "physical_mismatch": 0.14915965065880687,
+          "relative_error": 0.05947982532940344,
+          "transmission": 0.9849,
+          "on_screen_fraction": 0.9849,
+          "sigma_m": [
+            0.0009004875504695644,
+            0.0009844666369848828
+          ],
+          "centroid_m": [
+            9.067274293561358e-05,
+            -3.220074583644739e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.239468667190522,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 96,
+      "seed": 138,
+      "methods": {
+        "bo": {
+          "shots": 9,
+          "score": 0.8426979586457879,
+          "physical_mismatch": 0.7233045288522296,
+          "relative_error": 0.26695226442611475,
+          "transmission": 0.9053,
+          "on_screen_fraction": 0.9053,
+          "sigma_m": [
+            0.0018242105939888544,
+            0.0011731691051802967
+          ],
+          "centroid_m": [
+            -5.880196837430548e-05,
+            1.1627390161002656e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "measured_response_secant"
+          },
+          "wall_time_s": 5.123687708051875,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 6,
+          "score": 0.9545953560207899,
+          "physical_mismatch": 0.8728459898793501,
+          "relative_error": 0.3389229949396751,
+          "transmission": 0.9025,
+          "on_screen_fraction": 0.9019,
+          "sigma_m": [
+            0.002228749977812395,
+            0.0009611523597264237
+          ],
+          "centroid_m": [
+            5.3177149171099175e-05,
+            3.4917212501629545e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.311255583073944,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 97,
+      "seed": 139,
+      "methods": {
+        "bo": {
+          "shots": 5,
+          "score": 0.6749520679005705,
+          "physical_mismatch": 0.606200306025603,
+          "relative_error": 0.2912001530128015,
+          "transmission": 0.9881,
+          "on_screen_fraction": 0.9836,
+          "sigma_m": [
+            0.0007227447591595214,
+            0.0018101509671285957
+          ],
+          "centroid_m": [
+            -5.3947569566186624e-05,
+            -2.3446834515945065e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "expected_improvement_below_shot_cost",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 4.573689125012606,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 11,
+          "score": 0.7118953301821631,
+          "physical_mismatch": 0.5684547562880824,
+          "relative_error": 0.27322737814404113,
+          "transmission": 0.989,
+          "on_screen_fraction": 0.9887,
+          "sigma_m": [
+            0.000763865806887109,
+            0.001693571638506975
+          ],
+          "centroid_m": [
+            5.406122102087307e-06,
+            0.0001577975588542114
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "no_significant_improvement",
+            "centering": "shot_cap"
+          },
+          "wall_time_s": 5.158791832858697,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 98,
+      "seed": 140,
+      "methods": {
+        "bo": {
+          "shots": 5,
+          "score": 0.4294292973755242,
+          "physical_mismatch": 0.3606775355005567,
+          "relative_error": 0.10593876775027831,
+          "transmission": 0.9256,
+          "on_screen_fraction": 0.9256,
+          "sigma_m": [
+            0.0011177507737486472,
+            0.0012402031279973094
+          ],
+          "centroid_m": [
+            5.520989780939078e-05,
+            -1.0591271445765887e-05
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 4.306459875078872,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 5,
+          "score": 0.428736982728496,
+          "physical_mismatch": 0.35998522085352846,
+          "relative_error": 0.1055926104267642,
+          "transmission": 0.9256,
+          "on_screen_fraction": 0.9256,
+          "sigma_m": [
+            0.0011173813468140668,
+            0.0012405483216463844
+          ],
+          "centroid_m": [
+            5.452110579624964e-05,
+            -9.919667450356014e-06
+          ],
+          "target_met": false,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "target_tolerance"
+          },
+          "wall_time_s": 3.9546357088256627,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "episode": 99,
+      "seed": 141,
+      "methods": {
+        "bo": {
+          "shots": 2,
+          "score": 0.2695518404426816,
+          "physical_mismatch": 0.24126007625949786,
+          "relative_error": 0.06783003812974897,
+          "transmission": 0.9472,
+          "on_screen_fraction": 0.9472,
+          "sigma_m": [
+            0.001135686421492024,
+            0.001081053783361162
+          ],
+          "centroid_m": [
+            -2.062188126093507e-05,
+            3.395806640487497e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.3287853330839425,
+          "status": "completed"
+        },
+        "rcds": {
+          "shots": 2,
+          "score": 0.27144153150546857,
+          "physical_mismatch": 0.2431497673222848,
+          "relative_error": 0.06877488366114244,
+          "transmission": 0.9472,
+          "on_screen_fraction": 0.9472,
+          "sigma_m": [
+            0.0011351185094122334,
+            0.0010826947448144143
+          ],
+          "centroid_m": [
+            -2.084027871940439e-05,
+            3.6446001698517774e-05
+          ],
+          "target_met": true,
+          "stop_reasons": {
+            "optics": "existing_reading_adequate",
+            "centering": "inverse_response"
+          },
+          "wall_time_s": 2.1905627080705017,
+          "status": "completed"
+        }
+      }
+    }
+  ],
+  "notes": [
+    "Single-shot, stochastic final readings; fixed-budget reference used three-shot final averages.",
+    "All same 100 episode seeds and the fixed centered 1 mm target; no discovery or replay acquisition overhead.",
+    "Completed means beam at the IP; strict final target_met additionally requires each size within 15%, each centroid within 0.1 target sigma, and on-screen fraction >=90%.",
+    "Focus stopping emulates MBRL aggregate mismatch<=0.15 or patience=3; BO also uses MF-BO expected improvement versus marginal benchmark shot cost.",
+    "Wall times are simulator/model/optimizer compute durations, not real accelerator operating times."
+  ]
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "modes": [
+      7,
+      8
+    ],
+    "sigma_x_m": 0.0012376170968594264,
+    "sigma_y_m": 0.0003358965061993575,
+    "relative_singular_gap": 1.2669822401704187e-12,
+    "loop_log_radius": 0.002,
+    "loop_return_signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      -1
+    ],
+    "unresolved_segments": 0,
+    "minimum_accepted_overlap": 0.9944397632775214
+  },
+  {
+    "modes": [
+      9,
+      10
+    ],
+    "sigma_x_m": 0.0002781523210824014,
+    "sigma_y_m": 0.0011673348968175257,
+    "relative_singular_gap": 3.261425514501447e-12,
+    "loop_log_radius": 0.002,
+    "loop_return_signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      -1
+    ],
+    "unresolved_segments": 0,
+    "minimum_accepted_overlap": 0.9863298867427676
+  },
+  {
+    "modes": [
+      20,
+      21
+    ],
+    "sigma_x_m": 0.005231063259339871,
+    "sigma_y_m": 0.017421133975715798,
+    "relative_singular_gap": 2.343357141764512e-12,
+    "loop_log_radius": 0.002,
+    "loop_return_signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      -1
+    ],
+    "unresolved_segments": 0,
+    "minimum_accepted_overlap": 0.986104916309406
+  }
+]

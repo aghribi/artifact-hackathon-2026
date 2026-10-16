@@ -1,0 +1,3 @@
+.ruff_cache/
+__pycache__/
+initial_distribution_astra.npz

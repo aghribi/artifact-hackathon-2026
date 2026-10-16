@@ -1,0 +1,34 @@
+presentation:
+- general case
+- who did what/how it was split
+- how we did pipeline
+- explain each of steps in pipeline
+- try to put choices we were faced with and conseuqeunces/shortcomings of decisions
+
+
+- General Case:
+ Steering through the whole CLARA lattice with optimisation and RL techniques, achieving closest possible sim2real matching
+ 
+- Who Did What:
+  + Francessco: Sim2Real matching with tomography, beam optics, multi-fidelity BO 
+  + Eiad: Beam optics and SVD to find a good reference tune and the key quadrupoles and correctors for a given target
+  + Ivan: numerical optimistation techniques for S04, which was then used with Eiad & Franccessco's beam optics 
+  + Manuel: Developing a robust measure for real screen image processing, using a DALIA job to process the whole 0.8TB!
+  + Amy: Developed the framework and simulation environment, and built a model based RL agent against it, making use of Eiad's beam optics SVD controls 
+ 
+  
+- Pipeline
+  - Simulation generates a variation on a realistic beam and lattice, with small perturbations
+  - Set nominal optics from lookup table (optics matching)
+  - SVD of the correctors vs BPM for the target beam gives us the most significant control variables to center the current beam at the selected optics
+  - Do steering simple optimsiation - typically 1 iteration, worst case 4
+  - Focus optimisation - Use SVD again on the combined correctors and quadrupoles to find the significant control variables for focussing 
+  - Use the numeric optimisation or RL model to tweak the optics matched tune, using focussing only
+  - Use the robust screen measure to read screen images
+  - Tweak and read the target screen until a good match -^
+  - Finally one last round of SVD on the correctors to steer with the focussed optics
+
+
+Image processing note:
+- Noisy beam image is an example of the cleaning of the data
+- Weak beam image is an example of a bad clean, where data is discarded

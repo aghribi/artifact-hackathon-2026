@@ -1,0 +1,173 @@
+{
+  "checks": [
+    {
+      "backend": "cheetah",
+      "i": 0,
+      "j": 0,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 1.575925960718365e-15,
+      "max_abs_error_m_per_rad": 3.68594044175552e-14
+    },
+    {
+      "backend": "cheetah",
+      "i": 0,
+      "j": 0,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 3.566014704670754e-15,
+      "max_abs_error_m_per_rad": 1.0097478408965799e-13
+    },
+    {
+      "backend": "cheetah",
+      "i": 6,
+      "j": 6,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 7.431344338550768e-16,
+      "max_abs_error_m_per_rad": 1.7763568394002505e-14
+    },
+    {
+      "backend": "cheetah",
+      "i": 6,
+      "j": 6,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 9.141738954257319e-15,
+      "max_abs_error_m_per_rad": 1.829647544582258e-13
+    },
+    {
+      "backend": "cheetah",
+      "i": 11,
+      "j": 11,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 1.4963232823859094e-15,
+      "max_abs_error_m_per_rad": 3.126388037344441e-13
+    },
+    {
+      "backend": "cheetah",
+      "i": 11,
+      "j": 11,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 4.2043857755929264e-15,
+      "max_abs_error_m_per_rad": 5.002220859751105e-12
+    },
+    {
+      "backend": "xsuite",
+      "i": 0,
+      "j": 0,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    },
+    {
+      "backend": "xsuite",
+      "i": 0,
+      "j": 0,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    },
+    {
+      "backend": "xsuite",
+      "i": 6,
+      "j": 6,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    },
+    {
+      "backend": "xsuite",
+      "i": 6,
+      "j": 6,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    },
+    {
+      "backend": "xsuite",
+      "i": 11,
+      "j": 11,
+      "plane": "x",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_02",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    },
+    {
+      "backend": "xsuite",
+      "i": 11,
+      "j": 11,
+      "plane": "y",
+      "correctors": [
+        "cla_s02_mag_hvcor_01",
+        "cla_s07_mag_hvcor_01",
+        "cla_feh_mag_hvcor_01",
+        "cla_feh_mag_hvcor_02"
+      ],
+      "weighted_relative_error": 0.0,
+      "max_abs_error_m_per_rad": 0.0
+    }
+  ],
+  "max_weighted_relative_error": 9.141738954257319e-15
+}

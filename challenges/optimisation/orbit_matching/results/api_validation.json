@@ -1,0 +1,20 @@
+{
+  "x": {
+    "knots_checked": 2401,
+    "knot_max_relative_response_error": 2.759748689434708e-16,
+    "knot_max_relative_spectrum_error": 9.569012249244224e-13,
+    "stored_grid_max_reconstruction_error": 7.865268442056408e-14,
+    "modal_roundtrip_max_abs_error_rad": 5.082197683525802e-21,
+    "projector_idempotence_error": 8.137890817065285e-16,
+    "domain_checks_passed": true
+  },
+  "y": {
+    "knots_checked": 2401,
+    "knot_max_relative_response_error": 2.4046258187250754e-16,
+    "knot_max_relative_spectrum_error": 6.222800053024002e-13,
+    "stored_grid_max_reconstruction_error": 1.087221610296754e-14,
+    "modal_roundtrip_max_abs_error_rad": 5.929230630780102e-21,
+    "projector_idempotence_error": 1.0639604031060713e-15,
+    "domain_checks_passed": true
+  }
+}

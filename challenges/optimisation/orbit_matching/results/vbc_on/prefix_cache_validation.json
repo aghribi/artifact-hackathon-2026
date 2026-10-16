@@ -1,0 +1,16 @@
+{
+  "particles": 2000,
+  "checks": [
+    {
+      "i": 0,
+      "j": 0,
+      "transmission": 0.9905
+    },
+    {
+      "i": 11,
+      "j": 11,
+      "transmission": 0.0275
+    }
+  ],
+  "full_vs_cached_agree": true
+}

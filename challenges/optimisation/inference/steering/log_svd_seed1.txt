@@ -1,0 +1,2 @@
+{'iteration': 0, 'bpm_rms_um': [1740.8, 681.9], 'bpm_max_um': [4266.3, 2417.0], 'beam_in_quads_rms_um': [1864.5, 570.8], 'screen_at_readout_um': [2912.2, 2417.0]}
+{'iteration': 1, 'max_kick_urad': 370.3586988441713, 'bpm_rms_um': [98.8, 185.6], 'bpm_max_um': [259.6, 513.3], 'beam_in_quads_rms_um': [204.3, 210.5], 'screen_at_readout_um': [259.6, -409.8]}

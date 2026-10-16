@@ -1,0 +1,86 @@
+{
+ "true beam, zero errors, 1 settings": {
+  "est_eps_n_x_um": 39.801,
+  "est_eps_n_y_um": 4.548,
+  "rel_beta_y_m": -0.02,
+  "abs_alpha_y": -0.331,
+  "sigma_error": 0.8
+ },
+ "true beam, zero errors, 3 settings": {
+  "est_eps_n_x_um": 16.36,
+  "est_eps_n_y_um": 1.696,
+  "rel_beta_y_m": 1.431,
+  "abs_alpha_y": -8.076,
+  "sigma_error": 0.122
+ },
+ "true beam, zero errors, 5 settings": {
+  "est_eps_n_x_um": 8.267,
+  "est_eps_n_y_um": 1.757,
+  "rel_beta_y_m": 1.335,
+  "abs_alpha_y": -7.524,
+  "sigma_error": 0.041
+ },
+ "true beam, real errors, 1 settings": {
+  "est_eps_n_x_um": 103.409,
+  "est_eps_n_y_um": 5.587,
+  "rel_beta_y_m": -0.126,
+  "abs_alpha_y": -0.143,
+  "sigma_error": 4.79
+ },
+ "true beam, real errors, 3 settings": {
+  "est_eps_n_x_um": 82.024,
+  "est_eps_n_y_um": 1.687,
+  "rel_beta_y_m": 1.436,
+  "abs_alpha_y": -8.212,
+  "sigma_error": 3.008
+ },
+ "true beam, real errors, 5 settings": {
+  "est_eps_n_x_um": 8.262,
+  "est_eps_n_y_um": 1.743,
+  "rel_beta_y_m": 1.349,
+  "abs_alpha_y": -7.711,
+  "sigma_error": 0.042
+ },
+ "synth beam, zero errors, 1 settings": {
+  "est_eps_n_x_um": 54.554,
+  "est_eps_n_y_um": 2.752,
+  "rel_beta_y_m": 0.418,
+  "abs_alpha_y": -2.072,
+  "sigma_error": 1.262
+ },
+ "synth beam, zero errors, 3 settings": {
+  "est_eps_n_x_um": 40.047,
+  "est_eps_n_y_um": 4.072,
+  "rel_beta_y_m": -0.01,
+  "abs_alpha_y": 0.044,
+  "sigma_error": 0.681
+ },
+ "synth beam, zero errors, 5 settings": {
+  "est_eps_n_x_um": 8.155,
+  "est_eps_n_y_um": 4.066,
+  "rel_beta_y_m": -0.007,
+  "abs_alpha_y": 0.026,
+  "sigma_error": 0.028
+ },
+ "synth beam, real errors, 1 settings": {
+  "est_eps_n_x_um": 80.888,
+  "est_eps_n_y_um": 0.529,
+  "rel_beta_y_m": 6.148,
+  "abs_alpha_y": -32.551,
+  "sigma_error": 3.079
+ },
+ "synth beam, real errors, 3 settings": {
+  "est_eps_n_x_um": 79.604,
+  "est_eps_n_y_um": 3.986,
+  "rel_beta_y_m": 0.009,
+  "abs_alpha_y": -0.114,
+  "sigma_error": 2.857
+ },
+ "synth beam, real errors, 5 settings": {
+  "est_eps_n_x_um": 8.491,
+  "est_eps_n_y_um": 3.984,
+  "rel_beta_y_m": 0.011,
+  "abs_alpha_y": -0.126,
+  "sigma_error": 0.028
+ }
+}

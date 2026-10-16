@@ -1,0 +1,66 @@
+iteration 0: residual rms 835.1 um, whitened chi2/dof 257.45
+iteration 1: residual rms 264.4 um, whitened chi2/dof 1.66
+iteration 2: residual rms 234.1 um, whitened chi2/dof 1.06
+iteration 3: residual rms 234.3 um, whitened chi2/dof 1.03
+iteration 4: residual rms 234.6 um, whitened chi2/dof 1.03
+iteration 5: residual rms 234.6 um, whitened chi2/dof 1.03
+{
+ "mode": "bpm",
+ "monitor_offsets": false,
+ "beam_knowledge": "exact",
+ "beam_scale": 1.0,
+ "configurations": 45,
+ "shots": 225,
+ "readings": 1446,
+ "unknowns": 97,
+ "unobservable": [
+  "cla_feh_mag_quad_01_x",
+  "cla_feh_mag_quad_01_y",
+  "cla_feh_mag_quad_02_x",
+  "cla_feh_mag_quad_02_y"
+ ],
+ "condition_number": 11661.50075533122,
+ "residual_rms_um_by_iteration": [
+  7771.4,
+  835.06,
+  264.43,
+  234.14,
+  234.29,
+  234.62,
+  234.65
+ ],
+ "launch": {
+  "x": {
+   "true": 3.7719066328017984e-05,
+   "estimate": 3.9848239992540416e-05,
+   "posterior_rms": 5.836761924364561e-06
+  },
+  "px": {
+   "true": -3.963145898739057e-06,
+   "estimate": -1.1930698252611726e-06,
+   "posterior_rms": 1.2060393838181666e-05
+  },
+  "y": {
+   "true": 0.0001921267951329846,
+   "estimate": 0.0001951418965596437,
+   "posterior_rms": 4.908907092684375e-06
+  },
+  "py": {
+   "true": 3.1470035145911912e-06,
+   "estimate": -2.3648266096347805e-06,
+   "posterior_rms": 6.083548237516461e-06
+  },
+  "delta": {
+   "true": 0.0007231901098189695,
+   "estimate": 0.00044673881753650997,
+   "posterior_rms": 4.342614785696576e-05
+  }
+ },
+ "seconds": 260.07982897758484,
+ "quad_offsets": {
+  "true_rms_um": 98.90663724802951,
+  "error_rms_um_x": 6.566678359045595,
+  "error_rms_um_y": 5.142573882868037,
+  "error_median_abs_um": 2.6320361430676438
+ }
+}

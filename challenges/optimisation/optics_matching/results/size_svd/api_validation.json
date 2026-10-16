@@ -1,0 +1,10 @@
+{
+  "knots_checked": 2401,
+  "knot_max_relative_response_error": 3.9616861999287056e-16,
+  "knot_max_relative_spectrum_error": 2.2284396550276142e-12,
+  "knot_minimum_vector_gauge_overlap": 0.999999999999998,
+  "modal_roundtrip_max_abs_error": 4.539486733561027e-16,
+  "modal_roundtrip_unused_amplitudes_max_abs": 1.1814229201054585e-15,
+  "projector_idempotence_error": 6.630025017270148e-16,
+  "domain_checks_passed": true
+}

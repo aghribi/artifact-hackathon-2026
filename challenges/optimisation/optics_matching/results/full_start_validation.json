@@ -1,0 +1,42 @@
+[
+  {
+    "target_sigma_x_m": 0.0001,
+    "target_sigma_y_m": 0.0001,
+    "actual_sizes_m": [
+      0.00010000195086918127,
+      0.00010000719836234266
+    ],
+    "max_relative_size_error": 7.198362342664133e-05,
+    "particles": 200000
+  },
+  {
+    "target_sigma_x_m": 0.02,
+    "target_sigma_y_m": 0.02,
+    "actual_sizes_m": [
+      0.019999870941935356,
+      0.019999955445788208
+    ],
+    "max_relative_size_error": 6.452903232201379e-06,
+    "particles": 200000
+  },
+  {
+    "target_sigma_x_m": 0.0001,
+    "target_sigma_y_m": 0.02,
+    "actual_sizes_m": [
+      9.999839679373509e-05,
+      0.01999998063978715
+    ],
+    "max_relative_size_error": 1.603206264910728e-05,
+    "particles": 200000
+  },
+  {
+    "target_sigma_x_m": 0.02,
+    "target_sigma_y_m": 0.0001,
+    "actual_sizes_m": [
+      0.01999985802865361,
+      0.0001000001735104465
+    ],
+    "max_relative_size_error": 7.098567319507865e-06,
+    "particles": 200000
+  }
+]

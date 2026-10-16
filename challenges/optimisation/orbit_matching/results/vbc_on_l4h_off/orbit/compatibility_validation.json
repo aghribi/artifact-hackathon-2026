@@ -1,0 +1,18 @@
+{
+  "compatibility_tests_passed": 6,
+  "backends": [
+    "cheetah",
+    "xsuite"
+  ],
+  "transmission_cases": [
+    "supplied L4H",
+    "L4H drift"
+  ],
+  "particles_per_transmission": 200000,
+  "orbit_nodes_per_backend": 144,
+  "orbit_l4h": "drift",
+  "orbit_reference_validation_max_relative_error": 9.141738954257319e-15,
+  "api_nodes_checked": 576,
+  "legacy_imports_preserved": true,
+  "stale_calibration_checks_passed": true
+}

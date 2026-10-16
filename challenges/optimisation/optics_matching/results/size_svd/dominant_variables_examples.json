@@ -1,0 +1,2426 @@
+[
+  {
+    "sigma_x_mm": 0.1,
+    "sigma_y_mm": 0.1,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m2": 75.22512524900276,
+        "cumulative_squared_fraction": 0.9311507782920878,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.02861829133057876,
+          "cla_s02_mag_quad_02": 0.08311500005775008,
+          "cla_s02_mag_quad_03": 0.004264320914917255,
+          "cla_s02_mag_quad_04": 0.0026521150798350327,
+          "cla_s02_mag_quad_05": 8.477709930765332e-05,
+          "cla_s03_mag_quad_01": 0.21439099711812892,
+          "cla_s04_mag_quad_01": 0.11046651568076327,
+          "cla_s04_mag_quad_02": 0.11100698785103465,
+          "cla_s04_mag_quad_03": 0.11532086176205367,
+          "cla_s04_mag_quad_04": 0.11567286817702171,
+          "cla_s04_mag_quad_05": 0.10180393938048132,
+          "cla_s04_mag_quad_06": 0.103004463449747,
+          "cla_s04_mag_quad_07": 0.10949396258011289,
+          "cla_s04_mag_quad_08": 0.12285206230805708,
+          "cla_s05_mag_quad_01": 0.15141543652012623,
+          "cla_s05_mag_quad_02": 0.1323415855364685,
+          "cla_s06_mag_quad_01": 0.1926290693643214,
+          "cla_s06_mag_quad_02": 0.24175467524558872,
+          "cla_s07_mag_quad_01": 0.3201740351071732,
+          "cla_s07_mag_quad_02": 0.557274526035305,
+          "cla_s07_mag_quad_03": 0.3201188688581162,
+          "cla_s07_mag_quad_04": 0.2839460830803324,
+          "cla_s07_mag_quad_05": 0.23700065637637813,
+          "cla_s07_mag_quad_06": 0.1845419931994984,
+          "cla_s07_mag_quad_07": 0.09823738845883936,
+          "cla_s07_mag_quad_08": 0.004230668626775455,
+          "cla_s07_mag_quad_09": -0.00020704711324631014,
+          "cla_s07_mag_quad_10": 0.001631942292838647,
+          "cla_fea_mag_quad_01": 0.0007274277772391313,
+          "cla_fea_mag_quad_02": 0.001857748359353693,
+          "cla_fea_mag_quad_03": -0.0009917243978266922,
+          "cla_fea_mag_quad_04": -0.001838094662746431,
+          "cla_fea_mag_quad_05": 0.0008099407595631461,
+          "cla_fea_mag_quad_06": 0.002533571904933471,
+          "cla_fea_mag_quad_07": 0.0032451560203998857,
+          "cla_fea_mag_quad_08": 0.009917049648574833,
+          "cla_fea_mag_quad_09": 0.0009916429415813529,
+          "cla_fea_mag_quad_10": -3.589753463927496e-05,
+          "cla_fea_mag_quad_11": -0.000528883092372119,
+          "cla_fea_mag_quad_12": 0.0010755953809905706,
+          "cla_fea_mag_quad_13": 0.010775211797554736,
+          "cla_fea_mag_quad_14": 0.07650049047908039,
+          "cla_fea_mag_quad_15": 0.08311268372509112,
+          "cla_fea_mag_quad_16": 0.038856868758874834,
+          "cla_feh_mag_quad_01": 0.021101754435383705,
+          "cla_feh_mag_quad_02": 0.0031443865697648576
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_02",
+            "coefficient": 0.557274526035305
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.3201740351071732
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_03",
+            "coefficient": 0.3201188688581162
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_04",
+            "coefficient": 0.2839460830803324
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": 0.24175467524558872
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m2": 19.330509023525707,
+        "cumulative_squared_fraction": 0.9926374170129518,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.044348152519337804,
+          "cla_s02_mag_quad_02": -0.041081013173408995,
+          "cla_s02_mag_quad_03": -0.009757287056772812,
+          "cla_s02_mag_quad_04": -0.0057523427521957715,
+          "cla_s02_mag_quad_05": -0.0014908163817632602,
+          "cla_s03_mag_quad_01": -0.019312873175138138,
+          "cla_s04_mag_quad_01": 0.3330068988161103,
+          "cla_s04_mag_quad_02": 0.330093927223516,
+          "cla_s04_mag_quad_03": 0.30955047103014305,
+          "cla_s04_mag_quad_04": 0.3064895525928625,
+          "cla_s04_mag_quad_05": 0.3575294563224785,
+          "cla_s04_mag_quad_06": 0.34693990312282336,
+          "cla_s04_mag_quad_07": 0.3087598694236827,
+          "cla_s04_mag_quad_08": 0.24485894128355773,
+          "cla_s05_mag_quad_01": 0.1205309162121303,
+          "cla_s05_mag_quad_02": 0.13031168392439102,
+          "cla_s06_mag_quad_01": -0.09704855450043035,
+          "cla_s06_mag_quad_02": -0.1266611217337333,
+          "cla_s07_mag_quad_01": -0.03862931037413969,
+          "cla_s07_mag_quad_02": -0.21982815559503271,
+          "cla_s07_mag_quad_03": -0.13199127119014864,
+          "cla_s07_mag_quad_04": -0.12657986485516698,
+          "cla_s07_mag_quad_05": -0.11099077922076726,
+          "cla_s07_mag_quad_06": -0.09150027398533747,
+          "cla_s07_mag_quad_07": -0.05606413954740985,
+          "cla_s07_mag_quad_08": -0.020377029453903874,
+          "cla_s07_mag_quad_09": -0.012405104730296818,
+          "cla_s07_mag_quad_10": 0.00014196880829562858,
+          "cla_fea_mag_quad_01": -0.008357574072654016,
+          "cla_fea_mag_quad_02": -0.005939872230519512,
+          "cla_fea_mag_quad_03": -0.008064057322231574,
+          "cla_fea_mag_quad_04": 0.0004288410525794776,
+          "cla_fea_mag_quad_05": 0.001913372842119405,
+          "cla_fea_mag_quad_06": -0.0029336794537929353,
+          "cla_fea_mag_quad_07": -0.015591528294959241,
+          "cla_fea_mag_quad_08": -0.009785753172663047,
+          "cla_fea_mag_quad_09": 0.005704243780499389,
+          "cla_fea_mag_quad_10": -0.000473280015093611,
+          "cla_fea_mag_quad_11": -0.009751664067433538,
+          "cla_fea_mag_quad_12": -0.003563665258235173,
+          "cla_fea_mag_quad_13": -0.0026895658367814134,
+          "cla_fea_mag_quad_14": -0.028008417917375926,
+          "cla_fea_mag_quad_15": 0.016071163764641162,
+          "cla_fea_mag_quad_16": 0.12799986711518554,
+          "cla_feh_mag_quad_01": -0.0020958046108436983,
+          "cla_feh_mag_quad_02": 0.003308448534606863
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": 0.3575294563224785
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": 0.34693990312282336
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.3330068988161103
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.330093927223516
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_03",
+            "coefficient": 0.30955047103014305
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m2": 5.201454374251017,
+        "cumulative_squared_fraction": 0.9970893001782754,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.063088091943436,
+          "cla_s02_mag_quad_02": 0.1253715287822778,
+          "cla_s02_mag_quad_03": 0.006314169722177285,
+          "cla_s02_mag_quad_04": 0.0002454140733181287,
+          "cla_s02_mag_quad_05": 0.0026833546777841333,
+          "cla_s03_mag_quad_01": 0.4240207978736721,
+          "cla_s04_mag_quad_01": 0.010827298004876687,
+          "cla_s04_mag_quad_02": 0.0054765882333673585,
+          "cla_s04_mag_quad_03": 0.013855845806516215,
+          "cla_s04_mag_quad_04": 0.008597586243648245,
+          "cla_s04_mag_quad_05": -0.07930662209719498,
+          "cla_s04_mag_quad_06": -0.0803908610821105,
+          "cla_s04_mag_quad_07": -0.06528343555933025,
+          "cla_s04_mag_quad_08": -0.034656140375845225,
+          "cla_s05_mag_quad_01": 0.014706484979108326,
+          "cla_s05_mag_quad_02": -0.00831416063249952,
+          "cla_s06_mag_quad_01": 0.021610334654386016,
+          "cla_s06_mag_quad_02": 0.01846278039635366,
+          "cla_s07_mag_quad_01": -0.10197035293686396,
+          "cla_s07_mag_quad_02": -0.13065864694653093,
+          "cla_s07_mag_quad_03": -0.09150812482115671,
+          "cla_s07_mag_quad_04": -0.08555902986384631,
+          "cla_s07_mag_quad_05": -0.076250686539594,
+          "cla_s07_mag_quad_06": -0.06453145772570691,
+          "cla_s07_mag_quad_07": -0.0411276474837542,
+          "cla_s07_mag_quad_08": -0.00036580968423013255,
+          "cla_s07_mag_quad_09": 0.0020447106942884656,
+          "cla_s07_mag_quad_10": 0.006807191557080111,
+          "cla_fea_mag_quad_01": 0.0017972052348531266,
+          "cla_fea_mag_quad_02": -0.0062477036006068415,
+          "cla_fea_mag_quad_03": -0.003105066565348425,
+          "cla_fea_mag_quad_04": -0.011363489842150881,
+          "cla_fea_mag_quad_05": 0.002588413658685802,
+          "cla_fea_mag_quad_06": 0.010372416245349823,
+          "cla_fea_mag_quad_07": 0.007184844259930897,
+          "cla_fea_mag_quad_08": 0.00045926528617786075,
+          "cla_fea_mag_quad_09": -0.00810282891428409,
+          "cla_fea_mag_quad_10": -0.018395691502866834,
+          "cla_fea_mag_quad_11": 0.0018464045769788723,
+          "cla_fea_mag_quad_12": 0.01060205240928293,
+          "cla_fea_mag_quad_13": 0.07827565327459529,
+          "cla_fea_mag_quad_14": 0.5581317188712897,
+          "cla_fea_mag_quad_15": 0.5822320509648801,
+          "cla_fea_mag_quad_16": 0.21251265425066912,
+          "cla_feh_mag_quad_01": 0.15088468838955793,
+          "cla_feh_mag_quad_02": 0.020689597972466046
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_15",
+            "coefficient": 0.5822320509648801
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_14",
+            "coefficient": 0.5581317188712897
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.4240207978736721
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_16",
+            "coefficient": 0.21251265425066912
+          },
+          {
+            "quadrupole": "cla_feh_mag_quad_01",
+            "coefficient": 0.15088468838955793
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m2": 3.56925444126227,
+        "cumulative_squared_fraction": 0.9991855796853953,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.11005551528469103,
+          "cla_s02_mag_quad_02": -0.2262183372475085,
+          "cla_s02_mag_quad_03": -0.00982722468250831,
+          "cla_s02_mag_quad_04": 0.00047468881910506244,
+          "cla_s02_mag_quad_05": -0.0049180452333502656,
+          "cla_s03_mag_quad_01": -0.7587668167183301,
+          "cla_s04_mag_quad_01": -0.07590604076111047,
+          "cla_s04_mag_quad_02": -0.06504955958914958,
+          "cla_s04_mag_quad_03": -0.07565473480698451,
+          "cla_s04_mag_quad_04": -0.06517686159511486,
+          "cla_s04_mag_quad_05": 0.08193391252720353,
+          "cla_s04_mag_quad_06": 0.08474626696302513,
+          "cla_s04_mag_quad_07": 0.06348335170033687,
+          "cla_s04_mag_quad_08": 0.018933658339818332,
+          "cla_s05_mag_quad_01": -0.05100905803892646,
+          "cla_s05_mag_quad_02": -0.013065162564891548,
+          "cla_s06_mag_quad_01": -0.05448719506474206,
+          "cla_s06_mag_quad_02": -0.05471546303774076,
+          "cla_s07_mag_quad_01": 0.1143440266546447,
+          "cla_s07_mag_quad_02": 0.10220645564877849,
+          "cla_s07_mag_quad_03": 0.07370202201619236,
+          "cla_s07_mag_quad_04": 0.06647983940888161,
+          "cla_s07_mag_quad_05": 0.05781898619761323,
+          "cla_s07_mag_quad_06": 0.046698030230006744,
+          "cla_s07_mag_quad_07": 0.024380767172088723,
+          "cla_s07_mag_quad_08": -0.011163196626533473,
+          "cla_s07_mag_quad_09": -0.009171345113569878,
+          "cla_s07_mag_quad_10": 0.0002636685817243401,
+          "cla_fea_mag_quad_01": -0.005683562696878583,
+          "cla_fea_mag_quad_02": 0.003791420694523905,
+          "cla_fea_mag_quad_03": -0.006177579622639698,
+          "cla_fea_mag_quad_04": -0.001052488447193887,
+          "cla_fea_mag_quad_05": 0.002048883409968433,
+          "cla_fea_mag_quad_06": 0.0036901932538108495,
+          "cla_fea_mag_quad_07": 0.0025727656598677406,
+          "cla_fea_mag_quad_08": 0.03910551783594013,
+          "cla_fea_mag_quad_09": 0.010856869578200767,
+          "cla_fea_mag_quad_10": 0.005762180710975303,
+          "cla_fea_mag_quad_11": -0.00918145377768759,
+          "cla_fea_mag_quad_12": 0.0008081015765491969,
+          "cla_fea_mag_quad_13": 0.0396979449736446,
+          "cla_fea_mag_quad_14": 0.2790771375209596,
+          "cla_fea_mag_quad_15": 0.343237395642901,
+          "cla_fea_mag_quad_16": 0.2609191112372803,
+          "cla_feh_mag_quad_01": 0.08199664801747461,
+          "cla_feh_mag_quad_02": 0.015236968650657637
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": -0.7587668167183301
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_15",
+            "coefficient": 0.343237395642901
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_14",
+            "coefficient": 0.2790771375209596
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_16",
+            "coefficient": 0.2609191112372803
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": -0.2262183372475085
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m2": 1.4296212896509979,
+        "cumulative_squared_fraction": 0.9995218869011292,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.1555979869506816,
+          "cla_s02_mag_quad_02": 0.05132852670322281,
+          "cla_s02_mag_quad_03": -0.016531577606356318,
+          "cla_s02_mag_quad_04": 0.0016656129460360242,
+          "cla_s02_mag_quad_05": 0.03542089784748553,
+          "cla_s03_mag_quad_01": 0.06917456241460584,
+          "cla_s04_mag_quad_01": 0.151913567492868,
+          "cla_s04_mag_quad_02": 0.12170695283611715,
+          "cla_s04_mag_quad_03": 0.08408353057697399,
+          "cla_s04_mag_quad_04": 0.05539578079726103,
+          "cla_s04_mag_quad_05": -0.11645436770439992,
+          "cla_s04_mag_quad_06": -0.13910951632279497,
+          "cla_s04_mag_quad_07": -0.15866434944584124,
+          "cla_s04_mag_quad_08": -0.1738978007827174,
+          "cla_s05_mag_quad_01": -0.21566089705887673,
+          "cla_s05_mag_quad_02": -0.2415151664398646,
+          "cla_s06_mag_quad_01": -0.14457776604246858,
+          "cla_s06_mag_quad_02": -0.12331853636707096,
+          "cla_s07_mag_quad_01": 0.376108231605012,
+          "cla_s07_mag_quad_02": 0.08035134957874204,
+          "cla_s07_mag_quad_03": -0.009141577627654949,
+          "cla_s07_mag_quad_04": -0.0430633969321102,
+          "cla_s07_mag_quad_05": -0.05768584138311245,
+          "cla_s07_mag_quad_06": -0.06424261563157094,
+          "cla_s07_mag_quad_07": -0.06380213327313076,
+          "cla_s07_mag_quad_08": -0.0640512337571813,
+          "cla_s07_mag_quad_09": -0.03537256905939573,
+          "cla_s07_mag_quad_10": -0.0007827096198728513,
+          "cla_fea_mag_quad_01": -0.09215045706455512,
+          "cla_fea_mag_quad_02": -0.0323496639360638,
+          "cla_fea_mag_quad_03": -0.020544112226305374,
+          "cla_fea_mag_quad_04": 0.00851487384445204,
+          "cla_fea_mag_quad_05": -0.022842870521037867,
+          "cla_fea_mag_quad_06": -0.0311774946968211,
+          "cla_fea_mag_quad_07": -0.07411304014500855,
+          "cla_fea_mag_quad_08": -0.02534145670538113,
+          "cla_fea_mag_quad_09": 0.030125615608136817,
+          "cla_fea_mag_quad_10": 0.006165534632242862,
+          "cla_fea_mag_quad_11": -0.031220449264831477,
+          "cla_fea_mag_quad_12": -0.01046444028704202,
+          "cla_fea_mag_quad_13": -0.03476323488079979,
+          "cla_fea_mag_quad_14": -0.27228382268472345,
+          "cla_fea_mag_quad_15": -0.038540128975803674,
+          "cla_fea_mag_quad_16": 0.6512677146552344,
+          "cla_feh_mag_quad_01": -0.044092900099392936,
+          "cla_feh_mag_quad_02": 0.013542472571347244
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_16",
+            "coefficient": 0.6512677146552344
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.376108231605012
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_14",
+            "coefficient": -0.27228382268472345
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": -0.2415151664398646
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_01",
+            "coefficient": -0.21566089705887673
+          }
+        ]
+      },
+      {
+        "mode": 6,
+        "sensitivity_m2": 1.1202959850049417,
+        "cumulative_squared_fraction": 0.999728405766638,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.3316993752092036,
+          "cla_s02_mag_quad_02": 0.8808919390663243,
+          "cla_s02_mag_quad_03": 0.060915754574753685,
+          "cla_s02_mag_quad_04": 0.056027156772188474,
+          "cla_s02_mag_quad_05": 0.00023896518204491457,
+          "cla_s03_mag_quad_01": -0.31022007827495546,
+          "cla_s04_mag_quad_01": -0.019986455855981244,
+          "cla_s04_mag_quad_02": -0.012029809060365826,
+          "cla_s04_mag_quad_03": -0.010728898566319478,
+          "cla_s04_mag_quad_04": -0.004225518801377809,
+          "cla_s04_mag_quad_05": 0.04342541061119352,
+          "cla_s04_mag_quad_06": 0.04381680104278776,
+          "cla_s04_mag_quad_07": 0.03914287462838647,
+          "cla_s04_mag_quad_08": 0.029829910274771273,
+          "cla_s05_mag_quad_01": 0.015352602711129095,
+          "cla_s05_mag_quad_02": 0.02034460461183308,
+          "cla_s06_mag_quad_01": -0.004240918782542355,
+          "cla_s06_mag_quad_02": -0.006609940893206236,
+          "cla_s07_mag_quad_01": -0.020688411850105802,
+          "cla_s07_mag_quad_02": -0.02382290846195894,
+          "cla_s07_mag_quad_03": -0.013032242255981666,
+          "cla_s07_mag_quad_04": -0.011046944381286165,
+          "cla_s07_mag_quad_05": -0.008910534056515537,
+          "cla_s07_mag_quad_06": -0.006610476715839957,
+          "cla_s07_mag_quad_07": -0.0026376754259757147,
+          "cla_s07_mag_quad_08": 0.0022952292922385413,
+          "cla_s07_mag_quad_09": 0.0015027716993588913,
+          "cla_s07_mag_quad_10": 6.015004100311176e-05,
+          "cla_fea_mag_quad_01": 0.0038960981281787343,
+          "cla_fea_mag_quad_02": 0.0012250370582671884,
+          "cla_fea_mag_quad_03": 0.0010485056007172265,
+          "cla_fea_mag_quad_04": -0.0004754763761694062,
+          "cla_fea_mag_quad_05": 0.00103479010189557,
+          "cla_fea_mag_quad_06": 0.0014901759835540648,
+          "cla_fea_mag_quad_07": 0.0035643555698974135,
+          "cla_fea_mag_quad_08": 0.0006837600040480367,
+          "cla_fea_mag_quad_09": -0.0017442268190099534,
+          "cla_fea_mag_quad_10": -0.0005985226705736722,
+          "cla_fea_mag_quad_11": 0.0017855072461311445,
+          "cla_fea_mag_quad_12": 0.0005864787087748005,
+          "cla_fea_mag_quad_13": 0.0020762864281261392,
+          "cla_fea_mag_quad_14": 0.016134411087396095,
+          "cla_fea_mag_quad_15": 0.0019809909359664126,
+          "cla_fea_mag_quad_16": -0.03949968678002075,
+          "cla_feh_mag_quad_01": 0.002575202111449826,
+          "cla_feh_mag_quad_02": -0.0008311086430490776
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.8808919390663243
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": 0.3316993752092036
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": -0.31022007827495546
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_03",
+            "coefficient": 0.060915754574753685
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_04",
+            "coefficient": 0.056027156772188474
+          }
+        ]
+      },
+      {
+        "mode": 7,
+        "sensitivity_m2": 0.9448266207920528,
+        "cumulative_squared_fraction": 0.9998752978579373,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.1815591693022033,
+          "cla_s02_mag_quad_02": 0.08561280731082044,
+          "cla_s02_mag_quad_03": 0.036594608330913214,
+          "cla_s02_mag_quad_04": 0.0013285325894233924,
+          "cla_s02_mag_quad_05": -0.05589458313485733,
+          "cla_s03_mag_quad_01": 0.11199440775289418,
+          "cla_s04_mag_quad_01": -0.3014507909426191,
+          "cla_s04_mag_quad_02": -0.2576034407061358,
+          "cla_s04_mag_quad_03": -0.19273073328098012,
+          "cla_s04_mag_quad_04": -0.15056143459542715,
+          "cla_s04_mag_quad_05": 0.06259668907421388,
+          "cla_s04_mag_quad_06": 0.09558168075827446,
+          "cla_s04_mag_quad_07": 0.13477486126196975,
+          "cla_s04_mag_quad_08": 0.17737049831825372,
+          "cla_s05_mag_quad_01": 0.2709391565326518,
+          "cla_s05_mag_quad_02": 0.2969535463442478,
+          "cla_s06_mag_quad_01": 0.15131836727404097,
+          "cla_s06_mag_quad_02": 0.11430194307068707,
+          "cla_s07_mag_quad_01": -0.2251718793722327,
+          "cla_s07_mag_quad_02": -0.09204052616830344,
+          "cla_s07_mag_quad_03": -0.0037456574925907268,
+          "cla_s07_mag_quad_04": 0.01240513904399277,
+          "cla_s07_mag_quad_05": 0.019582604518672445,
+          "cla_s07_mag_quad_06": 0.019568365692819063,
+          "cla_s07_mag_quad_07": 0.005952730207551966,
+          "cla_s07_mag_quad_08": -0.023321436755250235,
+          "cla_s07_mag_quad_09": -0.023141815141062453,
+          "cla_s07_mag_quad_10": 0.0030015658468236397,
+          "cla_fea_mag_quad_01": 0.008141293416419242,
+          "cla_fea_mag_quad_02": -0.015536388817213462,
+          "cla_fea_mag_quad_03": -0.025800759175625833,
+          "cla_fea_mag_quad_04": -0.0010728231931634198,
+          "cla_fea_mag_quad_05": 0.011308593353603574,
+          "cla_fea_mag_quad_06": -0.00785506992008416,
+          "cla_fea_mag_quad_07": -0.05553126644716895,
+          "cla_fea_mag_quad_08": -0.072699652857266,
+          "cla_fea_mag_quad_09": 0.011606665419926502,
+          "cla_fea_mag_quad_10": -0.010010114140103691,
+          "cla_fea_mag_quad_11": -0.03430707682296621,
+          "cla_fea_mag_quad_12": -0.011247998424816092,
+          "cla_fea_mag_quad_13": -0.02979243965548177,
+          "cla_fea_mag_quad_14": -0.24643750777497236,
+          "cla_fea_mag_quad_15": -0.04169219850512725,
+          "cla_fea_mag_quad_16": 0.5726682197136108,
+          "cla_feh_mag_quad_01": -0.04093969382786073,
+          "cla_feh_mag_quad_02": 0.01169461716200825
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_16",
+            "coefficient": 0.5726682197136108
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.3014507909426191
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": 0.2969535463442478
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_01",
+            "coefficient": 0.2709391565326518
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": -0.2576034407061358
+          }
+        ]
+      },
+      {
+        "mode": 8,
+        "sensitivity_m2": 0.5375002837707628,
+        "cumulative_squared_fraction": 0.9999228370249099,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.01807106557369519,
+          "cla_s02_mag_quad_02": -0.042307924313706155,
+          "cla_s02_mag_quad_03": 0.0015081677859757818,
+          "cla_s02_mag_quad_04": 0.009599618417569379,
+          "cla_s02_mag_quad_05": 0.005799196326387701,
+          "cla_s03_mag_quad_01": -0.08789735273508399,
+          "cla_s04_mag_quad_01": -0.029149415563127556,
+          "cla_s04_mag_quad_02": -0.019823131793674564,
+          "cla_s04_mag_quad_03": -0.005491858408724843,
+          "cla_s04_mag_quad_04": 0.001736595756549858,
+          "cla_s04_mag_quad_05": -0.025142315796406134,
+          "cla_s04_mag_quad_06": -0.02741338850975128,
+          "cla_s04_mag_quad_07": -0.011324014859839748,
+          "cla_s04_mag_quad_08": 0.025239389248986967,
+          "cla_s05_mag_quad_01": 0.09665776326267028,
+          "cla_s05_mag_quad_02": 0.05232702980175363,
+          "cla_s06_mag_quad_01": 0.12705790675571352,
+          "cla_s06_mag_quad_02": 0.16915761176490196,
+          "cla_s07_mag_quad_01": 0.23216576843623335,
+          "cla_s07_mag_quad_02": 0.051983097463952396,
+          "cla_s07_mag_quad_03": -0.08928347917534156,
+          "cla_s07_mag_quad_04": -0.1358597257760218,
+          "cla_s07_mag_quad_05": -0.15807236414631318,
+          "cla_s07_mag_quad_06": -0.16767315378037115,
+          "cla_s07_mag_quad_07": -0.1464422482560007,
+          "cla_s07_mag_quad_08": -0.043792080232321604,
+          "cla_s07_mag_quad_09": -0.015883975382872135,
+          "cla_s07_mag_quad_10": 0.015559688424841796,
+          "cla_fea_mag_quad_01": -0.06800760376721925,
+          "cla_fea_mag_quad_02": -0.1752946829268698,
+          "cla_fea_mag_quad_03": -0.025588114530131042,
+          "cla_fea_mag_quad_04": -0.014548622841369614,
+          "cla_fea_mag_quad_05": -0.013036390687520605,
+          "cla_fea_mag_quad_06": -0.06904102383666207,
+          "cla_fea_mag_quad_07": -0.2471009418325663,
+          "cla_fea_mag_quad_08": -0.7630738295711056,
+          "cla_fea_mag_quad_09": -0.13262201376922386,
+          "cla_fea_mag_quad_10": -0.2206350010453713,
+          "cla_fea_mag_quad_11": 0.004432984361323661,
+          "cla_fea_mag_quad_12": 0.01599654168295575,
+          "cla_fea_mag_quad_13": 0.015289503972194802,
+          "cla_fea_mag_quad_14": 0.059907425123669575,
+          "cla_fea_mag_quad_15": -0.0009605577803097221,
+          "cla_fea_mag_quad_16": -0.12192991216806062,
+          "cla_feh_mag_quad_01": 0.005983267884488544,
+          "cla_feh_mag_quad_02": -0.0027590626689991673
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": -0.7630738295711056
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_07",
+            "coefficient": -0.2471009418325663
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.23216576843623335
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_10",
+            "coefficient": -0.2206350010453713
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_02",
+            "coefficient": -0.1752946829268698
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sigma_x_mm": 1.0,
+    "sigma_y_mm": 1.0,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m2": 55.958368449950946,
+        "cumulative_squared_fraction": 0.8782852645153986,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.017023451182905516,
+          "cla_s02_mag_quad_02": 0.05503915546393079,
+          "cla_s02_mag_quad_03": 0.003446447579234735,
+          "cla_s02_mag_quad_04": 0.0029196586263897546,
+          "cla_s02_mag_quad_05": -0.0003825149587395733,
+          "cla_s03_mag_quad_01": 0.11057231976411477,
+          "cla_s04_mag_quad_01": 0.07535815485811705,
+          "cla_s04_mag_quad_02": 0.07722484428752037,
+          "cla_s04_mag_quad_03": 0.0810160505108413,
+          "cla_s04_mag_quad_04": 0.08272073632158343,
+          "cla_s04_mag_quad_05": 0.08528712460007493,
+          "cla_s04_mag_quad_06": 0.08761253108184092,
+          "cla_s04_mag_quad_07": 0.09352539082158391,
+          "cla_s04_mag_quad_08": 0.10452773060985765,
+          "cla_s05_mag_quad_01": 0.13079839559233614,
+          "cla_s05_mag_quad_02": 0.11725829758238582,
+          "cla_s06_mag_quad_01": 0.1882082800426096,
+          "cla_s06_mag_quad_02": 0.2387942521396556,
+          "cla_s07_mag_quad_01": 0.33815277781010467,
+          "cla_s07_mag_quad_02": 0.5909985819679717,
+          "cla_s07_mag_quad_03": 0.34504301362612394,
+          "cla_s07_mag_quad_04": 0.30839717280629875,
+          "cla_s07_mag_quad_05": 0.25948200589010273,
+          "cla_s07_mag_quad_06": 0.20425627058229615,
+          "cla_s07_mag_quad_07": 0.11179143921530292,
+          "cla_s07_mag_quad_08": 0.006318070603315645,
+          "cla_s07_mag_quad_09": 0.00045133265797949216,
+          "cla_s07_mag_quad_10": -0.00027031935790225865,
+          "cla_fea_mag_quad_01": 0.0021588343859306677,
+          "cla_fea_mag_quad_02": 0.008223074790833484,
+          "cla_fea_mag_quad_03": 0.0008963384911807422,
+          "cla_fea_mag_quad_04": 0.001007027118856005,
+          "cla_fea_mag_quad_05": 0.0004490695713414834,
+          "cla_fea_mag_quad_06": 0.0023206223742600397,
+          "cla_fea_mag_quad_07": 0.009411496465906773,
+          "cla_fea_mag_quad_08": 0.03151753942795812,
+          "cla_fea_mag_quad_09": 0.006173447821369389,
+          "cla_fea_mag_quad_10": 0.01031522595067377,
+          "cla_fea_mag_quad_11": -0.0008241450484251873,
+          "cla_fea_mag_quad_12": -0.001104773955333691,
+          "cla_fea_mag_quad_13": 0.0019677521417636027,
+          "cla_fea_mag_quad_14": 0.016668743382719984,
+          "cla_fea_mag_quad_15": 0.020592781746456408,
+          "cla_fea_mag_quad_16": 0.007618296036038073,
+          "cla_feh_mag_quad_01": -0.0027846250174918636,
+          "cla_feh_mag_quad_02": -0.0008944224608559673
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_02",
+            "coefficient": 0.5909985819679717
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_03",
+            "coefficient": 0.34504301362612394
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.33815277781010467
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_04",
+            "coefficient": 0.30839717280629875
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": 0.25948200589010273
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m2": 19.995792353252735,
+        "cumulative_squared_fraction": 0.9904309954110858,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.04641765369885978,
+          "cla_s02_mag_quad_02": -0.01553399480046913,
+          "cla_s02_mag_quad_03": -0.006472804197343307,
+          "cla_s02_mag_quad_04": -0.005526741739409868,
+          "cla_s02_mag_quad_05": -0.0047250016908470735,
+          "cla_s03_mag_quad_01": 0.05831696649578498,
+          "cla_s04_mag_quad_01": 0.32915481464782986,
+          "cla_s04_mag_quad_02": 0.32847121731618684,
+          "cla_s04_mag_quad_03": 0.31330845735494633,
+          "cla_s04_mag_quad_04": 0.31235135720998497,
+          "cla_s04_mag_quad_05": 0.36729388383841205,
+          "cla_s04_mag_quad_06": 0.35923282728428374,
+          "cla_s04_mag_quad_07": 0.3259864837387966,
+          "cla_s04_mag_quad_08": 0.2693151064068727,
+          "cla_s05_mag_quad_01": 0.1591832842082255,
+          "cla_s05_mag_quad_02": 0.1671781870862751,
+          "cla_s06_mag_quad_01": -0.0601337927431528,
+          "cla_s06_mag_quad_02": -0.08789159387391804,
+          "cla_s07_mag_quad_01": -0.048140530042876446,
+          "cla_s07_mag_quad_02": -0.18364003308142615,
+          "cla_s07_mag_quad_03": -0.10552802840168049,
+          "cla_s07_mag_quad_04": -0.10046585574513277,
+          "cla_s07_mag_quad_05": -0.08752248562386508,
+          "cla_s07_mag_quad_06": -0.07183754941076477,
+          "cla_s07_mag_quad_07": -0.043820366920179106,
+          "cla_s07_mag_quad_08": -0.016107809538632244,
+          "cla_s07_mag_quad_09": -0.011502262494914433,
+          "cla_s07_mag_quad_10": 0.0011361799543544815,
+          "cla_fea_mag_quad_01": 0.00714096902744034,
+          "cla_fea_mag_quad_02": -0.005056349507224454,
+          "cla_fea_mag_quad_03": -0.009350247305276003,
+          "cla_fea_mag_quad_04": -0.0023079099256497738,
+          "cla_fea_mag_quad_05": 0.010959125207231557,
+          "cla_fea_mag_quad_06": 0.0034467911134891563,
+          "cla_fea_mag_quad_07": -0.011173972133003208,
+          "cla_fea_mag_quad_08": -0.024492887768597735,
+          "cla_fea_mag_quad_09": 0.0008508363404861423,
+          "cla_fea_mag_quad_10": -0.006342939813531669,
+          "cla_fea_mag_quad_11": -0.01542202426581191,
+          "cla_fea_mag_quad_12": -0.007515663448984721,
+          "cla_fea_mag_quad_13": 0.000606519208261867,
+          "cla_fea_mag_quad_14": -0.01388294228295031,
+          "cla_fea_mag_quad_15": -0.00793280021368182,
+          "cla_fea_mag_quad_16": 0.02710005595872636,
+          "cla_feh_mag_quad_01": -0.0021630188163904765,
+          "cla_feh_mag_quad_02": -0.0023828471090317264
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": 0.36729388383841205
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": 0.35923282728428374
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.32915481464782986
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.32847121731618684
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_07",
+            "coefficient": 0.3259864837387966
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m2": 5.427976549143691,
+        "cumulative_squared_fraction": 0.9986948265583366,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.13890934849541325,
+          "cla_s02_mag_quad_02": 0.2615657495566816,
+          "cla_s02_mag_quad_03": 0.011893347562034778,
+          "cla_s02_mag_quad_04": 0.0016131034899979912,
+          "cla_s02_mag_quad_05": 0.007932724308006983,
+          "cla_s03_mag_quad_01": 0.85984214289314,
+          "cla_s04_mag_quad_01": 0.05818241533767148,
+          "cla_s04_mag_quad_02": 0.046242860430239764,
+          "cla_s04_mag_quad_03": 0.06093573465370313,
+          "cla_s04_mag_quad_04": 0.04919725161144186,
+          "cla_s04_mag_quad_05": -0.13404543769401814,
+          "cla_s04_mag_quad_06": -0.13730944839556622,
+          "cla_s04_mag_quad_07": -0.10753319607460508,
+          "cla_s04_mag_quad_08": -0.04536498724102153,
+          "cla_s05_mag_quad_01": 0.05646045662778004,
+          "cla_s05_mag_quad_02": 0.004487898088663014,
+          "cla_s06_mag_quad_01": 0.0963500034100753,
+          "cla_s06_mag_quad_02": 0.10989593406476471,
+          "cla_s07_mag_quad_01": -0.06783897193272474,
+          "cla_s07_mag_quad_02": -0.05121835902294488,
+          "cla_s07_mag_quad_03": -0.06560731741749745,
+          "cla_s07_mag_quad_04": -0.06779647865845116,
+          "cla_s07_mag_quad_05": -0.06667842494989976,
+          "cla_s07_mag_quad_06": -0.0622808091381609,
+          "cla_s07_mag_quad_07": -0.04597233806133026,
+          "cla_s07_mag_quad_08": 0.0018491424806854812,
+          "cla_s07_mag_quad_09": 0.0060641999055886,
+          "cla_s07_mag_quad_10": 0.0075402494942245785,
+          "cla_fea_mag_quad_01": -0.013805954412317838,
+          "cla_fea_mag_quad_02": -0.03718873560479256,
+          "cla_fea_mag_quad_03": -0.0017073591248775199,
+          "cla_fea_mag_quad_04": -0.00954016293803587,
+          "cla_fea_mag_quad_05": -0.00769907981883658,
+          "cla_fea_mag_quad_06": -0.009685047866128026,
+          "cla_fea_mag_quad_07": -0.04053935233619974,
+          "cla_fea_mag_quad_08": -0.1470551781983396,
+          "cla_fea_mag_quad_09": -0.03436219215227258,
+          "cla_fea_mag_quad_10": -0.05500165740699878,
+          "cla_fea_mag_quad_11": 0.014441905148762268,
+          "cla_fea_mag_quad_12": 0.011674073453088416,
+          "cla_fea_mag_quad_13": -0.012662039989834475,
+          "cla_fea_mag_quad_14": -0.09672664179364067,
+          "cla_fea_mag_quad_15": -0.12532792690850292,
+          "cla_fea_mag_quad_16": -0.06442765819734073,
+          "cla_feh_mag_quad_01": 0.01889319025710526,
+          "cla_feh_mag_quad_02": 0.007083695506445265
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.85984214289314
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.2615657495566816
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": -0.1470551781983396
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": 0.13890934849541325
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": -0.13730944839556622
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m2": 1.2274306214873103,
+        "cumulative_squared_fraction": 0.9991173972933219,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.15487688175703893,
+          "cla_s02_mag_quad_02": 0.05833519943302735,
+          "cla_s02_mag_quad_03": -0.0196601778409913,
+          "cla_s02_mag_quad_04": -0.002973083885191314,
+          "cla_s02_mag_quad_05": 0.03573041399139676,
+          "cla_s03_mag_quad_01": 0.15631340916819414,
+          "cla_s04_mag_quad_01": 0.2239911241653949,
+          "cla_s04_mag_quad_02": 0.1882751742013653,
+          "cla_s04_mag_quad_03": 0.1423514979463778,
+          "cla_s04_mag_quad_04": 0.10882333084787452,
+          "cla_s04_mag_quad_05": -0.06452736444686784,
+          "cla_s04_mag_quad_06": -0.08825328805916732,
+          "cla_s04_mag_quad_07": -0.11681683476717465,
+          "cla_s04_mag_quad_08": -0.14945203516569888,
+          "cla_s05_mag_quad_01": -0.22641234689109527,
+          "cla_s05_mag_quad_02": -0.23907107555698934,
+          "cla_s06_mag_quad_01": -0.1818439426150402,
+          "cla_s06_mag_quad_02": -0.17754054739366787,
+          "cla_s07_mag_quad_01": 0.1558978087211469,
+          "cla_s07_mag_quad_02": 0.008086164078726497,
+          "cla_s07_mag_quad_03": 0.0005214957591005223,
+          "cla_s07_mag_quad_04": -0.00042475245593508816,
+          "cla_s07_mag_quad_05": 0.00425538161062628,
+          "cla_s07_mag_quad_06": 0.013644237095166836,
+          "cla_s07_mag_quad_07": 0.028809076714262232,
+          "cla_s07_mag_quad_08": 0.009530249220830437,
+          "cla_s07_mag_quad_09": 0.008460774950438676,
+          "cla_s07_mag_quad_10": -0.017642874952375053,
+          "cla_fea_mag_quad_01": -0.014511830353497429,
+          "cla_fea_mag_quad_02": 0.10215277845132024,
+          "cla_fea_mag_quad_03": 0.02783697671117474,
+          "cla_fea_mag_quad_04": 0.0259839031515352,
+          "cla_fea_mag_quad_05": -0.01795351112836506,
+          "cla_fea_mag_quad_06": 0.015535869010418974,
+          "cla_fea_mag_quad_07": 0.13550468983294028,
+          "cla_fea_mag_quad_08": 0.4769240585269003,
+          "cla_fea_mag_quad_09": 0.09328141194829218,
+          "cla_fea_mag_quad_10": 0.1660043187651786,
+          "cla_fea_mag_quad_11": 0.006996137529539373,
+          "cla_fea_mag_quad_12": -0.008241698932454007,
+          "cla_fea_mag_quad_13": 0.037113872599113557,
+          "cla_fea_mag_quad_14": 0.3352448159555401,
+          "cla_fea_mag_quad_15": 0.39914197634645193,
+          "cla_fea_mag_quad_16": 0.10669877254245709,
+          "cla_feh_mag_quad_01": -0.04956019801125408,
+          "cla_feh_mag_quad_02": -0.013616413551128874
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.4769240585269003
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_15",
+            "coefficient": 0.39914197634645193
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_14",
+            "coefficient": 0.3352448159555401
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": -0.23907107555698934
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_01",
+            "coefficient": -0.22641234689109527
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m2": 1.1215752888639026,
+        "cumulative_squared_fraction": 0.999470224749616,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.3471462300036934,
+          "cla_s02_mag_quad_02": 0.8665726900270595,
+          "cla_s02_mag_quad_03": 0.057262441970498415,
+          "cla_s02_mag_quad_04": 0.05606619567765475,
+          "cla_s02_mag_quad_05": 0.005647442134932401,
+          "cla_s03_mag_quad_01": -0.33072019154705345,
+          "cla_s04_mag_quad_01": 0.004103277056481003,
+          "cla_s04_mag_quad_02": 0.008314008993442423,
+          "cla_s04_mag_quad_03": 0.0039727796849949315,
+          "cla_s04_mag_quad_04": 0.0068315876772067595,
+          "cla_s04_mag_quad_05": 0.03383694624157656,
+          "cla_s04_mag_quad_06": 0.030904609077117035,
+          "cla_s04_mag_quad_07": 0.02297517724904003,
+          "cla_s04_mag_quad_08": 0.010821771902289168,
+          "cla_s05_mag_quad_01": -0.010153613879734567,
+          "cla_s05_mag_quad_02": -0.009303578325574073,
+          "cla_s06_mag_quad_01": -0.017323579977295205,
+          "cla_s06_mag_quad_02": -0.014301653594980283,
+          "cla_s07_mag_quad_01": 0.03211679566175945,
+          "cla_s07_mag_quad_02": -0.007276712062579571,
+          "cla_s07_mag_quad_03": -0.015150361114562038,
+          "cla_s07_mag_quad_04": -0.019019941458449326,
+          "cla_s07_mag_quad_05": -0.019893824824690216,
+          "cla_s07_mag_quad_06": -0.019346998529891458,
+          "cla_s07_mag_quad_07": -0.015348315755250507,
+          "cla_s07_mag_quad_08": -0.005099853002143548,
+          "cla_s07_mag_quad_09": -0.0018690307016722848,
+          "cla_s07_mag_quad_10": 0.0015348424819854251,
+          "cla_fea_mag_quad_01": -0.008201407087182961,
+          "cla_fea_mag_quad_02": -0.013013607615473478,
+          "cla_fea_mag_quad_03": -0.0021347304801152952,
+          "cla_fea_mag_quad_04": -0.0018720979340530173,
+          "cla_fea_mag_quad_05": -0.0017592877786415185,
+          "cla_fea_mag_quad_06": -0.004218525350358943,
+          "cla_fea_mag_quad_07": -0.016505496874208405,
+          "cla_fea_mag_quad_08": -0.04860947155353501,
+          "cla_fea_mag_quad_09": -0.009117717500401716,
+          "cla_fea_mag_quad_10": -0.01692514361219195,
+          "cla_fea_mag_quad_11": 0.0009272495155691559,
+          "cla_fea_mag_quad_12": 0.0016368782908334815,
+          "cla_fea_mag_quad_13": -0.004029163906125156,
+          "cla_fea_mag_quad_14": -0.034065686491458476,
+          "cla_fea_mag_quad_15": -0.041458206118429014,
+          "cla_fea_mag_quad_16": -0.014402286190536014,
+          "cla_feh_mag_quad_01": 0.005505369634876561,
+          "cla_feh_mag_quad_02": 0.0017157659368198517
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.8665726900270595
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": 0.3471462300036934
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": -0.33072019154705345
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_03",
+            "coefficient": 0.057262441970498415
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_04",
+            "coefficient": 0.05606619567765475
+          }
+        ]
+      },
+      {
+        "mode": 6,
+        "sensitivity_m2": 1.0471339645099231,
+        "cumulative_squared_fraction": 0.9997777706925757,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.1382751326143347,
+          "cla_s02_mag_quad_02": 0.19004123426151728,
+          "cla_s02_mag_quad_03": 0.04084877201571261,
+          "cla_s02_mag_quad_04": 0.0035623978278275046,
+          "cla_s02_mag_quad_05": -0.05464066947891377,
+          "cla_s03_mag_quad_01": 0.1677662732537159,
+          "cla_s04_mag_quad_01": -0.26846689422731906,
+          "cla_s04_mag_quad_02": -0.2291689758458918,
+          "cla_s04_mag_quad_03": -0.17027185520436872,
+          "cla_s04_mag_quad_04": -0.1321409948251136,
+          "cla_s04_mag_quad_05": 0.07667579464084352,
+          "cla_s04_mag_quad_06": 0.10990076454295439,
+          "cla_s04_mag_quad_07": 0.14440024819631192,
+          "cla_s04_mag_quad_08": 0.17677278211255204,
+          "cla_s05_mag_quad_01": 0.24956005214548824,
+          "cla_s05_mag_quad_02": 0.2875172393255135,
+          "cla_s06_mag_quad_01": 0.12479571670697708,
+          "cla_s06_mag_quad_02": 0.07397471566873323,
+          "cla_s07_mag_quad_01": -0.3979247052435787,
+          "cla_s07_mag_quad_02": -0.1399846590685223,
+          "cla_s07_mag_quad_03": 0.01643983967226618,
+          "cla_s07_mag_quad_04": 0.058734960904059365,
+          "cla_s07_mag_quad_05": 0.08047679260774013,
+          "cla_s07_mag_quad_06": 0.09146280646344397,
+          "cla_s07_mag_quad_07": 0.08424955899480827,
+          "cla_s07_mag_quad_08": 0.03058695678409725,
+          "cla_s07_mag_quad_09": 0.006112083873732196,
+          "cla_s07_mag_quad_10": -0.008858029821779611,
+          "cla_fea_mag_quad_01": 0.08227077587724087,
+          "cla_fea_mag_quad_02": 0.09100852369959131,
+          "cla_fea_mag_quad_03": 0.005855708237638562,
+          "cla_fea_mag_quad_04": 0.009103524608336081,
+          "cla_fea_mag_quad_05": 0.02829063088447668,
+          "cla_fea_mag_quad_06": 0.03761065748920749,
+          "cla_fea_mag_quad_07": 0.1109652918611278,
+          "cla_fea_mag_quad_08": 0.31644229106008726,
+          "cla_fea_mag_quad_09": 0.06281490441918151,
+          "cla_fea_mag_quad_10": 0.11186992857398559,
+          "cla_fea_mag_quad_11": -0.02213927658754268,
+          "cla_fea_mag_quad_12": -0.018924353973000678,
+          "cla_fea_mag_quad_13": 0.029290504604369584,
+          "cla_fea_mag_quad_14": 0.22733907012404897,
+          "cla_fea_mag_quad_15": 0.28563328480804606,
+          "cla_fea_mag_quad_16": 0.1304444445457936,
+          "cla_feh_mag_quad_01": -0.04129330141677217,
+          "cla_feh_mag_quad_02": -0.014655853196877469
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": -0.3979247052435787
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.31644229106008726
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": 0.2875172393255135
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_15",
+            "coefficient": 0.28563328480804606
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.26846689422731906
+          }
+        ]
+      },
+      {
+        "mode": 7,
+        "sensitivity_m2": 0.501393797696954,
+        "cumulative_squared_fraction": 0.9998482827560595,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.16998745255033448,
+          "cla_s02_mag_quad_02": 0.079870435650869,
+          "cla_s02_mag_quad_03": 0.024093097572082434,
+          "cla_s02_mag_quad_04": -0.005249093164273525,
+          "cla_s02_mag_quad_05": -0.045128195995654825,
+          "cla_s03_mag_quad_01": 0.12726336851556364,
+          "cla_s04_mag_quad_01": -0.18509183209393582,
+          "cla_s04_mag_quad_02": -0.15851417737980739,
+          "cla_s04_mag_quad_03": -0.1201659399092172,
+          "cla_s04_mag_quad_04": -0.09373325274409999,
+          "cla_s04_mag_quad_05": 0.03945964602275867,
+          "cla_s04_mag_quad_06": 0.050658215018966855,
+          "cla_s04_mag_quad_07": 0.06012676132278188,
+          "cla_s04_mag_quad_08": 0.06585850917808175,
+          "cla_s05_mag_quad_01": 0.0762578938704605,
+          "cla_s05_mag_quad_02": 0.08850532198345001,
+          "cla_s06_mag_quad_01": -0.11834840292775417,
+          "cla_s06_mag_quad_02": -0.15686026313714552,
+          "cla_s07_mag_quad_01": 0.603959849202517,
+          "cla_s07_mag_quad_02": -0.02275963748785399,
+          "cla_s07_mag_quad_03": -0.059583307584404555,
+          "cla_s07_mag_quad_04": -0.12567845083417403,
+          "cla_s07_mag_quad_05": -0.14615354125191005,
+          "cla_s07_mag_quad_06": -0.15235178257399987,
+          "cla_s07_mag_quad_07": -0.13944930644276868,
+          "cla_s07_mag_quad_08": -0.14595923526276786,
+          "cla_s07_mag_quad_09": -0.10682666737006503,
+          "cla_s07_mag_quad_10": 0.008231828997355273,
+          "cla_fea_mag_quad_01": 0.014423551885211612,
+          "cla_fea_mag_quad_02": -0.04636259302086212,
+          "cla_fea_mag_quad_03": -0.0832400302484339,
+          "cla_fea_mag_quad_04": -0.012428930767666081,
+          "cla_fea_mag_quad_05": 0.08889350895700697,
+          "cla_fea_mag_quad_06": 0.020422591266227728,
+          "cla_fea_mag_quad_07": -0.11029824488260076,
+          "cla_fea_mag_quad_08": -0.18661860684267012,
+          "cla_fea_mag_quad_09": 0.032007386617164936,
+          "cla_fea_mag_quad_10": -0.028085668983793027,
+          "cla_fea_mag_quad_11": -0.16742005317661848,
+          "cla_fea_mag_quad_12": -0.08455496342219584,
+          "cla_fea_mag_quad_13": 0.03418027954088443,
+          "cla_fea_mag_quad_14": 0.07039837629331819,
+          "cla_fea_mag_quad_15": 0.18274752443331801,
+          "cla_fea_mag_quad_16": 0.4133438203810978,
+          "cla_feh_mag_quad_01": -0.06195872549218156,
+          "cla_feh_mag_quad_02": -0.03933303758890612
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.603959849202517
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_16",
+            "coefficient": 0.4133438203810978
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": -0.18661860684267012
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.18509183209393582
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_15",
+            "coefficient": 0.18274752443331801
+          }
+        ]
+      },
+      {
+        "mode": 8,
+        "sensitivity_m2": 0.3970990025232256,
+        "cumulative_squared_fraction": 0.9998925113468105,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.1708125697457062,
+          "cla_s02_mag_quad_02": -0.11864548909411587,
+          "cla_s02_mag_quad_03": -0.004331562614803251,
+          "cla_s02_mag_quad_04": 0.02771736827631351,
+          "cla_s02_mag_quad_05": 0.03797870213449083,
+          "cla_s03_mag_quad_01": -0.16474613930314416,
+          "cla_s04_mag_quad_01": 0.004068403480712246,
+          "cla_s04_mag_quad_02": 0.014874456041958611,
+          "cla_s04_mag_quad_03": 0.03772324231693026,
+          "cla_s04_mag_quad_04": 0.04406468489925386,
+          "cla_s04_mag_quad_05": -0.09011482056004338,
+          "cla_s04_mag_quad_06": -0.0973950480151595,
+          "cla_s04_mag_quad_07": -0.054372594078219816,
+          "cla_s04_mag_quad_08": 0.04441493168754619,
+          "cla_s05_mag_quad_01": 0.23546889535055557,
+          "cla_s05_mag_quad_02": 0.11829404305827608,
+          "cla_s06_mag_quad_01": 0.3582834941952096,
+          "cla_s06_mag_quad_02": 0.46267099541347984,
+          "cla_s07_mag_quad_01": 0.18103943157125163,
+          "cla_s07_mag_quad_02": 0.06488420514796095,
+          "cla_s07_mag_quad_03": -0.19997880190971157,
+          "cla_s07_mag_quad_04": -0.2594812172629575,
+          "cla_s07_mag_quad_05": -0.2835967587078293,
+          "cla_s07_mag_quad_06": -0.2785850553528056,
+          "cla_s07_mag_quad_07": -0.19696249427519186,
+          "cla_s07_mag_quad_08": 0.011256897103657975,
+          "cla_s07_mag_quad_09": 0.039667284339947484,
+          "cla_s07_mag_quad_10": 0.014513755972191594,
+          "cla_fea_mag_quad_01": -0.1000360559265983,
+          "cla_fea_mag_quad_02": -0.008168195687357088,
+          "cla_fea_mag_quad_03": 0.037458840298095104,
+          "cla_fea_mag_quad_04": -0.010039734198097538,
+          "cla_fea_mag_quad_05": -0.07496206502347937,
+          "cla_fea_mag_quad_06": -0.017935153926087296,
+          "cla_fea_mag_quad_07": 0.0407920207919143,
+          "cla_fea_mag_quad_08": 0.13066768686420682,
+          "cla_fea_mag_quad_09": -0.008174963215399416,
+          "cla_fea_mag_quad_10": 0.020769380749115402,
+          "cla_fea_mag_quad_11": 0.10438423708143302,
+          "cla_fea_mag_quad_12": 0.055087147553152624,
+          "cla_fea_mag_quad_13": 0.011826156549753603,
+          "cla_fea_mag_quad_14": 0.1990133125274715,
+          "cla_fea_mag_quad_15": 0.16403978579334838,
+          "cla_fea_mag_quad_16": -0.16964596411980373,
+          "cla_feh_mag_quad_01": 0.0026322444642694295,
+          "cla_feh_mag_quad_02": 0.013791153590702421
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": 0.46267099541347984
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_01",
+            "coefficient": 0.3582834941952096
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": -0.2835967587078293
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_06",
+            "coefficient": -0.2785850553528056
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_04",
+            "coefficient": -0.2594812172629575
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sigma_x_mm": 1.0,
+    "sigma_y_mm": 10.0,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m2": 47.251874720648956,
+        "cumulative_squared_fraction": 0.8457911855577831,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.015957097331403828,
+          "cla_s02_mag_quad_02": 0.05420024617550234,
+          "cla_s02_mag_quad_03": 0.0033515354812790887,
+          "cla_s02_mag_quad_04": 0.0028420133435254104,
+          "cla_s02_mag_quad_05": -0.0004967669495873771,
+          "cla_s03_mag_quad_01": 0.1091543527937731,
+          "cla_s04_mag_quad_01": 0.07928679185909333,
+          "cla_s04_mag_quad_02": 0.08119827721659903,
+          "cla_s04_mag_quad_03": 0.08478828890347388,
+          "cla_s04_mag_quad_04": 0.08653343109890056,
+          "cla_s04_mag_quad_05": 0.09043132598643207,
+          "cla_s04_mag_quad_06": 0.09268599185645884,
+          "cla_s04_mag_quad_07": 0.09811415770410449,
+          "cla_s04_mag_quad_08": 0.10823998287296795,
+          "cla_s05_mag_quad_01": 0.13286771165258124,
+          "cla_s05_mag_quad_02": 0.11960285859281607,
+          "cla_s06_mag_quad_01": 0.1873131901904026,
+          "cla_s06_mag_quad_02": 0.23748249708561375,
+          "cla_s07_mag_quad_01": 0.3374910927238614,
+          "cla_s07_mag_quad_02": 0.5888900887709345,
+          "cla_s07_mag_quad_03": 0.3440380188633092,
+          "cla_s07_mag_quad_04": 0.3074917498920807,
+          "cla_s07_mag_quad_05": 0.25874482399017135,
+          "cla_s07_mag_quad_06": 0.2037028631198041,
+          "cla_s07_mag_quad_07": 0.11152070844244923,
+          "cla_s07_mag_quad_08": 0.006178435520369516,
+          "cla_s07_mag_quad_09": 0.0003115117331640813,
+          "cla_s07_mag_quad_10": -0.0003539587927477795,
+          "cla_fea_mag_quad_01": 0.0023800065696843887,
+          "cla_fea_mag_quad_02": 0.008066866221364042,
+          "cla_fea_mag_quad_03": 0.0008175001370594365,
+          "cla_fea_mag_quad_04": 0.00114056982632935,
+          "cla_fea_mag_quad_05": 0.0006340915981954467,
+          "cla_fea_mag_quad_06": 0.0021588599923326314,
+          "cla_fea_mag_quad_07": 0.008894191424485009,
+          "cla_fea_mag_quad_08": 0.02993600217315276,
+          "cla_fea_mag_quad_09": 0.00606874260717194,
+          "cla_fea_mag_quad_10": 0.010213353531088327,
+          "cla_fea_mag_quad_11": -0.0010799377723771492,
+          "cla_fea_mag_quad_12": -0.0014552745247012643,
+          "cla_fea_mag_quad_13": 5.9023412741470566e-05,
+          "cla_fea_mag_quad_14": 0.002613226541945592,
+          "cla_fea_mag_quad_15": 0.005247553515794532,
+          "cla_fea_mag_quad_16": 0.0013967437085770534,
+          "cla_feh_mag_quad_01": -0.002096495192102594,
+          "cla_feh_mag_quad_02": -0.0009457323784627555
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_02",
+            "coefficient": 0.5888900887709345
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_03",
+            "coefficient": 0.3440380188633092
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.3374910927238614
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_04",
+            "coefficient": 0.3074917498920807
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": 0.25874482399017135
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m2": 19.19703691156893,
+        "cumulative_squared_fraction": 0.9853937727707621,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.04581217432292011,
+          "cla_s02_mag_quad_02": -0.010519514884808456,
+          "cla_s02_mag_quad_03": -0.005910870175590888,
+          "cla_s02_mag_quad_04": -0.005535131263443682,
+          "cla_s02_mag_quad_05": -0.005146524789373561,
+          "cla_s03_mag_quad_01": 0.07550998712945058,
+          "cla_s04_mag_quad_01": 0.32609043913959745,
+          "cla_s04_mag_quad_02": 0.32561346729053664,
+          "cla_s04_mag_quad_03": 0.31140089579745045,
+          "cla_s04_mag_quad_04": 0.31063556200466585,
+          "cla_s04_mag_quad_05": 0.3642850226057655,
+          "cla_s04_mag_quad_06": 0.35656082845900955,
+          "cla_s04_mag_quad_07": 0.32432640743608343,
+          "cla_s04_mag_quad_08": 0.26927403342644307,
+          "cla_s05_mag_quad_01": 0.16200639530631308,
+          "cla_s05_mag_quad_02": 0.16955834083021196,
+          "cla_s06_mag_quad_01": -0.058095491060767175,
+          "cla_s06_mag_quad_02": -0.08669552152870882,
+          "cla_s07_mag_quad_01": -0.05978286982670903,
+          "cla_s07_mag_quad_02": -0.19389721522372536,
+          "cla_s07_mag_quad_03": -0.1110276960424765,
+          "cla_s07_mag_quad_04": -0.1050279092562916,
+          "cla_s07_mag_quad_05": -0.09119390486207424,
+          "cla_s07_mag_quad_06": -0.07461230782897836,
+          "cla_s07_mag_quad_07": -0.04516996610833408,
+          "cla_s07_mag_quad_08": -0.015390697316511279,
+          "cla_s07_mag_quad_09": -0.011171007855762671,
+          "cla_s07_mag_quad_10": 0.0014155075998317406,
+          "cla_fea_mag_quad_01": 0.009511838342714768,
+          "cla_fea_mag_quad_02": -0.005295278728009782,
+          "cla_fea_mag_quad_03": -0.009500414461804638,
+          "cla_fea_mag_quad_04": -0.0029514467068068656,
+          "cla_fea_mag_quad_05": 0.01227372491257885,
+          "cla_fea_mag_quad_06": 0.004489077855572067,
+          "cla_fea_mag_quad_07": -0.01058938358994732,
+          "cla_fea_mag_quad_08": -0.02797001146557186,
+          "cla_fea_mag_quad_09": -0.000402422021816157,
+          "cla_fea_mag_quad_10": -0.00798988985395735,
+          "cla_fea_mag_quad_11": -0.015947423848966163,
+          "cla_fea_mag_quad_12": -0.007785857938149065,
+          "cla_fea_mag_quad_13": 0.002183463512357003,
+          "cla_fea_mag_quad_14": -0.00393671096133431,
+          "cla_fea_mag_quad_15": -0.004473043692472886,
+          "cla_fea_mag_quad_16": 0.009239313256661991,
+          "cla_feh_mag_quad_01": -0.010674697650229664,
+          "cla_feh_mag_quad_02": -0.005774445814307258
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": 0.3642850226057655
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": 0.35656082845900955
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.32609043913959745
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.32561346729053664
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_07",
+            "coefficient": 0.32432640743608343
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m2": 5.880725582481921,
+        "cumulative_squared_fraction": 0.9984942433200554,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.1428043447218586,
+          "cla_s02_mag_quad_02": 0.26454059335942715,
+          "cla_s02_mag_quad_03": 0.012031674650379687,
+          "cla_s02_mag_quad_04": 0.0018954329518212631,
+          "cla_s02_mag_quad_05": 0.008489345584011432,
+          "cla_s03_mag_quad_01": 0.8677491579924871,
+          "cla_s04_mag_quad_01": 0.05336066404713305,
+          "cla_s04_mag_quad_02": 0.04119622198108337,
+          "cla_s04_mag_quad_03": 0.05626261741383924,
+          "cla_s04_mag_quad_04": 0.044283289965447725,
+          "cla_s04_mag_quad_05": -0.14400839883131472,
+          "cla_s04_mag_quad_06": -0.14738973012012666,
+          "cla_s04_mag_quad_07": -0.11654594089910415,
+          "cla_s04_mag_quad_08": -0.05212031801631416,
+          "cla_s05_mag_quad_01": 0.05378030156604698,
+          "cla_s05_mag_quad_02": 0.00012317007269401745,
+          "cla_s06_mag_quad_01": 0.09974476310407215,
+          "cla_s06_mag_quad_02": 0.11489970934244272,
+          "cla_s07_mag_quad_01": -0.06304944477869273,
+          "cla_s07_mag_quad_02": -0.047614870734053405,
+          "cla_s07_mag_quad_03": -0.0665073437619167,
+          "cla_s07_mag_quad_04": -0.06971769526486711,
+          "cla_s07_mag_quad_05": -0.06931150333345795,
+          "cla_s07_mag_quad_06": -0.06547121789383464,
+          "cla_s07_mag_quad_07": -0.04939751689133473,
+          "cla_s07_mag_quad_08": 0.0006659256425937437,
+          "cla_s07_mag_quad_09": 0.005790551934690995,
+          "cla_s07_mag_quad_10": 0.008742190670141708,
+          "cla_fea_mag_quad_01": -0.016651725781675637,
+          "cla_fea_mag_quad_02": -0.04020544792494751,
+          "cla_fea_mag_quad_03": -0.002596778140960428,
+          "cla_fea_mag_quad_04": -0.011290639668798346,
+          "cla_fea_mag_quad_05": -0.008707954441087545,
+          "cla_fea_mag_quad_06": -0.009516933746151647,
+          "cla_fea_mag_quad_07": -0.04276642216491831,
+          "cla_fea_mag_quad_08": -0.15221399925223092,
+          "cla_fea_mag_quad_09": -0.03625647926893424,
+          "cla_fea_mag_quad_10": -0.059916319549558596,
+          "cla_fea_mag_quad_11": 0.015514297817833438,
+          "cla_fea_mag_quad_12": 0.014247068055348868,
+          "cla_fea_mag_quad_13": -0.001455630453877484,
+          "cla_fea_mag_quad_14": -0.016645480993306875,
+          "cla_fea_mag_quad_15": -0.035237102491944505,
+          "cla_fea_mag_quad_16": -0.014517570009076079,
+          "cla_feh_mag_quad_01": 0.0202174053023714,
+          "cla_feh_mag_quad_02": 0.009592609846275461
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.8677491579924871
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.26454059335942715
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": -0.15221399925223092
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": -0.14738973012012666
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": -0.14400839883131472
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m2": 1.1597606789449098,
+        "cumulative_squared_fraction": 0.9990037640140599,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.272062036271179,
+          "cla_s02_mag_quad_02": 0.12205715119569975,
+          "cla_s02_mag_quad_03": -0.026890157762306778,
+          "cla_s02_mag_quad_04": 0.007195553093655278,
+          "cla_s02_mag_quad_05": 0.06017752166140056,
+          "cla_s03_mag_quad_01": -0.056902076908701804,
+          "cla_s04_mag_quad_01": 0.33630298770722433,
+          "cla_s04_mag_quad_02": 0.2862916164234531,
+          "cla_s04_mag_quad_03": 0.21414976677652722,
+          "cla_s04_mag_quad_04": 0.16634203862475067,
+          "cla_s04_mag_quad_05": -0.07899402937833339,
+          "cla_s04_mag_quad_06": -0.11755984125858993,
+          "cla_s04_mag_quad_07": -0.16360258573755637,
+          "cla_s04_mag_quad_08": -0.2144445553864106,
+          "cla_s05_mag_quad_01": -0.3287741582829076,
+          "cla_s05_mag_quad_02": -0.3574796713797358,
+          "cla_s06_mag_quad_01": -0.22805320080582875,
+          "cla_s06_mag_quad_02": -0.19687811788223925,
+          "cla_s07_mag_quad_01": 0.3404406285566399,
+          "cla_s07_mag_quad_02": 0.08498526115236571,
+          "cla_s07_mag_quad_03": -0.006124528856623184,
+          "cla_s07_mag_quad_04": -0.02821452803210815,
+          "cla_s07_mag_quad_05": -0.03541134407253616,
+          "cla_s07_mag_quad_06": -0.032994038903350044,
+          "cla_s07_mag_quad_07": -0.015809452038265368,
+          "cla_s07_mag_quad_08": -0.0034809546103627574,
+          "cla_s07_mag_quad_09": 0.008117511518718937,
+          "cla_s07_mag_quad_10": -0.01194857430738971,
+          "cla_fea_mag_quad_01": -0.06225901943573346,
+          "cla_fea_mag_quad_02": 0.041073365871195734,
+          "cla_fea_mag_quad_03": 0.0255487177748601,
+          "cla_fea_mag_quad_04": 0.0204818081191945,
+          "cla_fea_mag_quad_05": -0.0383006055198234,
+          "cla_fea_mag_quad_06": -0.01180540059235475,
+          "cla_fea_mag_quad_07": 0.058622692613447894,
+          "cla_fea_mag_quad_08": 0.24979359328755707,
+          "cla_fea_mag_quad_09": 0.04662215442859919,
+          "cla_fea_mag_quad_10": 0.0876060709262647,
+          "cla_fea_mag_quad_11": 0.02908121153728262,
+          "cla_fea_mag_quad_12": 0.00712634210020315,
+          "cla_fea_mag_quad_13": -0.004663455314792125,
+          "cla_fea_mag_quad_14": 0.02937547432625383,
+          "cla_fea_mag_quad_15": 0.05075303368991391,
+          "cla_fea_mag_quad_16": -0.01276872634807486,
+          "cla_feh_mag_quad_01": 0.011120076150044428,
+          "cla_feh_mag_quad_02": 0.007432624811014985
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": -0.3574796713797358
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.3404406285566399
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.33630298770722433
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_01",
+            "coefficient": -0.3287741582829076
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.2862916164234531
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m2": 1.1196374397471591,
+        "cumulative_squared_fraction": 0.9994786396543102,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.292431445716494,
+          "cla_s02_mag_quad_02": 0.8732597585876614,
+          "cla_s02_mag_quad_03": 0.06619742064045966,
+          "cla_s02_mag_quad_04": 0.055748527701134865,
+          "cla_s02_mag_quad_05": -0.009481427172185253,
+          "cla_s03_mag_quad_01": -0.3059824724095265,
+          "cla_s04_mag_quad_01": -0.07711063032620247,
+          "cla_s04_mag_quad_02": -0.06082990959900514,
+          "cla_s04_mag_quad_03": -0.047559326970781426,
+          "cla_s04_mag_quad_04": -0.03312214419816812,
+          "cla_s04_mag_quad_05": 0.05428874392078972,
+          "cla_s04_mag_quad_06": 0.06089399225052604,
+          "cla_s04_mag_quad_07": 0.0639190771664477,
+          "cla_s04_mag_quad_08": 0.06337443839921718,
+          "cla_s05_mag_quad_01": 0.06844933367931882,
+          "cla_s05_mag_quad_02": 0.07752460517406212,
+          "cla_s06_mag_quad_01": 0.03258783995456278,
+          "cla_s06_mag_quad_02": 0.025634647646219876,
+          "cla_s07_mag_quad_01": -0.06241346203320146,
+          "cla_s07_mag_quad_02": -0.03540084532351638,
+          "cla_s07_mag_quad_03": -0.013216821980362663,
+          "cla_s07_mag_quad_04": -0.009428368949771712,
+          "cla_s07_mag_quad_05": -0.007010973747645773,
+          "cla_s07_mag_quad_06": -0.005755840305779008,
+          "cla_s07_mag_quad_07": -0.00511406777510431,
+          "cla_s07_mag_quad_08": -0.001659276221856832,
+          "cla_s07_mag_quad_09": -0.0026458960197757613,
+          "cla_s07_mag_quad_10": 0.0027435387133163884,
+          "cla_fea_mag_quad_01": 0.010015342854811937,
+          "cla_fea_mag_quad_02": -0.01123222005457565,
+          "cla_fea_mag_quad_03": -0.0058660504303258846,
+          "cla_fea_mag_quad_04": -0.004526231144466394,
+          "cla_fea_mag_quad_05": 0.007376668227672825,
+          "cla_fea_mag_quad_06": 0.0014587373198927658,
+          "cla_fea_mag_quad_07": -0.01558186202346484,
+          "cla_fea_mag_quad_08": -0.05998058521775248,
+          "cla_fea_mag_quad_09": -0.010957445306272816,
+          "cla_fea_mag_quad_10": -0.020996425025947202,
+          "cla_fea_mag_quad_11": -0.006070838126716908,
+          "cla_fea_mag_quad_12": -0.0012509778939777019,
+          "cla_fea_mag_quad_13": 0.0009944790413126557,
+          "cla_fea_mag_quad_14": -0.006865200463846402,
+          "cla_fea_mag_quad_15": -0.012010837403725199,
+          "cla_fea_mag_quad_16": 0.0023770176152483045,
+          "cla_feh_mag_quad_01": -0.0018612590891357698,
+          "cla_feh_mag_quad_02": -0.0013521642521143711
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.8732597585876614
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": -0.3059824724095265
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": 0.292431445716494
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": 0.07752460517406212
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.07711063032620247
+          }
+        ]
+      },
+      {
+        "mode": 6,
+        "sensitivity_m2": 0.8896417291470679,
+        "cumulative_squared_fraction": 0.9997784560357301,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.060592183800369404,
+          "cla_s02_mag_quad_02": 0.11022918475506756,
+          "cla_s02_mag_quad_03": 0.015337817086830416,
+          "cla_s02_mag_quad_04": -0.005993238823355926,
+          "cla_s02_mag_quad_05": -0.025060843270988786,
+          "cla_s03_mag_quad_01": 0.22544014809919016,
+          "cla_s04_mag_quad_01": -0.07925289946045302,
+          "cla_s04_mag_quad_02": -0.07078290767828421,
+          "cla_s04_mag_quad_03": -0.054718564588484786,
+          "cla_s04_mag_quad_04": -0.04525516797566502,
+          "cla_s04_mag_quad_05": 0.03459318727698349,
+          "cla_s04_mag_quad_06": 0.04799995095990895,
+          "cla_s04_mag_quad_07": 0.05356424866843785,
+          "cla_s04_mag_quad_08": 0.0484819358553826,
+          "cla_s05_mag_quad_01": 0.039199830798419,
+          "cla_s05_mag_quad_02": 0.0755484347325076,
+          "cla_s06_mag_quad_01": -0.04553172999552866,
+          "cla_s06_mag_quad_02": -0.09484485729344805,
+          "cla_s07_mag_quad_01": -0.26777925433561084,
+          "cla_s07_mag_quad_02": -0.10857994270955992,
+          "cla_s07_mag_quad_03": 0.04443227403120887,
+          "cla_s07_mag_quad_04": 0.08881150021538645,
+          "cla_s07_mag_quad_05": 0.11426284656374307,
+          "cla_s07_mag_quad_06": 0.13113933419930152,
+          "cla_s07_mag_quad_07": 0.12945401995602815,
+          "cla_s07_mag_quad_08": 0.04419113426991544,
+          "cla_s07_mag_quad_09": 0.01543832944040549,
+          "cla_s07_mag_quad_10": -0.026242688954715248,
+          "cla_fea_mag_quad_01": 0.07616694355504479,
+          "cla_fea_mag_quad_02": 0.18340495370241636,
+          "cla_fea_mag_quad_03": 0.03221072946033187,
+          "cla_fea_mag_quad_04": 0.03436368685136232,
+          "cla_fea_mag_quad_05": 0.01377755748064649,
+          "cla_fea_mag_quad_06": 0.05024751626479439,
+          "cla_fea_mag_quad_07": 0.23080517441194418,
+          "cla_fea_mag_quad_08": 0.7285397243982031,
+          "cla_fea_mag_quad_09": 0.14319018547708473,
+          "cla_fea_mag_quad_10": 0.25863398362072365,
+          "cla_fea_mag_quad_11": -0.014078064443625759,
+          "cla_fea_mag_quad_12": -0.03105412529046132,
+          "cla_fea_mag_quad_13": -0.0002638127854638373,
+          "cla_fea_mag_quad_14": 0.07223881494289776,
+          "cla_fea_mag_quad_15": 0.1416601247187933,
+          "cla_fea_mag_quad_16": 0.030054012894839693,
+          "cla_feh_mag_quad_01": -0.04745348880721617,
+          "cla_feh_mag_quad_02": -0.020702738139288208
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.7285397243982031
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": -0.26777925433561084
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_10",
+            "coefficient": 0.25863398362072365
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_07",
+            "coefficient": 0.23080517441194418
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.22544014809919016
+          }
+        ]
+      },
+      {
+        "mode": 7,
+        "sensitivity_m2": 0.4620005339132781,
+        "cumulative_squared_fraction": 0.999859311620432,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.24056667341428958,
+          "cla_s02_mag_quad_02": 0.11330619656352926,
+          "cla_s02_mag_quad_03": 0.030744193004725754,
+          "cla_s02_mag_quad_04": -0.008678631466061067,
+          "cla_s02_mag_quad_05": -0.06123723781775027,
+          "cla_s03_mag_quad_01": 0.16085526122648774,
+          "cla_s04_mag_quad_01": -0.2200985054851261,
+          "cla_s04_mag_quad_02": -0.18668822334360535,
+          "cla_s04_mag_quad_03": -0.14036500897868837,
+          "cla_s04_mag_quad_04": -0.10709796633350818,
+          "cla_s04_mag_quad_05": 0.06877679208494833,
+          "cla_s04_mag_quad_06": 0.08072813857507276,
+          "cla_s04_mag_quad_07": 0.0863395965809576,
+          "cla_s04_mag_quad_08": 0.08304011919035403,
+          "cla_s05_mag_quad_01": 0.07482836743384813,
+          "cla_s05_mag_quad_02": 0.09452035137181646,
+          "cla_s06_mag_quad_01": -0.1767693384285091,
+          "cla_s06_mag_quad_02": -0.22653884726468598,
+          "cla_s07_mag_quad_01": 0.6868274647250087,
+          "cla_s07_mag_quad_02": -0.024779142018649853,
+          "cla_s07_mag_quad_03": -0.06585171740328949,
+          "cla_s07_mag_quad_04": -0.13651948505649117,
+          "cla_s07_mag_quad_05": -0.15631132506165601,
+          "cla_s07_mag_quad_06": -0.15861324837530208,
+          "cla_s07_mag_quad_07": -0.13232304977166076,
+          "cla_s07_mag_quad_08": -0.1317129773569763,
+          "cla_s07_mag_quad_09": -0.09557801825108392,
+          "cla_s07_mag_quad_10": 0.004766543924582587,
+          "cla_fea_mag_quad_01": 0.031241390412372505,
+          "cla_fea_mag_quad_02": 0.01202869902014538,
+          "cla_fea_mag_quad_03": -0.0646052163649858,
+          "cla_fea_mag_quad_04": -0.009957023630322904,
+          "cla_fea_mag_quad_05": 0.08334639659229735,
+          "cla_fea_mag_quad_06": 0.04345588399024572,
+          "cla_fea_mag_quad_07": -0.011475197634566354,
+          "cla_fea_mag_quad_08": 0.07973316025677689,
+          "cla_fea_mag_quad_09": 0.0625889427359875,
+          "cla_fea_mag_quad_10": 0.040785275745497306,
+          "cla_fea_mag_quad_11": -0.13415152183356013,
+          "cla_fea_mag_quad_12": -0.07515020064477326,
+          "cla_fea_mag_quad_13": 0.01762959234199763,
+          "cla_fea_mag_quad_14": -0.0019056729282180152,
+          "cla_fea_mag_quad_15": 0.021880849707065716,
+          "cla_fea_mag_quad_16": 0.08704915872775343,
+          "cla_feh_mag_quad_01": -0.10579044669968328,
+          "cla_feh_mag_quad_02": -0.055191223837677966
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.6868274647250087
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": -0.24056667341428958
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": -0.22653884726468598
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.2200985054851261
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": -0.18668822334360535
+          }
+        ]
+      },
+      {
+        "mode": 8,
+        "sensitivity_m2": 0.39158254392682357,
+        "cumulative_squared_fraction": 0.9999173976530069,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.17196099134412932,
+          "cla_s02_mag_quad_02": -0.11705825377402271,
+          "cla_s02_mag_quad_03": -0.004150956087689506,
+          "cla_s02_mag_quad_04": 0.02746523374223033,
+          "cla_s02_mag_quad_05": 0.0377505736862112,
+          "cla_s03_mag_quad_01": -0.15864181584591752,
+          "cla_s04_mag_quad_01": 0.0031539126636526416,
+          "cla_s04_mag_quad_02": 0.013830383245073574,
+          "cla_s04_mag_quad_03": 0.036639918418402743,
+          "cla_s04_mag_quad_04": 0.04297844455403821,
+          "cla_s04_mag_quad_05": -0.08905938968617488,
+          "cla_s04_mag_quad_06": -0.09596189275980146,
+          "cla_s04_mag_quad_07": -0.05305569892269121,
+          "cla_s04_mag_quad_08": 0.045009468027772156,
+          "cla_s05_mag_quad_01": 0.23464133189894903,
+          "cla_s05_mag_quad_02": 0.1190843710595809,
+          "cla_s06_mag_quad_01": 0.35372425085959674,
+          "cla_s06_mag_quad_02": 0.4557295010215157,
+          "cla_s07_mag_quad_01": 0.16500723411935414,
+          "cla_s07_mag_quad_02": 0.06001747904616487,
+          "cla_s07_mag_quad_03": -0.19688891750987622,
+          "cla_s07_mag_quad_04": -0.25322129182370723,
+          "cla_s07_mag_quad_05": -0.27561343359994495,
+          "cla_s07_mag_quad_06": -0.26937648180423024,
+          "cla_s07_mag_quad_07": -0.18794368106254025,
+          "cla_s07_mag_quad_08": 0.01323587269267168,
+          "cla_s07_mag_quad_09": 0.0408867132152397,
+          "cla_s07_mag_quad_10": 0.015991210616975646,
+          "cla_fea_mag_quad_01": -0.09784612320703523,
+          "cla_fea_mag_quad_02": 0.030533647192428567,
+          "cla_fea_mag_quad_03": 0.04032771819215302,
+          "cla_fea_mag_quad_04": -0.013600141883936412,
+          "cla_fea_mag_quad_05": -0.07688594630318375,
+          "cla_fea_mag_quad_06": 0.002725516767774313,
+          "cla_fea_mag_quad_07": 0.10396460036936599,
+          "cla_fea_mag_quad_08": 0.34373775206725593,
+          "cla_fea_mag_quad_09": 0.02610316978370401,
+          "cla_fea_mag_quad_10": 0.06918966805276643,
+          "cla_fea_mag_quad_11": 0.10903300776774702,
+          "cla_fea_mag_quad_12": 0.056341908619625035,
+          "cla_fea_mag_quad_13": -0.014525889152065078,
+          "cla_fea_mag_quad_14": 0.018830126542314814,
+          "cla_fea_mag_quad_15": 0.014025300714879759,
+          "cla_fea_mag_quad_16": -0.07035759986877531,
+          "cla_feh_mag_quad_01": 0.0829210121451797,
+          "cla_feh_mag_quad_02": 0.044218747398131884
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": 0.4557295010215157
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_01",
+            "coefficient": 0.35372425085959674
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.34373775206725593
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": -0.27561343359994495
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_06",
+            "coefficient": -0.26937648180423024
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sigma_x_mm": 20.0,
+    "sigma_y_mm": 20.0,
+    "variables": [
+      {
+        "mode": 1,
+        "sensitivity_m2": 45.35822178170596,
+        "cumulative_squared_fraction": 0.8370090872760938,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.015821145501498213,
+          "cla_s02_mag_quad_02": 0.05445062890004604,
+          "cla_s02_mag_quad_03": 0.0033376826307354723,
+          "cla_s02_mag_quad_04": 0.002812657918569328,
+          "cla_s02_mag_quad_05": -0.0005270181058291949,
+          "cla_s03_mag_quad_01": 0.11060366266667654,
+          "cla_s04_mag_quad_01": 0.08118531152319286,
+          "cla_s04_mag_quad_02": 0.08308896122827907,
+          "cla_s04_mag_quad_03": 0.08662676341859014,
+          "cla_s04_mag_quad_04": 0.08836211727439172,
+          "cla_s04_mag_quad_05": 0.09239824005824206,
+          "cla_s04_mag_quad_06": 0.09461167850922636,
+          "cla_s04_mag_quad_07": 0.09989727323072846,
+          "cla_s04_mag_quad_08": 0.10978780804976189,
+          "cla_s05_mag_quad_01": 0.13393763496957403,
+          "cla_s05_mag_quad_02": 0.12066032975086662,
+          "cla_s06_mag_quad_01": 0.1871449910526079,
+          "cla_s06_mag_quad_02": 0.23716075595573105,
+          "cla_s07_mag_quad_01": 0.3369887525460804,
+          "cla_s07_mag_quad_02": 0.5876961832308433,
+          "cla_s07_mag_quad_03": 0.3433236432590589,
+          "cla_s07_mag_quad_04": 0.3068138015017124,
+          "cla_s07_mag_quad_05": 0.2581493321428101,
+          "cla_s07_mag_quad_06": 0.2032076761332941,
+          "cla_s07_mag_quad_07": 0.11121200167377045,
+          "cla_s07_mag_quad_08": 0.006100041016471868,
+          "cla_s07_mag_quad_09": 0.0002557891418701311,
+          "cla_s07_mag_quad_10": -0.0003463488652225476,
+          "cla_fea_mag_quad_01": 0.0024352724871078302,
+          "cla_fea_mag_quad_02": 0.007907064646491338,
+          "cla_fea_mag_quad_03": 0.0007583249767547495,
+          "cla_fea_mag_quad_04": 0.00113108996378155,
+          "cla_fea_mag_quad_05": 0.0007051740177429714,
+          "cla_fea_mag_quad_06": 0.002115969329629323,
+          "cla_fea_mag_quad_07": 0.008625971608077272,
+          "cla_fea_mag_quad_08": 0.029050433770173384,
+          "cla_fea_mag_quad_09": 0.005942301343363493,
+          "cla_fea_mag_quad_10": 0.009996683634303468,
+          "cla_fea_mag_quad_11": -0.0011596947485894324,
+          "cla_fea_mag_quad_12": -0.0015305961963624792,
+          "cla_fea_mag_quad_13": -0.0003869717309241172,
+          "cla_fea_mag_quad_14": -0.0007659224096088556,
+          "cla_fea_mag_quad_15": 0.0014797828714805516,
+          "cla_fea_mag_quad_16": -3.24880356628825e-05,
+          "cla_feh_mag_quad_01": -0.0025857597901496124,
+          "cla_feh_mag_quad_02": -0.0009803655577909365
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_02",
+            "coefficient": 0.5876961832308433
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_03",
+            "coefficient": 0.3433236432590589
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.3369887525460804
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_04",
+            "coefficient": 0.3068138015017124
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": 0.2581493321428101
+          }
+        ]
+      },
+      {
+        "mode": 2,
+        "sensitivity_m2": 18.98772448243417,
+        "cumulative_squared_fraction": 0.9836867481246404,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.04554259015251649,
+          "cla_s02_mag_quad_02": -0.009222920317121741,
+          "cla_s02_mag_quad_03": -0.005778376364833249,
+          "cla_s02_mag_quad_04": -0.005541790190986773,
+          "cla_s02_mag_quad_05": -0.005229102902496402,
+          "cla_s03_mag_quad_01": 0.08012821618738403,
+          "cla_s04_mag_quad_01": 0.32520672032106923,
+          "cla_s04_mag_quad_02": 0.3247567953075012,
+          "cla_s04_mag_quad_03": 0.3107691992102829,
+          "cla_s04_mag_quad_04": 0.3100280969093696,
+          "cla_s04_mag_quad_05": 0.36313743388524455,
+          "cla_s04_mag_quad_06": 0.35547922701627993,
+          "cla_s04_mag_quad_07": 0.3234994095458343,
+          "cla_s04_mag_quad_08": 0.2688697505687279,
+          "cla_s05_mag_quad_01": 0.1623221305556047,
+          "cla_s05_mag_quad_02": 0.16974279395941225,
+          "cla_s06_mag_quad_01": -0.05803363428321453,
+          "cla_s06_mag_quad_02": -0.08694396919443824,
+          "cla_s07_mag_quad_01": -0.06347470233434267,
+          "cla_s07_mag_quad_02": -0.19795780042107225,
+          "cla_s07_mag_quad_03": -0.11334401402506859,
+          "cla_s07_mag_quad_04": -0.10703177563424691,
+          "cla_s07_mag_quad_05": -0.09285711478535376,
+          "cla_s07_mag_quad_06": -0.0759111622135125,
+          "cla_s07_mag_quad_07": -0.04586199503185838,
+          "cla_s07_mag_quad_08": -0.01524088372643717,
+          "cla_s07_mag_quad_09": -0.011084856597455155,
+          "cla_s07_mag_quad_10": 0.0014979131399102462,
+          "cla_fea_mag_quad_01": 0.010021877496861974,
+          "cla_fea_mag_quad_02": -0.005410621933515575,
+          "cla_fea_mag_quad_03": -0.009539201297443525,
+          "cla_fea_mag_quad_04": -0.003127820622413452,
+          "cla_fea_mag_quad_05": 0.012557187606808046,
+          "cla_fea_mag_quad_06": 0.004726909740585893,
+          "cla_fea_mag_quad_07": -0.010494997558845677,
+          "cla_fea_mag_quad_08": -0.028927747334454194,
+          "cla_fea_mag_quad_09": -0.000744400863328924,
+          "cla_fea_mag_quad_10": -0.008465913429123478,
+          "cla_fea_mag_quad_11": -0.01603305150322902,
+          "cla_fea_mag_quad_12": -0.007802963835800822,
+          "cla_fea_mag_quad_13": 0.0026930905653075243,
+          "cla_fea_mag_quad_14": -0.0005891101785850165,
+          "cla_fea_mag_quad_15": -0.0026698495308327365,
+          "cla_fea_mag_quad_16": 0.002623421751675544,
+          "cla_feh_mag_quad_01": -0.0023109251321937387,
+          "cla_feh_mag_quad_02": -0.0017114291908777947
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": 0.36313743388524455
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": 0.35547922701627993
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.32520672032106923
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.3247567953075012
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_07",
+            "coefficient": 0.3234994095458343
+          }
+        ]
+      },
+      {
+        "mode": 3,
+        "sensitivity_m2": 6.013998582182131,
+        "cumulative_squared_fraction": 0.9984012232605047,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.14340314127963122,
+          "cla_s02_mag_quad_02": 0.26453093826660556,
+          "cla_s02_mag_quad_03": 0.01204149849703745,
+          "cla_s02_mag_quad_04": 0.0019649396468064406,
+          "cla_s02_mag_quad_05": 0.00860487874472085,
+          "cla_s03_mag_quad_01": 0.8671966768058071,
+          "cla_s04_mag_quad_01": 0.051539073241312044,
+          "cla_s04_mag_quad_02": 0.03935647460707276,
+          "cla_s04_mag_quad_03": 0.05449701586531335,
+          "cla_s04_mag_quad_04": 0.04249511944333493,
+          "cla_s04_mag_quad_05": -0.1465826617803294,
+          "cla_s04_mag_quad_06": -0.1499726910470812,
+          "cla_s04_mag_quad_07": -0.11890838219975916,
+          "cla_s04_mag_quad_08": -0.05403352895053175,
+          "cla_s05_mag_quad_01": 0.05271245604893065,
+          "cla_s05_mag_quad_02": -0.0012142264402805153,
+          "cla_s06_mag_quad_01": 0.10025705479463753,
+          "cla_s06_mag_quad_02": 0.1157570894799253,
+          "cla_s07_mag_quad_01": -0.06197102063124782,
+          "cla_s07_mag_quad_02": -0.04691560133846178,
+          "cla_s07_mag_quad_03": -0.0667423445045906,
+          "cla_s07_mag_quad_04": -0.07017085835945058,
+          "cla_s07_mag_quad_05": -0.06991470416675649,
+          "cla_s07_mag_quad_06": -0.06619388942171725,
+          "cla_s07_mag_quad_07": -0.05017481449317644,
+          "cla_s07_mag_quad_08": 0.00037920845180060037,
+          "cla_s07_mag_quad_09": 0.005716059161511842,
+          "cla_s07_mag_quad_10": 0.009033819361570314,
+          "cla_fea_mag_quad_01": -0.017295870990925364,
+          "cla_fea_mag_quad_02": -0.040811902462345534,
+          "cla_fea_mag_quad_03": -0.002813140550549496,
+          "cla_fea_mag_quad_04": -0.011727639881855628,
+          "cla_fea_mag_quad_05": -0.008924993426849246,
+          "cla_fea_mag_quad_06": -0.009393434232912038,
+          "cla_fea_mag_quad_07": -0.04310025943970599,
+          "cla_fea_mag_quad_08": -0.15282514095920818,
+          "cla_fea_mag_quad_09": -0.036611998490369,
+          "cla_fea_mag_quad_10": -0.06096705819663433,
+          "cla_fea_mag_quad_11": 0.015742407203270838,
+          "cla_fea_mag_quad_12": 0.014887497472682336,
+          "cla_fea_mag_quad_13": 0.0017061262846213628,
+          "cla_fea_mag_quad_14": 0.005990138227081712,
+          "cla_fea_mag_quad_15": -0.00987377166989931,
+          "cla_fea_mag_quad_16": -0.0009233204136725633,
+          "cla_feh_mag_quad_01": 0.020354368070096163,
+          "cla_feh_mag_quad_02": 0.00808844743656316
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.8671966768058071
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.26453093826660556
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": -0.15282514095920818
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_06",
+            "coefficient": -0.1499726910470812
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_05",
+            "coefficient": -0.1465826617803294
+          }
+        ]
+      },
+      {
+        "mode": 4,
+        "sensitivity_m2": 1.164468608246684,
+        "cumulative_squared_fraction": 0.9989528860655245,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.26816540650984083,
+          "cla_s02_mag_quad_02": 0.10569358732750642,
+          "cla_s02_mag_quad_03": -0.02828872043708731,
+          "cla_s02_mag_quad_04": 0.0063841098913283885,
+          "cla_s02_mag_quad_05": 0.06078498386293596,
+          "cla_s03_mag_quad_01": -0.057149860249228746,
+          "cla_s04_mag_quad_01": 0.3399631324926541,
+          "cla_s04_mag_quad_02": 0.289514158284558,
+          "cla_s04_mag_quad_03": 0.2167522698396922,
+          "cla_s04_mag_quad_04": 0.1685210832368781,
+          "cla_s04_mag_quad_05": -0.07952474163718756,
+          "cla_s04_mag_quad_06": -0.11852669743287192,
+          "cla_s04_mag_quad_07": -0.1649160496357847,
+          "cla_s04_mag_quad_08": -0.2159533566045313,
+          "cla_s05_mag_quad_01": -0.3307770769563225,
+          "cla_s05_mag_quad_02": -0.3602854097167212,
+          "cla_s06_mag_quad_01": -0.22823968784826648,
+          "cla_s06_mag_quad_02": -0.19598438416937672,
+          "cla_s07_mag_quad_01": 0.3450357436886024,
+          "cla_s07_mag_quad_02": 0.08790343820186054,
+          "cla_s07_mag_quad_03": -0.0065826695762124035,
+          "cla_s07_mag_quad_04": -0.02929254832722308,
+          "cla_s07_mag_quad_05": -0.03689858395213991,
+          "cla_s07_mag_quad_06": -0.03472904962105316,
+          "cla_s07_mag_quad_07": -0.017387757214153456,
+          "cla_s07_mag_quad_08": -0.0034840022728277317,
+          "cla_s07_mag_quad_09": 0.00862482820732488,
+          "cla_s07_mag_quad_10": -0.011904028553658796,
+          "cla_fea_mag_quad_01": -0.06544886919360896,
+          "cla_fea_mag_quad_02": 0.038218179725553955,
+          "cla_fea_mag_quad_03": 0.026012390090189654,
+          "cla_fea_mag_quad_04": 0.020740526234149848,
+          "cla_fea_mag_quad_05": -0.040486819125123,
+          "cla_fea_mag_quad_06": -0.014129479004332741,
+          "cla_fea_mag_quad_07": 0.05446740888425513,
+          "cla_fea_mag_quad_08": 0.23909202833418639,
+          "cla_fea_mag_quad_09": 0.04442867908228881,
+          "cla_fea_mag_quad_10": 0.08451215886716912,
+          "cla_fea_mag_quad_11": 0.03166429946828174,
+          "cla_fea_mag_quad_12": 0.008470896116088032,
+          "cla_fea_mag_quad_13": -0.009556424937269218,
+          "cla_fea_mag_quad_14": -0.004064789432593663,
+          "cla_fea_mag_quad_15": 0.01767874566580436,
+          "cla_fea_mag_quad_16": -0.007333565818271687,
+          "cla_feh_mag_quad_01": -0.012000306842699813,
+          "cla_feh_mag_quad_02": -0.002287922109686013
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": -0.3602854097167212
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.3450357436886024
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": 0.3399631324926541
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_01",
+            "coefficient": -0.3307770769563225
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": 0.289514158284558
+          }
+        ]
+      },
+      {
+        "mode": 5,
+        "sensitivity_m2": 1.11972504397948,
+        "cumulative_squared_fraction": 0.999462969143886,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.2965406831797025,
+          "cla_s02_mag_quad_02": 0.8756207371518009,
+          "cla_s02_mag_quad_03": 0.06583397996429802,
+          "cla_s02_mag_quad_04": 0.05583806997280391,
+          "cla_s02_mag_quad_05": -0.008623192194701756,
+          "cla_s03_mag_quad_01": -0.3057445349071207,
+          "cla_s04_mag_quad_01": -0.07219609906075675,
+          "cla_s04_mag_quad_02": -0.056674775654891874,
+          "cla_s04_mag_quad_03": -0.04446971188840863,
+          "cla_s04_mag_quad_04": -0.030753383032897527,
+          "cla_s04_mag_quad_05": 0.05303760888618973,
+          "cla_s04_mag_quad_06": 0.059095460537022755,
+          "cla_s04_mag_quad_07": 0.06144153576642233,
+          "cla_s04_mag_quad_08": 0.06011617045170278,
+          "cla_s05_mag_quad_01": 0.06342871675357091,
+          "cla_s05_mag_quad_02": 0.07218685581724478,
+          "cla_s06_mag_quad_01": 0.02887311327260828,
+          "cla_s06_mag_quad_02": 0.022208829506227816,
+          "cla_s07_mag_quad_01": -0.05796769646754017,
+          "cla_s07_mag_quad_02": -0.03458179361266911,
+          "cla_s07_mag_quad_03": -0.01318342294957998,
+          "cla_s07_mag_quad_04": -0.009598233041137142,
+          "cla_s07_mag_quad_05": -0.007201842361881243,
+          "cla_s07_mag_quad_06": -0.005846657660449188,
+          "cla_s07_mag_quad_07": -0.004946960020226859,
+          "cla_s07_mag_quad_08": -0.0016292381868234346,
+          "cla_s07_mag_quad_09": -0.0025495493154059686,
+          "cla_s07_mag_quad_10": 0.0025148543002210823,
+          "cla_fea_mag_quad_01": 0.0096108875603785,
+          "cla_fea_mag_quad_02": -0.009829255061402146,
+          "cla_fea_mag_quad_03": -0.005462270178637383,
+          "cla_fea_mag_quad_04": -0.004203897669249054,
+          "cla_fea_mag_quad_05": 0.007103986069077428,
+          "cla_fea_mag_quad_06": 0.0017333119569366295,
+          "cla_fea_mag_quad_07": -0.013561932821848357,
+          "cla_fea_mag_quad_08": -0.05300995434652206,
+          "cla_fea_mag_quad_09": -0.009651098324935395,
+          "cla_fea_mag_quad_10": -0.018710044242856234,
+          "cla_fea_mag_quad_11": -0.0059817643957826095,
+          "cla_fea_mag_quad_12": -0.0013441252183675103,
+          "cla_fea_mag_quad_13": 0.00195673940393849,
+          "cla_fea_mag_quad_14": 0.0009577895651946562,
+          "cla_fea_mag_quad_15": -0.0037660852704791276,
+          "cla_fea_mag_quad_16": 0.0014185313665589189,
+          "cla_feh_mag_quad_01": 0.0029473565219699793,
+          "cla_feh_mag_quad_02": 0.0006824239588326318
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s02_mag_quad_02",
+            "coefficient": 0.8756207371518009
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": -0.3057445349071207
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": 0.2965406831797025
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.07219609906075675
+          },
+          {
+            "quadrupole": "cla_s05_mag_quad_02",
+            "coefficient": 0.07218685581724478
+          }
+        ]
+      },
+      {
+        "mode": 6,
+        "sensitivity_m2": 0.8783355794539284,
+        "cumulative_squared_fraction": 0.999776831393736,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.05757228176699171,
+          "cla_s02_mag_quad_02": 0.10867229583208067,
+          "cla_s02_mag_quad_03": 0.014436760496128482,
+          "cla_s02_mag_quad_04": -0.006376929167658645,
+          "cla_s02_mag_quad_05": -0.024027377349464765,
+          "cla_s03_mag_quad_01": 0.22617062831147833,
+          "cla_s04_mag_quad_01": -0.07209892444983876,
+          "cla_s04_mag_quad_02": -0.06486983075856056,
+          "cla_s04_mag_quad_03": -0.05062642443490839,
+          "cla_s04_mag_quad_04": -0.04229788092519008,
+          "cla_s04_mag_quad_05": 0.033498292856849875,
+          "cla_s04_mag_quad_06": 0.04620207221855316,
+          "cla_s04_mag_quad_07": 0.050419616728035244,
+          "cla_s04_mag_quad_08": 0.043344430045637004,
+          "cla_s05_mag_quad_01": 0.029889577234982957,
+          "cla_s05_mag_quad_02": 0.06685505860519818,
+          "cla_s06_mag_quad_01": -0.05374675621070205,
+          "cla_s06_mag_quad_02": -0.10352980463904823,
+          "cla_s07_mag_quad_01": -0.26411957147444975,
+          "cla_s07_mag_quad_02": -0.10718288339722432,
+          "cla_s07_mag_quad_03": 0.04716540107954307,
+          "cla_s07_mag_quad_04": 0.09204800745735081,
+          "cla_s07_mag_quad_05": 0.11782335467023315,
+          "cla_s07_mag_quad_06": 0.13496471225117548,
+          "cla_s07_mag_quad_07": 0.13311524460625454,
+          "cla_s07_mag_quad_08": 0.04510667264406699,
+          "cla_s07_mag_quad_09": 0.01581163240769907,
+          "cla_s07_mag_quad_10": -0.027535954040894355,
+          "cla_fea_mag_quad_01": 0.07665991526189242,
+          "cla_fea_mag_quad_02": 0.18689611609374449,
+          "cla_fea_mag_quad_03": 0.03347825605219269,
+          "cla_fea_mag_quad_04": 0.03635592145407321,
+          "cla_fea_mag_quad_05": 0.013454814493468695,
+          "cla_fea_mag_quad_06": 0.049663272074565425,
+          "cla_fea_mag_quad_07": 0.2337815693810086,
+          "cla_fea_mag_quad_08": 0.7393248975480458,
+          "cla_fea_mag_quad_09": 0.1461279546287038,
+          "cla_fea_mag_quad_10": 0.2648463966894773,
+          "cla_fea_mag_quad_11": -0.014255385530842251,
+          "cla_fea_mag_quad_12": -0.03313321399900017,
+          "cla_fea_mag_quad_13": -0.013327799558230708,
+          "cla_fea_mag_quad_14": -0.020081905255406766,
+          "cla_fea_mag_quad_15": 0.04276949414466042,
+          "cla_fea_mag_quad_16": -0.0032642115265391356,
+          "cla_feh_mag_quad_01": -0.06841050224974671,
+          "cla_feh_mag_quad_02": -0.025179932043608744
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.7393248975480458
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_10",
+            "coefficient": 0.2648463966894773
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": -0.26411957147444975
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_07",
+            "coefficient": 0.2337815693810086
+          },
+          {
+            "quadrupole": "cla_s03_mag_quad_01",
+            "coefficient": 0.22617062831147833
+          }
+        ]
+      },
+      {
+        "mode": 7,
+        "sensitivity_m2": 0.4568146403322957,
+        "cumulative_squared_fraction": 0.9998617295308517,
+        "coefficients": {
+          "cla_s02_mag_quad_01": -0.24644618635354815,
+          "cla_s02_mag_quad_02": 0.11387498823613149,
+          "cla_s02_mag_quad_03": 0.03146934021808853,
+          "cla_s02_mag_quad_04": -0.008238755185543456,
+          "cla_s02_mag_quad_05": -0.06233958971601537,
+          "cla_s03_mag_quad_01": 0.15740358235801644,
+          "cla_s04_mag_quad_01": -0.22389535044682551,
+          "cla_s04_mag_quad_02": -0.18912519374336484,
+          "cla_s04_mag_quad_03": -0.14101997996205745,
+          "cla_s04_mag_quad_04": -0.1065891302692698,
+          "cla_s04_mag_quad_05": 0.0705002181747864,
+          "cla_s04_mag_quad_06": 0.08211222557643626,
+          "cla_s04_mag_quad_07": 0.08838233249220565,
+          "cla_s04_mag_quad_08": 0.08688210156894502,
+          "cla_s05_mag_quad_01": 0.08199809585840734,
+          "cla_s05_mag_quad_02": 0.09854831141771381,
+          "cla_s06_mag_quad_01": -0.17109015831622665,
+          "cla_s06_mag_quad_02": -0.21796078528250043,
+          "cla_s07_mag_quad_01": 0.6959449252878319,
+          "cla_s07_mag_quad_02": -0.020753033872598425,
+          "cla_s07_mag_quad_03": -0.07302362463885191,
+          "cla_s07_mag_quad_04": -0.1455592320983298,
+          "cla_s07_mag_quad_05": -0.16605580772433015,
+          "cla_s07_mag_quad_06": -0.16787403271666854,
+          "cla_s07_mag_quad_07": -0.13723303053334165,
+          "cla_s07_mag_quad_08": -0.1265612870245306,
+          "cla_s07_mag_quad_09": -0.09001549555050832,
+          "cla_s07_mag_quad_10": 0.004735589832609666,
+          "cla_fea_mag_quad_01": 0.025755643531079148,
+          "cla_fea_mag_quad_02": 0.014908086608344443,
+          "cla_fea_mag_quad_03": -0.05880589483081164,
+          "cla_fea_mag_quad_04": -0.00945879282919625,
+          "cla_fea_mag_quad_05": 0.07538385098044743,
+          "cla_fea_mag_quad_06": 0.041680941811379955,
+          "cla_fea_mag_quad_07": -0.002877986485332129,
+          "cla_fea_mag_quad_08": 0.10016414004351953,
+          "cla_fea_mag_quad_09": 0.061032970901982245,
+          "cla_fea_mag_quad_10": 0.04436097416459724,
+          "cla_fea_mag_quad_11": -0.11902692025528157,
+          "cla_fea_mag_quad_12": -0.06776023422274813,
+          "cla_fea_mag_quad_13": 0.014030642040413528,
+          "cla_fea_mag_quad_14": -0.01171680598471676,
+          "cla_fea_mag_quad_15": -0.002312286653510624,
+          "cla_fea_mag_quad_16": 0.016741296026384536,
+          "cla_feh_mag_quad_01": -0.0413572793812843,
+          "cla_feh_mag_quad_02": -0.02111570967044693
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s07_mag_quad_01",
+            "coefficient": 0.6959449252878319
+          },
+          {
+            "quadrupole": "cla_s02_mag_quad_01",
+            "coefficient": -0.24644618635354815
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_01",
+            "coefficient": -0.22389535044682551
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": -0.21796078528250043
+          },
+          {
+            "quadrupole": "cla_s04_mag_quad_02",
+            "coefficient": -0.18912519374336484
+          }
+        ]
+      },
+      {
+        "mode": 8,
+        "sensitivity_m2": 0.38976999752846014,
+        "cumulative_squared_fraction": 0.9999235361439156,
+        "coefficients": {
+          "cla_s02_mag_quad_01": 0.19354972953995545,
+          "cla_s02_mag_quad_02": -0.12614189465112302,
+          "cla_s02_mag_quad_03": -0.006190329516222056,
+          "cla_s02_mag_quad_04": 0.02824275143742879,
+          "cla_s02_mag_quad_05": 0.042497241044881534,
+          "cla_s03_mag_quad_01": -0.16657080203795932,
+          "cla_s04_mag_quad_01": 0.015449881840796237,
+          "cla_s04_mag_quad_02": 0.023808084910329583,
+          "cla_s04_mag_quad_03": 0.04377585545731227,
+          "cla_s04_mag_quad_04": 0.04790019244621202,
+          "cla_s04_mag_quad_05": -0.09569753668113656,
+          "cla_s04_mag_quad_06": -0.10284429876910095,
+          "cla_s04_mag_quad_07": -0.059412911508094135,
+          "cla_s04_mag_quad_08": 0.04006308305328628,
+          "cla_s05_mag_quad_01": 0.2326910631891314,
+          "cla_s05_mag_quad_02": 0.11603391629338784,
+          "cla_s06_mag_quad_01": 0.36579852396952145,
+          "cla_s06_mag_quad_02": 0.4697351277053482,
+          "cla_s07_mag_quad_01": 0.13365645880027374,
+          "cla_s07_mag_quad_02": 0.058053905704328695,
+          "cla_s07_mag_quad_03": -0.19332888317852126,
+          "cla_s07_mag_quad_04": -0.2466289326075243,
+          "cla_s07_mag_quad_05": -0.26807356709776153,
+          "cla_s07_mag_quad_06": -0.2618305874920531,
+          "cla_s07_mag_quad_07": -0.1829339479795991,
+          "cla_s07_mag_quad_08": 0.014085508005577835,
+          "cla_s07_mag_quad_09": 0.04053025844593896,
+          "cla_s07_mag_quad_10": 0.016263565687054175,
+          "cla_fea_mag_quad_01": -0.09524731691736467,
+          "cla_fea_mag_quad_02": 0.03152232708303107,
+          "cla_fea_mag_quad_03": 0.038759458420904794,
+          "cla_fea_mag_quad_04": -0.01417061720931476,
+          "cla_fea_mag_quad_05": -0.0742147577222055,
+          "cla_fea_mag_quad_06": 0.004580656703207445,
+          "cla_fea_mag_quad_07": 0.10435819309502782,
+          "cla_fea_mag_quad_08": 0.34641408441615773,
+          "cla_fea_mag_quad_09": 0.028419529044162298,
+          "cla_fea_mag_quad_10": 0.07031457962086424,
+          "cla_fea_mag_quad_11": 0.1029326190758846,
+          "cla_fea_mag_quad_12": 0.053318480323814005,
+          "cla_fea_mag_quad_13": -0.01541876699387346,
+          "cla_fea_mag_quad_14": 0.006143587096009859,
+          "cla_fea_mag_quad_15": 0.011957296732316706,
+          "cla_fea_mag_quad_16": -0.01673259642508046,
+          "cla_feh_mag_quad_01": 0.023904049544883427,
+          "cla_feh_mag_quad_02": 0.014426694921005621
+        },
+        "largest_components": [
+          {
+            "quadrupole": "cla_s06_mag_quad_02",
+            "coefficient": 0.4697351277053482
+          },
+          {
+            "quadrupole": "cla_s06_mag_quad_01",
+            "coefficient": 0.36579852396952145
+          },
+          {
+            "quadrupole": "cla_fea_mag_quad_08",
+            "coefficient": 0.34641408441615773
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_05",
+            "coefficient": -0.26807356709776153
+          },
+          {
+            "quadrupole": "cla_s07_mag_quad_06",
+            "coefficient": -0.2618305874920531
+          }
+        ]
+      }
+    ]
+  }
+]

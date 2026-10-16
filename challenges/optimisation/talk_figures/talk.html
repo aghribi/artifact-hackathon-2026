@@ -1,0 +1,501 @@
+<!doctype html>
+<!--
+  CLARA hackathon talk, team Overfit & Proud.
+
+  Self-contained: reveal.js is vendored in talk_assets/reveal/, the figures are
+  the PNGs in this folder, and the "seven workstreams" slide is the real
+  workflow_animation.html in a background iframe, so it animates live and
+  replays every time the slide is entered.
+
+  Open talk.html directly, or (better, so the iframe is definitely allowed)
+  serve the folder:  python3 -m http.server -d . 8000
+
+  Keys: arrows / space to move, f fullscreen, s speaker notes, o overview,
+  b blank. Click the animation to replay it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steering CLARA end to end</title>
+<link rel="stylesheet" href="talk_assets/reveal/reveal.css">
+<link rel="stylesheet" href="talk_assets/reveal/theme/white.css">
+<style>
+  :root {
+    --accent: #1f77b4;
+    --good: #2ca02c;
+    --warn: #d62728;
+    --muted: #6b7079;
+    /* Agora-Conf palette, taken from the conference app's own mark. Decorative
+       only: the purple and the cyan are far too light to carry text on white. */
+    --brand-purple: #ae81ff;
+    --brand-cyan: #66d9e8;
+    --brand-ink: #272822;
+    /* Overfit & Proud: the team's own colour from its page on the conference app */
+    --team: #10b981;
+  }
+  /* the team's fox, sitting outside .reveal so reveal's scaling transform does
+     not drag it around */
+  .brandmark {
+    position: fixed; top: 14px; right: 22px; font-size: 30px; line-height: 1;
+    opacity: 0.5; z-index: 40; pointer-events: none;
+  }
+  /* the team card, echoing the one on the conference app */
+  .teamcard {
+    display: inline-block; text-align: left; padding: 0.7em 1.1em; border-radius: 16px;
+    border: 2px solid var(--team);
+    background: linear-gradient(160deg, rgba(16,185,129,0.25), rgba(16,185,129,0.06) 60%);
+  }
+  .teamcard .row { display: flex; align-items: center; gap: 0.5em; }
+  .teamcard .fox { font-size: 1.5em; line-height: 1; }
+  .teamcard .name {
+    font-size: 0.86em; font-weight: 800; color: var(--team); margin: 0; line-height: 1.1;
+  }
+  .teamcard .motto { font-size: 0.44em; color: var(--muted); margin: 0.15em 0 0 0; }
+  .teamcard .motto em { opacity: 0.85; }
+  .roster { display: flex; gap: 0.7em; justify-content: center; margin-top: 0.7em; }
+  .roster figure { text-align: center; }
+  .roster img { width: 52px; height: 52px; border-radius: 50%; display: block; }
+  .roster figcaption { font-size: 0.38em; margin-top: 0.25em; color: var(--muted); }
+  /* the title slide gives full names, so each caption gets room to wrap */
+  .roster.full { gap: 1.1em; }
+  .roster.full figcaption { max-width: 7.2em; line-height: 1.25; }
+  td .avatar {
+    width: 34px; height: 34px; border-radius: 50%; vertical-align: middle;
+    margin-right: 0.45em; display: inline-block;
+  }
+  .brandrule {
+    height: 4px; width: 46%; margin: 0 auto 1.1em auto; border-radius: 2px;
+    background: linear-gradient(90deg, var(--brand-purple), var(--brand-cyan));
+  }
+  .reveal .progress span {
+    background: linear-gradient(90deg, var(--brand-purple), var(--brand-cyan));
+  }
+  .reveal { font-size: 30px; }
+  .reveal section { text-align: left; }
+  /* content is top-aligned (center: false) so every title sits in the same place */
+  .reveal .slides section { padding-top: 0.3em; }
+  .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: 0; }
+  .reveal h2 {
+    font-size: 1.25em; color: var(--accent); margin: 0 0 0.5em 0;
+    padding-bottom: 0.15em; border-bottom: 2px solid rgba(31, 119, 180, 0.18);
+  }
+  .reveal h3 { font-size: 0.85em; color: var(--accent); margin: 0 0 0.3em 0; }
+  /* the act this slide belongs to, so the thread through the talk stays visible */
+  .kicker {
+    font-size: 0.42em; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 0.25em 0; font-weight: 600;
+  }
+  .reveal h2 + .kicker { margin-top: -0.3em; }
+  .reveal ul { font-size: 0.78em; margin-left: 1em; }
+  .reveal li { margin-bottom: 0.35em; }
+  .reveal li li { font-size: 0.92em; }
+  .reveal p { font-size: 0.8em; }
+  .reveal strong { color: #111; }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .muted { color: var(--muted); }
+  code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+
+  /* a row of headline numbers, for slides that are a figure plus three facts */
+  .bignums { display: flex; gap: 1.6em; justify-content: center; text-align: center; }
+  .bignums > div { flex: 1 1 0; }
+  .bignums b {
+    display: block; font-size: 1.75em; line-height: 1.1; color: var(--accent);
+    font-weight: 800;
+  }
+  .bignums span {
+    display: block; font-size: 0.56em; color: var(--muted); margin-top: 0.35em;
+    line-height: 1.35;
+  }
+
+  /* the approaches, one card each */
+  .cardgrid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1em; margin-top: 1.2em;
+  }
+  .card {
+    border: 1px solid rgba(31, 119, 180, 0.35); border-radius: 10px;
+    background: rgba(31, 119, 180, 0.06); padding: 1.1em 1.1em;
+  }
+  .card b { display: block; font-size: 1em; color: var(--accent); }
+
+  /* the walk-through: one card lit at a time, with its picture beside it */
+  .cardlist { display: grid; gap: 0.55em; }
+  .cardlist .card { padding: 0.65em 0.8em; }
+  .reveal .fragment.focusable { opacity: 1; visibility: inherit; transition: all 0.25s ease; }
+  .reveal .methods.stepping .card.focusable { opacity: 0.35; }
+  /* needs at least the specificity of the dimming rule above, or the lit card
+     gets dimmed along with the rest */
+  .reveal .methods.stepping .card.focusable.current-fragment,
+  .reveal .fragment.focusable.current-fragment {
+    opacity: 1; border-color: var(--accent);
+    background: rgba(31, 119, 180, 0.18);
+    box-shadow: 0 3px 14px rgba(31, 119, 180, 0.3);
+    transform: translateX(0.3em);
+  }
+  .methodshot { min-height: 520px; align-items: center; }
+  .methodshot img {
+    width: auto; max-width: 100%; max-height: 520px; margin: 0 auto;
+    border-radius: 4px;
+  }
+  .card span {
+    display: block; font-size: 0.66em; color: var(--muted); margin-top: 0.4em;
+    line-height: 1.4;
+  }
+
+  .cols { display: flex; gap: 1.2em; align-items: flex-start; }
+  .col { flex: 1 1 0; min-width: 0; }
+  .col.wide { flex: 1.25 1 0; }
+  .col.narrow { flex: 0.8 1 0; }
+
+  figure { margin: 0; }
+  figure img { width: 100%; display: block; }
+  .evenpair figure img { width: auto; max-width: 100%; max-height: 42vh; margin: 0 auto; }
+  .evenpair figcaption { text-align: center; font-size: 0.5em; }
+  /* LaTeX-rendered formulae, made by scripts/make_math_svgs.py */
+  img.math { display: inline-block; width: auto; }
+  figcaption, .caption { font-size: 0.46em; color: var(--muted); line-height: 1.35; margin-top: 0.4em; }
+  .fit { text-align: center; }
+  .fit img { width: auto; max-height: 74vh; max-width: 100%; margin: 0 auto; }
+
+  /* the choice/cost boxes carry the argument of the talk, so they are sized to be
+     read from the back of an auditorium, not treated as a footnote */
+  .choice {
+    margin-top: 0.9em; padding: 0.7em 1em; font-size: 0.76em; line-height: 1.4;
+    background: rgba(31, 119, 180, 0.09); border-left: 7px solid var(--accent);
+    border-radius: 4px;
+  }
+  .choice b.c, .choice b.k {
+    display: inline-block; min-width: 2.6em;
+    text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.82em;
+  }
+  .choice b.c { color: var(--accent); }
+  .choice b.k { color: var(--warn); }
+
+  table { font-size: 0.66em; border-collapse: collapse; width: 100%; }
+  th, td { padding: 0.3em 0.6em; text-align: left; }
+  thead th { border-bottom: 2px solid #999; }
+  tbody tr + tr td { border-top: 1px solid #e3e3e3; }
+  td.num, th.num { text-align: right; }
+  table.people td:first-child { white-space: nowrap; font-weight: 600; color: var(--accent); }
+
+  /* review flag. Remove the <p class="review"> line and this rule before the talk. */
+  .review {
+    display: inline-block; margin: 0 0 0.4em 0; padding: 0.15em 0.6em;
+    font-size: 0.42em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #fff; background: var(--warn); border-radius: 3px;
+  }
+
+  /* the final comparison: best value in each column carries the badge */
+  table.winners { font-size: 0.82em; }
+  table.winners td.best {
+    font-weight: 700; color: var(--good);
+    background: rgba(44, 160, 44, 0.10); border-radius: 3px;
+  }
+  table.winners tr.baseline td { color: var(--muted); }
+  table.winners tr.hero td { background: rgba(44, 160, 44, 0.05); }
+  table.winners td:first-child { white-space: nowrap; }
+
+  /* pipeline flow */
+  .flow { display: grid; grid-template-columns: 1fr auto; gap: 0.45em 1em; align-items: center; font-size: 0.92em; }
+  .flow .step {
+    background: rgba(31, 119, 180, 0.07); border: 1px solid rgba(31, 119, 180, 0.4);
+    border-radius: 6px; padding: 0.5em 0.8em;
+  }
+  .flow .cost { color: var(--muted); font-style: italic; font-size: 0.82em; white-space: nowrap; }
+  .flow .arrow { color: rgba(31, 119, 180, 0.6); text-align: center; font-size: 0.8em; }
+
+  .eqn {
+    font-size: 0.72em; text-align: center; margin: 0.6em 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  .footnote { font-size: 0.45em; color: var(--muted); margin-top: 0.6em; }
+
+  /* title and closing: nudged down by hand, since reveal forces display:block
+     on the current slide and would override flex centring */
+  .reveal .slides section.titleslide { text-align: center; padding-top: 14vh; }
+  /* keep the slide number clear of the navigation arrows */
+  .reveal .slide-number { left: 12px; right: auto; background: none; color: var(--muted); }
+  .titleslide h1 { font-size: 1.7em; color: var(--accent); margin-bottom: 0.2em; }
+  .titleslide .sub { font-size: 0.72em; color: var(--muted); margin-bottom: 1.6em; }
+  .titleslide .team { font-size: 0.8em; }
+  .titleslide .names { font-size: 0.62em; color: var(--muted); }
+
+  .reveal .flow .arrow { font-size: 1.15em; line-height: 1; }
+  .reveal .flow .arrow.loop { color: var(--accent); font-weight: 700; font-size: 1.5em; }
+  .flow .loop-label { color: var(--accent); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="brandmark" aria-hidden="true">&#129418;</div>
+
+<div class="reveal">
+<div class="slides">
+<!-- ------------------------------------------------------------- title -->
+<section class="titleslide">
+  <img src="talk_assets/visual_indico.png"
+       alt="ARTIFACT, CNRS, AISSAI, IRIS, Region Normandie, EPS Accelerator Group, GANIL"
+       style="width:72%; max-width:1150px; height:auto; display:block; margin:0 auto 0.7em auto;">
+  <h1>Steering CLARA end to end</h1>
+  <p class="sub">Getting the beam a user asked for, in shots instead of hours</p>
+  <div class="brandrule"></div>
+  <div class="teamcard">
+    <div class="row">
+      <span class="fox">&#129418;</span>
+      <span>
+        <p class="name">Overfit &amp; Proud</p>
+        <p class="motto">Foxy Gradient <em>&mdash; always finds the way down</em></p>
+      </span>
+    </div>
+  </div>
+  <div class="roster full">
+    <figure><img src="brand/team/amy.svg" alt=""><figcaption>Amelia Pollard</figcaption></figure>
+    <figure><img src="brand/team/eiad.svg" alt=""><figcaption>Eiad Hamwi</figcaption></figure>
+    <figure><img src="brand/team/francesco.svg" alt=""><figcaption>Francesco Velotti</figcaption></figure>
+    <figure><img src="brand/team/ivan.svg" alt=""><figcaption>Ivan Morozov</figcaption></figure>
+    <figure><img src="brand/team/manuel.svg" alt=""><figcaption>Manuel Vazquez Muniz</figcaption></figure>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- 1. the problem -->
+<section>
+  <h2>A user asks for a spot. It costs a morning.</h2>
+  <div class="bignums">
+    <div><b>30&ndash;90</b><span>minutes to set up, good day to bad</span></div>
+    <div><b>64.4 m</b><span>S02 to the FEH screen, 282 apertures</span></div>
+    <div><b>0.1&ndash;20 mm</b><span>spot sizes a user can ask for</span></div>
+  </div>
+  <div class="fit" style="margin-top:0.4em;">
+    <img src="geometry/line_geometry_apertures_nominal_beam.png"
+         alt="CLARA floor plan, lattice and apertures with the nominal beam envelope"
+         style="max-height:68vh;">
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- 2. the environment -->
+<section>
+  <h2>And every day is a different machine</h2>
+  <div class="bignums">
+    <div><b>50 &micro;m</b><span>survey error on the quadrupoles and sextupoles</span></div>
+    <div><b>new beam</b><span>dealt at the start of every episode</span></div>
+    <div><b>175&ndash;270 &micro;m</b><span>what a 200 &micro;m spot reads, settings untouched</span></div>
+  </div>
+  <div class="fit" style="margin-top:0.4em;">
+    <!-- data-src so reveal restarts it from episode 1 every time the slide is reached -->
+    <img data-src="environment/episodes.gif"
+         alt="Beam position and size along the lattice, ten consecutive episodes"
+         style="max-height:545px; width:auto;">
+    <p class="caption">Ten episodes of the benchmark, same lattice, same axes:
+      <code>lattice.plot_overview(beam)</code> for each day as it was dealt.</p>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- 3. data and processing -->
+<section>
+  <h2>0.8 TB of screen images, and only some of them mean anything</h2>
+  <div class="cols evenpair">
+    <div class="col">
+      <figure>
+        <img src="screens/Noisy_beam.png" alt="Raw and cleaned beam image">
+        <figcaption><strong>Keep.</strong> Threshold at a tenth of the peak, then centroid
+          and rms from the row and column sums.</figcaption>
+      </figure>
+    </div>
+    <div class="col">
+      <figure>
+        <img src="screens/Weak_beam.png" alt="A weak beam before and after cleaning">
+        <figcaption><strong>Discard.</strong> Clean a weak frame and nothing is left
+          &mdash; but it still returns four confident numbers.</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="bignums" style="margin-top:0.5em;">
+    <div><b>28</b><span>cameras, calibrated &micro;m per pixel</span></div>
+    <div><b>0.1&ndash;30%</b><span>reading variation we trust</span></div>
+    <div><b>5,732</b><span>capture sets through the filter</span></div>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- 4. approaches -->
+<section>
+  <h2>Six ways to tune a machine</h2>
+  <!-- Step through with the arrow keys: each card lights up with its own picture.
+       `fragment custom` keeps the card on screen (reveal only hides plain fragments);
+       the matching data-fragment-index pairs it with the image. -->
+  <div class="cols methods">
+    <div class="col narrow">
+      <div class="cardlist">
+        <div class="card focusable fragment custom" data-fragment-index="1">
+          <b>Optics lookup</b><span>144 matched tunes, no shots at all</span></div>
+        <div class="card focusable fragment custom" data-fragment-index="2">
+          <b>SVD + response matrix</b><span>invert the model, correct in one shot</span></div>
+        <div class="card focusable fragment custom" data-fragment-index="3">
+          <b>RCDS</b><span>conjugate-direction search on the machine</span></div>
+        <div class="card focusable fragment custom" data-fragment-index="4">
+          <b>Bayesian optimisation</b><span>a GP over the knobs that matter</span></div>
+        <div class="card focusable fragment custom" data-fragment-index="5">
+          <b>Multi-fidelity BO</b><span>twin as low fidelity, machine as high</span></div>
+        <div class="card focusable fragment custom" data-fragment-index="6">
+          <b>Model-based RL</b><span>fit a twin, plan against it, re-read</span></div>
+      </div>
+    </div>
+    <div class="col wide">
+      <div class="r-stack methodshot">
+        <img class="fragment fade-in-then-out" data-fragment-index="1"
+             src="model_svd_opt/optics_matching.png"
+             alt="Transmission at each of the 144 matched nodes">
+        <img class="fragment fade-in-then-out" data-fragment-index="2"
+             src="steering/fig_svd_orbit.png"
+             alt="Orbit at the 31 BPMs before correction, after one shot and after three">
+        <img class="fragment fade-in-then-out" data-fragment-index="3"
+             src="segment_opt/comparison.png"
+             alt="Response matrix, BO, RCDS and hybrids compared on one section">
+        <img class="fragment fade-in-then-out" data-fragment-index="4"
+             src="model_svd_opt/model_svd_opt_100_episodes_score.png"
+             alt="Final score per episode for the BO and RCDS branches">
+        <img class="fragment fade-in-then-out" data-fragment-index="5"
+             src="mfopt/mfopt_100_episodes_score.png"
+             alt="Benchmark score per episode over 100 days of multi-fidelity BO">
+        <img class="fragment fade-in-then-out" data-fragment-index="6"
+             src="mbrl_episode/frame_08.png"
+             alt="The last shot of one model-based RL episode, measured spot on the request">
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center; margin-top:0.6em;">All of them on the
+     <strong>same benchmark</strong> &mdash; which is what made the losers cheap.</p>
+</section>
+
+<!-- ------------------------------------------------------------- 5. how we worked -->
+<section data-background-iframe="workflow_animation.html?theme=light&amp;speed=2.5"
+         data-background-interactive
+         data-background-color="#ffffff">
+</section>
+
+<!-- ------------------------------------------------------------- 6. the pipeline -->
+<section>
+  <h2>What we ended up with</h2>
+  <div class="flow">
+    <div class="step"><strong>Optics lookup</strong> &mdash; 46 quadrupoles for the requested size</div>
+    <div class="cost">model only</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>Steer</strong> &mdash; SVD of the correctors against the BPMs</div>
+    <div class="cost">0&ndash;4 shots</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>Focus</strong> &mdash; five quadrupole modes, size only</div>
+    <div class="cost">~4 shots</div>
+    <div class="arrow loop">&darr;&ensp;&uarr;</div>
+    <div class="cost loop-label">until it matches</div>
+    <div class="step"><strong>Read the screen</strong> &mdash; the same measure as the real captures</div>
+    <div class="cost">every shot</div>
+    <div class="arrow">&darr;</div><div></div>
+    <div class="step"><strong>Place the spot</strong> &mdash; two correctors, one linear solve</div>
+    <div class="cost">1 shot</div>
+  </div>
+  <p style="text-align:center; margin-top:0.8em;">Everything the model can do, the model
+     does. The machine is only asked what the model cannot answer.</p>
+</section>
+
+<!-- ------------------------------------------------------------- 7. an episode -->
+<section>
+  <h2>One episode, eight shots</h2>
+  <div class="fit">
+    <!-- data-src so reveal restarts the GIF from the first shot on every visit -->
+    <img data-src="mbrl_episode/beam_focusing.gif"
+         alt="One episode: the measured spot converging onto the requested one over eight shots"
+         style="max-height:70vh; width:auto;">
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- 8. the numbers -->
+<section>
+  <h2>The numbers</h2>
+  <table class="winners" style="width:92%; margin:0 auto;">
+    <thead>
+      <tr>
+        <th>Method</th><th class="num">Score</th><th class="num">Shots</th>
+        <th class="num">Screen moves</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hero"><td><strong>Calibration + MF-BO</strong></td>
+        <td class="num best">0.40</td><td class="num">8.7</td>
+        <td class="num best">0</td></tr>
+      <tr class="hero"><td><strong>SVD subspace, BO</strong></td>
+        <td class="num">0.43</td><td class="num">5.6</td>
+        <td class="num best">0</td></tr>
+      <tr class="hero"><td><strong>SVD subspace, RCDS</strong></td>
+        <td class="num">0.50</td><td class="num">6.2</td>
+        <td class="num best">0</td></tr>
+      <tr class="hero"><td><strong>Model-based RL</strong></td>
+        <td class="num">0.77</td><td class="num">6.5</td>
+        <td class="num best">0</td></tr>
+      <tr><td>Optics + placement <span class="muted">(two linear solves)</span></td>
+        <td class="num">1.00</td><td class="num best">2.0</td>
+        <td class="num best">0</td></tr>
+      <tr class="baseline"><td>Do nothing</td>
+        <td class="num">9.65</td><td class="num">0</td>
+        <td class="num">0</td></tr>
+    </tbody>
+  </table>
+  <p style="text-align:center; margin-top:1em; font-size:1.05em;">
+    <strong>A morning&rsquo;s work, in six shots.</strong>
+  </p>
+  <p class="footnote" style="text-align:center;">100 episodes each, lower score is better.
+    Different draws of days, so read the column, not the decimal place.</p>
+</section>
+
+<!-- ------------------------------------------------------------- credits -->
+<section class="titleslide">
+  <p class="kicker" style="text-align:center;">Credits</p>
+  <h2 style="border:0; text-align:center;">Most valuable player</h2>
+  <p style="font-size:2.6em; margin:0.1em 0;">&#127942;</p>
+  <p style="font-size:1.5em; margin:0 0 0.2em 0;">
+    <strong style="color:var(--accent);">Claude</strong></p>
+  <p class="names" style="max-width:62%; margin:0 auto; line-height:1.5;">
+    Wrote the twin, the planner, the response tables, the capture filter, most of the
+    READMEs and every slide you have just sat through &mdash; and found more of our bugs
+    than we would like recorded in a public talk.
+  </p>
+  <p class="names" style="margin-top:1.6em;">
+    &#129352;&ensp;Honourable mention: <strong>ChatGPT</strong>
+  </p>
+  <p class="footnote" style="text-align:center; max-width:64%; margin:0.3em auto 0;">
+    The models had the benchmark in front of them throughout. Every number in this deck
+    comes from a run a human set off, read and checked.
+  </p>
+</section>
+
+</div>
+</div>
+
+<script src="talk_assets/reveal/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1600,
+    height: 900,
+    margin: 0.05,
+    center: false,
+    hash: true,
+    slideNumber: "c/t",
+    transition: "fade",
+    transitionSpeed: "fast",
+    // the animation is a background iframe: let it take key presses only once
+    // it has been clicked, so arrows and space keep driving the deck
+    controls: true,
+    progress: true,
+  });
+
+  // The methods walk-through dims the cards it is not on, but only once stepping has
+  // started: before the first fragment the list reads as a plain list of six.
+  function syncMethodDimming(fragment) {
+    const list = fragment.closest(".methods");
+    if (!list) return;
+    const started = list.querySelector(".focusable.visible") !== null;
+    list.classList.toggle("stepping", started);
+  }
+  Reveal.on("fragmentshown", (event) => syncMethodDimming(event.fragment));
+  Reveal.on("fragmenthidden", (event) => syncMethodDimming(event.fragment));
+</script>
+</body>
+</html>

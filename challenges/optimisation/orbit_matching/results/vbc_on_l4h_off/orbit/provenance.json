@@ -1,0 +1,21 @@
+{
+  "orbit_l4h": "0.75 m drift",
+  "vbc_angle_rad": 0.13169935,
+  "nominal_particles_per_transmission": 200000,
+  "transmission_cases": 2,
+  "tracking_backends": [
+    "cheetah",
+    "xsuite"
+  ],
+  "optics_nodes": 144,
+  "input_sha256": {
+    "optics_matching_vbc_on/results/rematched_grid_vbc_on.npz": "5901ead92c36eec4ae985e88d6927cf00d59b78a263f4ac1e8a18c93a7398c3d",
+    "optics_matching_vbc_on/CLARA_cheetah_second_order.json": "500cc57d05733c6d51dd9ca0cefea33c7d4d4fc634a41636349fe15692f2eae8",
+    "optics_matching_vbc_on/CLARA_cheetah_second_order_l4h_off.json": "b762014889e71182fd505623f05f3738f4292aa843c1ae7992f408903c6217f8",
+    "data/clara/lattice_data/apertures.json": "501daf22c84602741dc7d9ed52086df722ab18babff57da20e1d1fc98fbb4c47",
+    "nominal_model/xsuite_model.py": "94181022f2592570c234f9c59cc5916edd3c258b0da7fb300dca0239799e6a4b",
+    "nominal_model/initial_distribution.npz": "9c3532d03fefb0b9a639d6246429fb8542c7fde5808ef9eae433953e30449e3d",
+    "orbit_matching/backend_transport.py": "b97deaf103fd3ac891a83eba1ae04ae8f5f58e783c2f5e278f949684fada0c67",
+    "orbit_matching/vbc_reference.py": "ed9a23a4d809f8cf390751155a5b5df428a81f38e0f335c548ca4f20f6138b39"
+  }
+}

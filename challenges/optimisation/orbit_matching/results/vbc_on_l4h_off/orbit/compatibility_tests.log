@@ -1,0 +1,8 @@
+Compiling ContextCpu kernels...
+ld: warning: search path 'Modules/_hacl' not found
+......
+----------------------------------------------------------------------
+Ran 6 tests in 13.126s
+
+OK
+Done compiling ContextCpu kernels.

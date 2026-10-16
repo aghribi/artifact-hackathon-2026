@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "sigma_x_m": 0.0001,
+      "sigma_y_m": 0.0001,
+      "weighted_response_relative_error": 0.00022476359703367454,
+      "max_absolute_response_error": 0.012519656198413998,
+      "max_ip_beta_relative_error": 0.0005144056843686684
+    },
+    {
+      "sigma_x_m": 0.001414213562,
+      "sigma_y_m": 0.001414213562,
+      "weighted_response_relative_error": 5.0428290760636073e-05,
+      "max_absolute_response_error": 0.006520783807695718,
+      "max_ip_beta_relative_error": 8.213649555399716e-05
+    },
+    {
+      "sigma_x_m": 0.02,
+      "sigma_y_m": 0.02,
+      "weighted_response_relative_error": 5.6466991860856974e-05,
+      "max_absolute_response_error": 0.006520783807695718,
+      "max_ip_beta_relative_error": 5.0844007338235464e-05
+    },
+    {
+      "sigma_x_m": 0.0004,
+      "sigma_y_m": 0.009,
+      "weighted_response_relative_error": 5.4346157113534305e-05,
+      "max_absolute_response_error": 0.006520783807695718,
+      "max_ip_beta_relative_error": 6.752817725197424e-05
+    },
+    {
+      "sigma_x_m": 0.015,
+      "sigma_y_m": 0.0002,
+      "weighted_response_relative_error": 5.893612241911782e-05,
+      "max_absolute_response_error": 0.006520783807695718,
+      "max_ip_beta_relative_error": 9.59768580771625e-05
+    }
+  ],
+  "columns_checked": [
+    0,
+    5,
+    15,
+    18,
+    35,
+    41,
+    42,
+    43,
+    44,
+    45
+  ]
+}

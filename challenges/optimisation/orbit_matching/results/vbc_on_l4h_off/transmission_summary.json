@@ -1,0 +1,14 @@
+{
+  "cheetah": {
+    "min": 0.026505,
+    "median": 0.989515,
+    "max": 0.989535,
+    "num_particles": 200000
+  },
+  "xsuite": {
+    "min": 0.026735,
+    "median": 0.9895275,
+    "max": 0.989585,
+    "num_particles": 200000
+  }
+}

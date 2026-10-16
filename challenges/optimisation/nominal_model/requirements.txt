@@ -1,0 +1,11 @@
+# Versions the nominal model was built and validated with (October 2026).
+cheetah-accelerator==0.8.4
+xtrack==0.115.5
+xpart==0.23.22
+xobjects==0.7.1
+xdeps==0.10.21
+numpy
+matplotlib
+# only for make_initial_distribution.py and make_gpsr_lattice.py
+h5py
+pandas
