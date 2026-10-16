@@ -234,22 +234,42 @@ class OpticsEnv(SimEnv):
     # ---------- the optics ----------
 
     def _match(self, target, start: dict[str, float]):
-        """Re-match the final focus to `target` in the twin, within limits."""
+        """Re-match the final focus to `target` in the twin, within limits.
+
+        Only the four final-focus magnets move, so the beam is tracked once to just
+        before them (`batched.Stations`) and every evaluation tracks the last few
+        dozen elements; the finite-difference Jacobian is one batched track of the four
+        steps and the point itself (the steps `least_squares` takes with `diff_step=1e-3`)."""
+        from .batched import Stations
+
         names = list(FINAL_FOCUS)
         low = np.array([self.twin._knobs[n].low for n in names])
         high = np.array([self.twin._knobs[n].high for n in names])
         x0 = np.clip([start.get(n, self.twin._knobs[n].value) for n in names], low, high)
+        stations = Stations(self, start)
+
+        def residuals(K):
+            stats, transmission, stops = stations.track(
+                {n: K[:, i] for i, n in enumerate(names)})
+            final = stats[:, stops.index(self.config.target_screen)]
+            with np.errstate(invalid="ignore", divide="ignore"):
+                out = np.column_stack([np.log(final[:, 2] / target[0]),
+                                       np.log(final[:, 3] / target[1]),
+                                       2.0 * (1.0 - transmission)])
+            out[~np.all(np.isfinite(final), axis=1)] = 10.0
+            return out
 
         def residual(k):
-            readings = self._probe({**start, **dict(zip(names, k))})
-            final = readings["stats"][readings["names"].index(self.config.target_screen)]
-            if not np.all(np.isfinite(final)):
-                return np.array([10.0, 10.0, 10.0])
-            return np.array([np.log(final[2] / target[0]),
-                             np.log(final[3] / target[1]),
-                             2.0 * (1.0 - readings["transmission"])])
+            return residuals(np.asarray(k)[None])[0]
 
-        fit = least_squares(residual, x0, bounds=(low, high), diff_step=1e-3,
+        def jacobian(k):
+            h = 1e-3 * np.where(k >= 0, 1.0, -1.0) * np.maximum(1.0, np.abs(k))
+            h = np.where((k + h > high) | (k + h < low), -h, h)
+            h = (k + h) - k
+            f = residuals(np.vstack([k, k + np.diag(h)]))
+            return ((f[1:] - f[0]) / h[:, None]).T
+
+        fit = least_squares(residual, x0, jac=jacobian, bounds=(low, high),
                             x_scale=np.maximum(np.abs(x0), 1.0), xtol=1e-6,
                             ftol=1e-6, max_nfev=MATCH_EVALUATIONS)
         k = {**start, **dict(zip(names, fit.x))}
@@ -258,17 +278,35 @@ class OpticsEnv(SimEnv):
         return k, clipped
 
     def _modes(self, k1, knob_names, step, columns_of, fraction) -> Modes:
-        """Weighted central-difference response of the readings to each knob."""
+        """Weighted central-difference response of the readings to each knob. The
+        beam is tracked once at `k1` (`batched.Stations`); the two steps of the knobs
+        in each stretch between diagnostics are then one batched track from there."""
+        from .batched import Stations
+
         base = self._probe(k1)
         _, weights = self._rows(base["names"])
         rows = [f"{name}:{plane}" for name, w in zip(base["names"], weights) if w
                 for plane in ("x", "y")]
-        columns = []
-        for name in knob_names:
-            centre = self.twin._knobs[name].value if name not in k1 else k1[name]
-            plus = self._probe({**k1, name: centre + step})
-            minus = self._probe({**k1, name: centre - step})
-            columns.append(columns_of(plus, minus, base, step)[weights > 0].ravel())
+        stations = Stations(self, k1)
+        assert stations.names == base["names"]
+        groups: dict[int, list[int]] = {}
+        for j, name in enumerate(knob_names):
+            groups.setdefault(stations.start([name]), []).append(j)
+        stats = np.empty((2 * len(knob_names),) + stations.stats.shape[1:])
+        for members in groups.values():
+            settings = {knob_names[j]: np.full(
+                2 * len(members), k1.get(knob_names[j],
+                                         self.twin._nominal_strengths[knob_names[j]]))
+                for j in members}
+            for i, j in enumerate(members):
+                settings[knob_names[j]][2 * i] += step
+                settings[knob_names[j]][2 * i + 1] -= step
+            group, _, _ = stations.track(settings)
+            for i, j in enumerate(members):
+                stats[2 * j], stats[2 * j + 1] = group[2 * i], group[2 * i + 1]
+        columns = [columns_of({"stats": stats[2 * j]}, {"stats": stats[2 * j + 1]},
+                              base, step)[weights > 0].ravel()
+                   for j in range(len(knob_names))]
         response = np.nan_to_num(np.array(columns).T)
         response *= np.repeat(np.sqrt(weights[weights > 0] / 2), 2)[:, None]
         _, s, vt = np.linalg.svd(response, full_matrices=False)
@@ -285,7 +323,7 @@ class OpticsEnv(SimEnv):
         the quadrupole and corrector modes about it. See the module docstring.
 
         `modes=False` skips the two SVDs (the 208 finite-difference tracks) and
-        returns the optics alone, in about a quarter of the time."""
+        returns the optics alone, in a tenth of the time."""
         key = (float(sigma_x), float(sigma_y), float(fraction), modes)
         if not modes:
             full = (float(sigma_x), float(sigma_y), float(fraction), True)

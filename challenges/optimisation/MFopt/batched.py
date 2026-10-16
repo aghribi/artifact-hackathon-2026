@@ -61,10 +61,8 @@ def _segment(env: OpticsEnv) -> _BatchSegment:
     return env._batch_segment
 
 
-def _track(env: OpticsEnv, columns: dict[str, np.ndarray], count: int,
-           coordinates: np.ndarray | None = None):
-    """`coordinates`, (count, particles, 6), tracks a different beam per row instead
-    of the twin's nominal beam."""
+def _write(env: OpticsEnv, columns: dict[str, np.ndarray]) -> _BatchSegment:
+    """Every knob of the batch segment to its column, or to the lattice file."""
     twin = env.twin
     segment = _segment(env)
     for name, knob in twin._knobs.items():
@@ -76,20 +74,31 @@ def _track(env: OpticsEnv, columns: dict[str, np.ndarray], count: int,
         segment.write(knob.element_name, knob.prop, tensor)
         for element, sign in knob.coupled:
             segment.write(element, knob.prop, sign * tensor)
+    return segment
+
+
+def _launch(env: OpticsEnv, coordinates: np.ndarray | None):
+    """The beam to track, and which of its particles are alive: all of them."""
+    twin = env.twin
     if coordinates is None:
         coordinates = twin._coordinates
     particles = torch.tensor(
         np.concatenate([coordinates, np.ones(coordinates.shape[:-1] + (1,))], axis=-1),
         dtype=DTYPE,
     )
-    launched = coordinates.shape[-2]
     beam = cheetah.ParticleBeam(particles=particles, energy=twin.transport._energy)
-    radius = twin.config.beam_pipe_radius
-    minimum = twin.config.min_screen_fraction * launched
-    live = torch.ones((count, launched), dtype=torch.bool)
+    return beam, torch.ones(coordinates.shape[:-1], dtype=torch.bool)
+
+
+def _run(env: OpticsEnv, chunks, beam, live, count: int):
+    """Track `beam` through `chunks`, reading every BPM and screen on the way.
+    `live` is updated in place."""
+    radius = env.twin.config.beam_pipe_radius
+    launched = live.shape[-1]
+    minimum = env.twin.config.min_screen_fraction * launched
     names, stats = [], []
     with torch.no_grad():
-        for stop, chunk in segment.chunks:
+        for stop, chunk in chunks:
             if len(chunk.elements):
                 beam = chunk.track(beam)
             x = beam.x.expand(count, -1)
@@ -110,8 +119,75 @@ def _track(env: OpticsEnv, columns: dict[str, np.ndarray], count: int,
             row = torch.stack([mx, my, sx, sy], dim=1).double().numpy()
             row[(n < minimum).numpy()] = np.nan
             stats.append(row)
-    transmission = live.sum(dim=1).double().numpy() / launched
-    return np.stack(stats, axis=1), transmission, names
+    stats = np.stack(stats, axis=1) if stats else np.zeros((count, 0, 4))
+    return stats, names, beam
+
+
+def _track(env: OpticsEnv, columns: dict[str, np.ndarray], count: int,
+           coordinates: np.ndarray | None = None):
+    """`coordinates`, (count, particles, 6), tracks a different beam per row instead
+    of the twin's nominal beam."""
+    segment = _write(env, columns)
+    beam, live = _launch(env, coordinates)
+    live = live.expand(count, -1).clone()
+    stats, names, _ = _run(env, segment.chunks, beam, live, count)
+    transmission = live.sum(dim=1).double().numpy() / live.shape[-1]
+    return stats, transmission, names
+
+
+class Stations:
+    """The nominal beam tracked once with `base`, kept at every diagnostic.
+
+    A batch of settings that moves only magnets from some point of the line on is
+    then tracked from the last diagnostic before the first of them (`track`), so a
+    knob near the end of the line costs the elements after it, not the whole line.
+    Diagnostics upstream of that point read as at `base`.
+    """
+
+    def __init__(self, env: OpticsEnv, base: dict[str, float]):
+        self.env = env
+        self.base = dict(base)
+        segment = _write(env, {k: np.array([v]) for k, v in self.base.items()})
+        beam, live = _launch(env, None)
+        live = live[None].clone()
+        # the beam and its live particles at the start of each chunk
+        self.beams, self.lives, stats, self.names = [], [], [], []
+        for stop, chunk in segment.chunks:
+            self.beams.append(beam)
+            self.lives.append(live.clone())
+            row, names, beam = _run(env, [(stop, chunk)], beam, live, 1)
+            stats.append(row)
+            self.names += names
+        self.stats = np.concatenate(stats, axis=1)
+        self.transmission = float(live.sum()) / live.shape[-1]
+        # the chunk each element is tracked in
+        elements = env.twin.transport._segment
+        self._ends = [elements.element_index(stop) for stop, _ in segment.chunks]
+
+    def start(self, names) -> int:
+        """The chunk holding the most upstream of these knobs."""
+        twin = self.env.twin
+        elements = twin.transport._segment
+        index = min(elements.element_index(element) for n in names
+                    for element in (twin._knobs[n].element_name,
+                                    *(e for e, _ in twin._knobs[n].coupled)))
+        return next(i for i, end in enumerate(self._ends) if end > index)
+
+    def track(self, columns: dict[str, np.ndarray]):
+        """Same returns as `probe_batch`, for `columns` on top of `base`."""
+        start = self.start(columns)
+        count = len(next(iter(columns.values())))
+        full = {**{k: np.full(count, v) for k, v in self.base.items()
+                   if k not in columns}, **columns}
+        segment = _write(self.env, full)
+        live = self.lives[start].expand(count, -1).clone()
+        stats, names, _ = _run(self.env, segment.chunks[start:], self.beams[start],
+                               live, count)
+        upstream = len(self.names) - len(names)
+        stats = np.concatenate(
+            [np.repeat(self.stats[:, :upstream], count, axis=0), stats], axis=1)
+        transmission = live.sum(dim=1).double().numpy() / live.shape[-1]
+        return stats, transmission, self.names
 
 
 def probe_batch(

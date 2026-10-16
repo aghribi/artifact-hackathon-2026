@@ -94,7 +94,11 @@ env.step(env.optics_action(optics))      # load the optics (one step)
   response. `ranked()` sorts by it.
 
 Everything runs on the error-free model with the nominal beam: no environment steps.
-One target takes 1.5 to 2.5 minutes (re-match plus 208 finite-difference tracks), and
+The re-match tracks the beam once to just before FEA Q15 and then only the last few
+dozen elements per evaluation, with the finite-difference Jacobian as one batched
+track; the 208 finite-difference tracks of the modes start from the beam cached at the
+diagnostic before each knob, batched per stretch. On one thread a target takes 2 to 3 s
+without modes (was 20 s to 3.5 min) and about 30 s with them (was 2 to 5 min), and
 results are cached per target.
 
 ## Steering responses and MF-BO knobs per spot: `responses.py`
