@@ -1,0 +1,26 @@
+{
+ "answers": {
+  "readout": "cla_feh_dia_scr_01",
+  "dipoles.cla_vbc_mag_dip.role": "knob",
+  "dipoles.cla_vbc_mag_dip.name": "vbc_chicane",
+  "dipoles.cla_vbc_mag_dip.faces": true,
+  "dipoles.cla_vbc_mag_dip.limit": 0.135,
+  "dipoles.cla_fea_mag_dip.role": "fixed",
+  "cavities.drop_dead": true,
+  "limits.source": "simenv",
+  "axes.0.low": 0.1215,
+  "axes.0.high": 0.1317,
+  "axes.0.points": 5,
+  "grid.low": 7e-05,
+  "grid.high": 0.00045,
+  "grid.points": 49,
+  "group.cla_fea_mag_sext.role": "grouped",
+  "group.cla_fea_mag_sext.name": "fea_sextupoles",
+  "group.cla_fea_mag_sext.signs": "alternating",
+  "group.cla_fea_mag_sext.limit": 840.5985,
+  "group.extra.110.add": false,
+  "axes.source": "scan",
+  "axes.top_k": 1,
+  "matching.count": 4
+ }
+}

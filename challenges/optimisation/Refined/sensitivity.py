@@ -56,6 +56,10 @@ from machine import MachineSpec, ScanAxis  # noqa: E402
 
 # Points sampled across each knob's range, including both ends.
 SWEEP_POINTS = 5
+# Points of plain linear coverage every sweep gets on top of the geometric ladder,
+# so a knob that loses the beam in the middle of its range cannot read as healthy
+# across the whole of it. See `sweep_values`.
+LINEAR_POINTS = 21
 # A knob that changes the spot by more than this fraction, anywhere in its range,
 # is proposed as an axis. 5 % of a spot size is already a tenth of the tolerance a
 # tight request is scored against, so a family that ignores it is wrong by more
@@ -122,6 +126,19 @@ def sweep_values(line: Line, name: str, points: int) -> np.ndarray:
 
     A geometric ladder of offsets either side of the present value resolves a span
     a thousandth of the range wide and still reaches the limits.
+
+    The ladder alone is not enough, though, and getting that wrong is expensive.
+    It samples densely beside the present value and again at the limits, and
+    skips most of what lies between — so a knob whose beam dies in the *middle* of
+    its range reads as healthy from end to end. CLARA's compressor does exactly
+    that: it holds the beam above |0.115| rad either side of zero and loses four
+    fifths of it in between, because an uncompressed bunch leaves the last linac
+    with an energy spread the dogleg throws into the wall. Scanned with the ladder
+    alone it proposed [-0.135, 0.135], and a precompute over that range spent
+    four grid points of five on tunes nobody can run.
+
+    So the ladder is unioned with a plain linear sweep, which cannot miss a hole.
+    It costs nothing: the whole thing is one batched track.
     """
     low, high = sweep_range(line, name)
     present = float(np.clip(line.value(name), low, high))
@@ -130,7 +147,10 @@ def sweep_values(line: Line, name: str, points: int) -> np.ndarray:
         return np.array([present])
     rungs = max(1, (points - 1) // 2)
     offsets = np.geomspace(reach * 1e-3, reach, rungs)
-    values = np.concatenate([[present], present + offsets, present - offsets])
+    values = np.concatenate([
+        [present], present + offsets, present - offsets,
+        np.linspace(low, high, max(points, LINEAR_POINTS)),
+    ])
     return np.unique(np.clip(values, low, high))
 
 
@@ -168,7 +188,7 @@ def measure(line: Line, candidates: list[str], points: int = SWEEP_POINTS) -> li
     """Sweep each candidate across its range with everything else held still."""
     base = line.track()
     _, base_size = base.beam_at(line.readout)
-    reference = base_size.numpy().astype(float)
+    reference = base_size.detach().cpu().numpy().astype(float)
     if not np.all(reference > 0):
         raise RuntimeError(
             "the nominal tune does not put a measurable spot on the readout; "
@@ -186,8 +206,8 @@ def measure(line: Line, candidates: list[str], points: int = SWEEP_POINTS) -> li
             batch=len(values),
         )
         _, sizes = readings.beam_at(line.readout)
-        sizes = sizes.numpy().astype(float)
-        transmission = readings.transmission.numpy().astype(float)
+        sizes = sizes.detach().cpu().numpy().astype(float)
+        transmission = readings.transmission.detach().cpu().numpy().astype(float)
 
         good = (transmission >= HEALTHY) & np.all(sizes > 0, axis=-1)
         span = _usable_span(good, values, line.value(name))
@@ -222,20 +242,29 @@ def candidates_for(spec: MachineSpec) -> tuple[list[str], list[str], list[str]]:
 
     Three groups:
 
-    - **matching**: what the family solves *for*. Changing them is supposed to
-      change the spot; that is their job, not a defect in the family.
+    - **quadrupoles**: the ones the family matches with are what it solves *for*,
+      and changing them is their job rather than a defect. The rest are the
+      machine's standing optics — held wherever the lattice has them, the same for
+      every request — so they are a condition the family is solved under but not
+      one anybody varies, and an axis is only worth its cost for something that
+      moves. They are excluded too, and said so in the report: retune an upstream
+      quadrupole and the family does quietly go stale.
+
+      This matters more than it sounds. Swept on CLARA they dominate the ranking —
+      `cla_s02_mag_quad_02` reads 67 % against the compressor's 51 % — and burying
+      the knobs an operator actually turns under forty that nobody does makes the
+      ranking useless for choosing axes.
     - **steering**: correctors. A separable linear orbit, solved live by its own
       SVD stage, never precomputed.
-    - **candidates**: everything else — the conditions the family is solved
-      *under*, and the only knobs that can invalidate it.
+    - **candidates**: everything else — sextupoles, RF phases, compressors. The
+      knobs that are both set per configuration and able to invalidate the family.
     """
-    matching = set(spec.matching_quads) or {
-        k.name for k in spec.knobs if k.prop == "k1"
-    }
+    quadrupoles = {k.name for k in spec.knobs if k.prop == "k1"}
+    matching = set(spec.matching_quads) or quadrupoles
     steering = {k.name for k in spec.knobs if k.prop in STEERING_PROPS}
     candidates = [
         k.name for k in spec.knobs
-        if k.name not in matching and k.name not in steering
+        if k.name not in quadrupoles and k.name not in steering
     ]
     return candidates, sorted(matching), sorted(steering)
 
@@ -289,6 +318,11 @@ def report(effects: list[Effect], spec: MachineSpec) -> list[Effect]:
         print(f"\n  {len(lost)} knob(s) hold the beam nowhere near their present "
               f"setting: {[e.knob for e in lost][:6]}")
         print("      these are knobs to bound, not knobs to scan")
+    standing = len([k for k in spec.knobs if k.prop == "k1"]) - len(spec.matching_quads)
+    if standing > 0 and spec.matching_quads:
+        print(f"\n  {standing} quadrupole(s) outside the matching set were not swept:")
+        print("      they are the standing optics, held where the lattice has them.")
+        print("      Retune one and this family goes stale without saying so.")
     return proposed
 
 

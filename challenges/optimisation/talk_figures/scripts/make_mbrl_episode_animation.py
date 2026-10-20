@@ -41,14 +41,11 @@ for path in (CHALLENGE, CHALLENGE / "RL_framework", CHALLENGE / "MBRL_opt"):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-from rl_framework.config import RLConfig  # noqa: E402
-
-from MFopt.optics_env import OpticsEnv  # noqa: E402
-
-from agent import MBRLAgent, _mismatch  # noqa: E402
-from config import MBRLConfig  # noqa: E402
-from screen import measure  # noqa: E402
-from twin import CheetahTwin, tune_threads  # noqa: E402
+# `MBRL_opt` is imported inside the functions that need it rather than here, so
+# that another pipeline can import this module for its drawing code — the camera
+# panel, the window logic, the score trace — without dragging in an agent it does
+# not use. See `make_refined_episode_animation.py`, which renders the `Refined`
+# pipeline into exactly the same frames.
 
 # `score.REQUESTED_COLOUR` and `MEASURED_COLOUR`, so these frames and the
 # benchmark's own plots say the same thing with the same colours.
@@ -80,8 +77,16 @@ FRAME_MS = 900
 HOLD_LAST = 6
 
 
-def record(seed: int, config: MBRLConfig) -> tuple[list[dict], object]:
+def record(seed: int, config) -> tuple[list[dict], object]:
     """Run one episode, keeping the camera frame and the numbers of every shot."""
+    from rl_framework.config import RLConfig
+
+    from MFopt.optics_env import OpticsEnv
+
+    from agent import MBRLAgent
+    from screen import measure
+    from twin import CheetahTwin
+
     rl = RLConfig()
     rl.screen_shape = config.screen_shape
     env = OpticsEnv(rl)
@@ -330,8 +335,13 @@ def _trace(trace, frames, frame) -> None:
     trace.tick_params(colors=MUTED, labelsize=8)
 
 
-def render(frames, extent, out: Path, result) -> None:
-    """The GIF, and the same frames as numbered PNGs."""
+def render(frames, extent, out: Path, result, title: str | None = None,
+           name: str = "beam_focusing") -> None:
+    """The GIF, and the same frames as numbered PNGs.
+
+    `title` and `name` are parameters so a second pipeline can render the same
+    way without claiming to be this one.
+    """
     out.mkdir(parents=True, exist_ok=True)
     figure, axes = plt.subplots(
         1, 2, figsize=(11.5, 5.2), gridspec_kw={"width_ratios": [1.35, 1.0]}
@@ -343,15 +353,18 @@ def render(frames, extent, out: Path, result) -> None:
     windows = windows_for(frames)
     sequence = list(zip(frames, windows))
     sequence += [sequence[-1]] * HOLD_LAST
-    gif = out / "beam_focusing.gif"
+    gif = out / f"{name}.gif"
     writer = PillowWriter(fps=1000 / FRAME_MS)
     with writer.saving(figure, str(gif), dpi=110):
         for index, (frame, window) in enumerate(sequence):
             draw(frame, frames, extent, axes, window)
             figure.suptitle(
-                f"CLARA · one episode of the MBRL_opt pipeline"
-                f"        final score {result.benchmark_score:.2f}"
-                f" in {result.shots} shots, {result.screen_switches} screen changes",
+                title or (
+                    f"CLARA · one episode of the MBRL_opt pipeline"
+                    f"        final score {result.benchmark_score:.2f}"
+                    f" in {result.shots} shots, "
+                    f"{result.screen_switches} screen changes"
+                ),
                 color=INK, fontsize=11, x=0.012, ha="left", y=0.985,
             )
             figure.tight_layout(rect=[0, 0.02, 1, 0.94])
@@ -376,6 +389,9 @@ def main() -> None:
         default=Path(__file__).resolve().parents[1] / "mbrl_episode",
     )
     args = parser.parse_args()
+    from config import MBRLConfig
+    from twin import tune_threads
+
     tune_threads()
     config = MBRLConfig()
 
@@ -393,6 +409,10 @@ def main() -> None:
 
     print(f"running seed {args.seed}")
     frames, result = record(args.seed, config)
+    from rl_framework.config import RLConfig
+
+    from MFopt.optics_env import OpticsEnv
+
     rl = RLConfig()
     rl.screen_shape = config.screen_shape
     extent = OpticsEnv(rl).screen_extent()

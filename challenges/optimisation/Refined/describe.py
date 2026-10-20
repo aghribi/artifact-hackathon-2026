@@ -69,6 +69,10 @@ CLOSED_BUMP = 0.05  # a string whose angles sum to within this of its largest cl
 # Most scan axes the grid may have. The precompute is a product over them, so four
 # is already a job nobody runs twice.
 MAX_AXES = 4
+# Quadrupoles the family matches with, by default: the last few before the readout.
+# Two sizes are being asked for, so two is the minimum that can trade the planes off
+# against each other, and four leaves enough slack to hold transmission as well.
+DEFAULT_MATCHING = 4
 
 
 # ---------------------------------------------------------------- reading
@@ -377,6 +381,41 @@ def ask_groups(ask: Interview, knobs: list[Knob], groups: list[dict]) -> list[Kn
     return list(by_name.values())
 
 
+def _grouped_limits(env, knobs: list[Knob]) -> dict[str, tuple[float, float]]:
+    """Limits for knobs the source only knows under another name.
+
+    A grouped knob is named here and named differently there — this interview
+    calls the chicane `vbc_chicane` and SimEnv calls it `cla_vbc_chicane` — so a
+    lookup by name silently misses it and the knob keeps whatever the interview
+    guessed. On CLARA that guess was +-0.135 rad against a real +-0.1317, and the
+    precompute happily built optics at angles the machine cannot reach.
+
+    Matched on the element set instead, which is what a knob actually is, and the
+    limits are flipped if the two disagree about which way is positive. They do:
+    the chicane runs at +0.1317 here and -0.1317 there.
+    """
+    by_elements = {}
+    for name in env.magnet_names:
+        knob = env._knobs[name]
+        members = ((knob.element_name, 1.0), *knob.coupled)
+        by_elements[frozenset(e for e, _ in members)] = (name, dict(members))
+    out: dict[str, tuple[float, float]] = {}
+    for knob in knobs:
+        if knob.name in env.magnet_limits:
+            continue
+        found = by_elements.get(frozenset(knob.elements))
+        if found is None:
+            continue
+        name, signs = found
+        import numpy as np
+
+        theirs = np.array([signs[e] for e in knob.elements])
+        flip = float(np.sign(np.dot(theirs, np.array(knob.signs))) or 1.0)
+        low, high = env.magnet_limits[name]
+        out[knob.name] = tuple(sorted((low * flip, high * flip)))
+    return out
+
+
 def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
     """Where the power supply ranges come from."""
     ask.section("Magnet limits")
@@ -410,7 +449,9 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
 
             config = RLConfig()
             config.num_particles = 100  # nothing is tracked; this is for the table
-            table = dict(SimEnv(config).magnet_limits)
+            env = SimEnv(config)
+            table = dict(env.magnet_limits)
+            table.update(_grouped_limits(env, knobs))
         except Exception as error:  # noqa: BLE001 — the user chose this source
             unresolved.append(f"could not read the SimEnv limits: {error!r}")
     if source == "none":
@@ -569,6 +610,51 @@ def ask_axes(ask: Interview, spec: MachineSpec, particles: int = 2000,
     return axes
 
 
+def ask_matching(ask: Interview, spec: MachineSpec, sequence: list[str]) -> None:
+    """Which quadrupoles the family varies to hit a requested spot.
+
+    These are what the precompute solves *for*, so the count is a real choice and
+    not a detail. Two constraints are being met — a horizontal and a vertical size
+    — and more quadrupoles than that leaves the solution a surface rather than a
+    point, which is fine and even useful (the extra freedom buys transmission and
+    keeps the strengths reachable) as long as the solver's gauge is pinned. Far
+    more than that and the match wanders a long way from the reference tune for no
+    gain, each node taking longer and agreeing less with its neighbours.
+
+    The default is the last few quadrupoles before the readout, which is the final
+    focus on any machine shaped like a beamline. On CLARA it is the same four
+    `MFopt` matches.
+    """
+    ask.section("The matching quadrupoles")
+    order = {name: i for i, name in enumerate(sequence)}
+    position = lambda knob: max(order.get(e, -1) for e in knob.elements)  # noqa: E731
+    quads = sorted((k for k in spec.knobs if k.prop == "k1"), key=position)
+    readout_at = order.get(spec.readout, len(sequence))
+    upstream = [k for k in quads if position(k) < readout_at]
+    ask.say(
+        f"{len(quads)} quadrupole knob(s), {len(upstream)} of them before the readout.",
+        "The family varies these to hit the requested spot; everything else is held.",
+        "",
+        "The last few before the readout are its final focus. More than a handful",
+        "and the match drifts far from the reference tune for little gain; fewer",
+        "than two and there is nothing to trade the two planes against.",
+    )
+    if not upstream:
+        spec.unresolved.append(
+            "no quadrupole knob upstream of the readout: nothing can match a spot"
+        )
+        return
+    count = int(ask.number(
+        "matching.count", "How many of the last quadrupoles should match?",
+        default=min(DEFAULT_MATCHING, len(upstream)), cast=int,
+        bounds=(1, len(upstream)),
+        help="the last, in order: "
+             + ", ".join(k.name for k in upstream[-DEFAULT_MATCHING * 2:]),
+    ))
+    spec.matching_quads = [k.name for k in upstream[-count:]]
+    ask.say("", f"matching: {spec.matching_quads}")
+
+
 def ask_grid(ask: Interview, spec: MachineSpec, axes: list[ScanAxis]) -> None:
     ask.section("The spot-size grid")
     spec.spot_low = ask.number("grid.low", "Smallest rms spot to support, metres",
@@ -646,6 +732,7 @@ def run(path: Path, ask: Interview, start=None, end=None, beam=None,
         pipe_radius=pipe_radius, knobs=knobs, fixed=fixed,
         name=path.stem, unresolved=unresolved,
     )
+    ask_matching(ask, spec, sequence)
     axes = ask_axes(ask, spec, scan_particles, scan_points)
     ask_grid(ask, spec, axes)
     return spec

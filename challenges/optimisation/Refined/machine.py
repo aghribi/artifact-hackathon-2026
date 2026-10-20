@@ -211,7 +211,31 @@ class MachineSpec:
 
     @classmethod
     def load(cls, path: str | Path) -> "MachineSpec":
-        return cls.from_dict(json.loads(Path(path).read_text()))
+        """Read a spec, resolving the files it points at.
+
+        The paths in a spec are whatever the interview was given, which is
+        usually relative to the directory it was run from — not to the spec
+        itself. That works until something loads the spec from somewhere else,
+        at which point the lattice is simply not found; a plotting script two
+        directories away is the obvious way to discover this.
+
+        So each path is tried as written, then beside the spec, then a directory
+        up from it, and the first that exists is kept as an absolute path. A
+        path that resolves nowhere is left exactly as written, so the error it
+        eventually raises names what the spec actually asked for.
+        """
+        path = Path(path)
+        spec = cls.from_dict(json.loads(path.read_text()))
+        for field_name in ("lattice", "beam", "apertures"):
+            value = getattr(spec, field_name)
+            if not value:
+                continue
+            for candidate in (Path(value), path.parent / value,
+                              path.parent.parent / value):
+                if candidate.exists():
+                    setattr(spec, field_name, str(candidate.resolve()))
+                    break
+        return spec
 
     # ---------- using it ----------
 

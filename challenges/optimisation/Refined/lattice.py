@@ -109,6 +109,34 @@ class Readings:
         return self.beam_centroids[..., index, :], self.beam_sizes[..., index, :]
 
 
+@dataclass
+class Waypoint:
+    """The beam partway down the line, kept so the tail can be retracked cheaply.
+
+    Matching moves the last few quadrupoles, so every evaluation retracks the same
+    long upstream stretch to reach the few metres that changed. On CLARA the stop
+    before the final focus is 92nd of 102 and costs 75 ms of an 84 ms track: hoist
+    it out of the loop and what is left is 9 ms. Over a grid of twelve thousand
+    tunes that is the difference between an hour and ten minutes.
+
+    This is the `Line`-native form of `MFopt.batched.Stations`. The state kept is
+    everything the loop in `track` carries between stops, so resuming is exactly
+    equivalent to never having stopped.
+    """
+
+    stop: str
+    stop_index: int  # into `line.stops`
+    element_index: int  # into `line.segment.elements`
+    beam: "cheetah.ParticleBeam"
+    alive: torch.Tensor
+    margin: torch.Tensor | None
+    outside: list[torch.Tensor]
+    rows: dict[str, tuple]
+    # What every knob was at when this was taken. A waypoint is only valid for
+    # settings that agree with it upstream, and `track` checks that.
+    setpoints: dict[str, float]
+
+
 class Line:
     """A lattice, its knobs and its diagnostics, as the spec describes them."""
 
@@ -118,9 +146,16 @@ class Line:
         num_particles: int | None = None,
         coordinates: np.ndarray | None = None,
         energy_ev: float | None = None,
+        device: str | None = None,
     ):
         self.spec = spec
-        self.segment = self._build(spec)
+        # Per-line rather than a global default, because a `Line` is often not
+        # the only thing in the process: `SimEnvMachine` runs a Cheetah model of
+        # its own and would be dragged onto the GPU with it. Batched tracking is
+        # worth 2-4x on even a modest card once a batch is past about a million
+        # particle-rows, and nothing below that.
+        self.device = torch.device(device or "cpu")
+        self.segment = self._build(spec).to(self.device)
         self._elements = {e.name: e for e in self.segment.elements}
 
         # Where the beam is read and where it is scraped, in lattice order. A
@@ -190,10 +225,11 @@ class Line:
                 coordinates = data["particles"]
                 energy_ev = energy_ev or float(data["energy_ev"])
         coordinates = np.asarray(coordinates)[:num_particles]
-        self.reference = torch.tensor(np.ascontiguousarray(coordinates), dtype=DTYPE)
+        self.reference = torch.tensor(np.ascontiguousarray(coordinates), dtype=DTYPE,
+                                      device=self.device)
         self.centre = self.reference.mean(dim=0)
         self.energy_ev = float(energy_ev)
-        self._energy = torch.tensor(self.energy_ev, dtype=DTYPE)
+        self._energy = torch.tensor(self.energy_ev, dtype=DTYPE, device=self.device)
         self.num_particles = len(coordinates)
 
     # ---------- knobs ----------
@@ -221,7 +257,7 @@ class Line:
         """Set one knob: every element it drives, with its sign and its faces."""
         knob = self.knobs[name]
         if not isinstance(value, torch.Tensor):
-            value = torch.tensor(float(value), dtype=DTYPE)
+            value = torch.tensor(float(value), dtype=DTYPE, device=self.device)
         if not bool(torch.isfinite(value).all()):
             value = torch.full_like(value, float(self.value(name)))
         # Clipped to what the supply can deliver. A model that will happily set a
@@ -249,6 +285,55 @@ class Line:
         for name, value in (overrides or {}).items():
             self._write(name, value)
 
+    # ---------- waypoints ----------
+
+    def _first_element(self, names: Iterable[str]) -> int:
+        """Index of the most upstream element any of these knobs drives."""
+        return min(
+            self.segment.element_index(element)
+            for name in names for element in self.knobs[name].elements
+        )
+
+    def waypoint(self, downstream_of: Sequence[str]) -> Waypoint:
+        """The beam at the last stop before anything these knobs can touch.
+
+        Everything upstream of that stop is unaffected by them, so it is tracked
+        once here and reused for every setting of them afterwards.
+        """
+        first = self._first_element(downstream_of)
+        before = [n for n in self.stops if self.segment.element_index(n) < first]
+        if not before:
+            raise ValueError(
+                f"nothing upstream of {list(downstream_of)} to stop at: these knobs "
+                f"start before the first diagnostic, so there is no tail to save"
+            )
+        return self.track(upto=before[-1], capture=before[-1])
+
+    def _check_resumable(self, resume: Waypoint, overrides) -> None:
+        """Refuse to resume when the settings disagree upstream of the waypoint.
+
+        A stale waypoint is a silently wrong answer — the right beam size at the
+        readout for a machine nobody asked about — so this is an error and not a
+        warning.
+        """
+        def upstream_of_waypoint(name: str) -> bool:
+            return self._first_element([name]) <= resume.element_index
+
+        # An override on an upstream knob is always a disagreement: it is a column
+        # of values and the waypoint was taken at one.
+        upstream = [n for n in (overrides or ()) if upstream_of_waypoint(n)]
+        upstream += [
+            name for name in self.knobs
+            if name not in (overrides or ())
+            and upstream_of_waypoint(name)
+            and abs(self.value(name) - resume.setpoints[name]) > 0.0
+        ]
+        if upstream:
+            raise ValueError(
+                f"waypoint at {resume.stop} cannot be resumed: {sorted(upstream)} "
+                f"sit upstream of it and have moved since it was taken"
+            )
+
     # ---------- tracking ----------
 
     def track(
@@ -258,27 +343,54 @@ class Line:
         soft: float | None = None,
         upto: str | None = None,
         beam: torch.Tensor | None = None,
-    ) -> Readings:
-        """Track to `upto` (the readout by default), reading every diagnostic."""
+        resume: Waypoint | None = None,
+        capture: str | None = None,
+    ) -> Readings | Waypoint:
+        """Track to `upto` (the readout by default), reading every diagnostic.
+
+        `resume` starts from a `Waypoint` instead of from the front of the line,
+        and `capture` stops at that diagnostic and returns a `Waypoint` rather
+        than readings. Together they let a loop that only moves magnets near the
+        end of the line pay for the end of the line.
+        """
         self._apply(overrides)
         last = upto or self.spec.readout or self.stops[-1]
         stop_index = self.stops.index(last)
 
-        particles = self.reference if beam is None else beam
-        travelling = cheetah.ParticleBeam(
-            particles=torch.cat(
-                [particles, torch.ones(len(particles), 1, dtype=DTYPE)], dim=1
-            ),
-            energy=self._energy,
-        )
         minimum = self.spec.min_fraction * self.num_particles
         radius = self.spec.pipe_radius
 
-        alive = margin = None
-        outside: list[torch.Tensor] = []
-        rows: dict[str, tuple] = {}
+        if resume is None:
+            particles = self.reference if beam is None else beam
+            travelling = cheetah.ParticleBeam(
+                particles=torch.cat(
+                    [particles, torch.ones(len(particles), 1, dtype=DTYPE,
+                                           device=self.device)], dim=1
+                ),
+                energy=self._energy,
+                # Said explicitly, because the fields Cheetah fills in for itself
+                # — `survival_probabilities` above all — are built without one and
+                # land on the CPU, and the first aperture then tries to multiply a
+                # CPU mask by a GPU beam.
+                device=self.device,
+            )
+            first = 0
+            alive = margin = None
+            outside: list[torch.Tensor] = []
+            rows: dict[str, tuple] = {}
+        else:
+            if beam is not None:
+                raise ValueError("a waypoint already carries its beam")
+            self._check_resumable(resume, overrides)
+            travelling = resume.beam
+            first = resume.stop_index + 1
+            alive, margin = resume.alive, resume.margin
+            # Copied, not shared: the loop appends to both and a waypoint is meant
+            # to be resumed from many times.
+            outside, rows = list(resume.outside), dict(resume.rows)
 
-        for name in self.stops[: stop_index + 1]:
+        live = alive if margin is None else alive * _aperture(margin, soft)
+        for name in self.stops[first: stop_index + 1]:
             chunk = self._chunks[name]
             if len(chunk.elements):
                 travelling = chunk.track(travelling)
@@ -311,6 +423,17 @@ class Line:
                     _masked_std(x, live, bx), _masked_std(y, live, by),
                 )
 
+            if name == capture:
+                return Waypoint(
+                    stop=name, stop_index=self.stops.index(name),
+                    element_index=self.segment.element_index(name),
+                    beam=travelling, alive=alive, margin=margin,
+                    outside=list(outside), rows=dict(rows),
+                    setpoints={n: self.value(n) for n in self.knobs},
+                )
+        if capture is not None:
+            raise ValueError(f"{capture} is not a stop at or before {last}")
+
         transmission = live.sum(dim=-1) / self.num_particles
         scrape = (
             torch.stack(_broadcast(outside), dim=-1).mean(dim=-1)
@@ -321,7 +444,7 @@ class Line:
             *(v[0].shape for v in rows.values()),
             *(() if batch is None else ((batch,),)),
         )
-        blank = torch.zeros(shape, dtype=DTYPE)
+        blank = torch.zeros(shape, dtype=DTYPE, device=self.device)
         take = lambda name, i: (  # noqa: E731
             rows[name][i].expand(shape) if name in rows else blank
         )
@@ -345,7 +468,8 @@ class Line:
 
     def columns(self, names: Sequence[str], population: np.ndarray) -> dict:
         """A population of knob vectors as a batched override mapping."""
-        tensor = torch.tensor(np.asarray(population), dtype=DTYPE)
+        tensor = torch.tensor(np.asarray(population), dtype=DTYPE,
+                              device=self.device)
         return {name: tensor[:, i] for i, name in enumerate(names)}
 
     def probe(self, names: Sequence[str], steps: Sequence[float], base=None) -> dict:

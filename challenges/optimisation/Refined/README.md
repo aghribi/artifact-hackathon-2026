@@ -29,9 +29,23 @@ Everything downstream of it is per-request and cheap enough to do live.
 
 | | |
 |---|---|
-| `describe.py` | read a lattice, write a draft `machine.yaml` for the user to edit |
-| `precompute.py` | stage 1: lattice + spec → `artifact.npz` |
+| `describe.py` | the interview: read a lattice, ask what it cannot say, write the spec |
+| `sensitivity.py` | which knobs invalidate the family, ranked, so the axes are chosen by measurement |
+| `lattice.py` | `Line`: any spec, tracked in torch, batched and differentiable |
+| `match.py` | the matcher: a whole grid of requested spots solved in lockstep |
+| `precompute.py` | stage 1: spec → `artifact.npz` |
+| `artifact.py` | `Family`: read the artifact back, look a request up |
+| `machines.py` | what a method drives: `SimEnvMachine` (CLARA) or `LineMachine` (anything) |
+| `methods.py` | the tuning methods: `optics`, `steer`, `mpc`, `bo` |
 | `optimise.py` | stage 2: artifact + a request → a tuned machine |
+
+```bash
+python -I describe.py lattice.json --out machines/mine.json   # once per machine
+python -I sensitivity.py machines/mine.json                   # what to scan over
+python -I precompute.py machines/mine.json --pilot            # a coarse dry run
+python -I precompute.py machines/mine.json                    # the real thing
+python -I optimise.py machines/mine.json artifacts/mine.npz --method steer
+```
 
 ## Why the machine description exists
 
@@ -76,6 +90,45 @@ Everything here was learned the hard way in `MBRL_opt/` and is kept deliberately
 - **Apertures get a straight-through gradient.** Value from the hard edge, gradient
   from a sigmoid. Blurring the edge outright is badly biased.
 
+## What building it taught us
+
+Four things that were not obvious and each of which was, at first, silently wrong.
+
+**A family has to be smooth, not just correct.** The fast way to match a grid is to
+sweep the knob box once and start every node from whichever sample came closest.
+It matches more nodes than anything else and produces a family that cannot be
+interpolated: neighbouring requests land in unrelated basins, and on CLARA
+adjacent nodes came out up to 20 m⁻² apart — the entire span of the knob — with
+every node individually correct. Asked for a spot between two of them the family
+returned the average of two unrelated answers, which delivered 3.9 mm where it
+promised 1.9. `precompute.solve_coarse` now seeds **one** node and grows outward
+by continuation, so the whole grid stays on one branch. `_roughness` is printed at
+every level, because a grid that matches every node and is rough is worse than one
+that misses a few and is smooth: the first lies and the second says so.
+
+**Transmission is a property of the solution, not a constraint on it.** Carrying
+`2(1 - T)` as a third residual, as a least-squares matcher reasonably does, makes
+a Gauss-Newton step aim at full transmission — which is usually unreachable, so
+the solve oscillates forever around a target that does not exist. The sizes were
+matched to 5e-7 while the reported residual sat at 1-2.
+
+**The lattice's own tune is not a working tune.** CLARA's ships one that scrapes
+26 % of the beam at a single aperture before anything is tuned, and the benchmark
+weights transmission at twice the size error — so that one aperture is worth about
+0.5 of score, more than any amount of clever tuning downstream. `repair_optics`
+fixes the standing optics first, 0.741 to 0.998. It uses CEM rather than gradient
+descent, and that is not a preference: the scraping is Cheetah's own aperture
+elements, whose survival mask is a hard step, so the gradient of transmission with
+respect to an upstream quadrupole is exactly zero. 120 Adam steps moved it by 0.005.
+
+**A sweep that samples cleverly can miss the obvious.** `sensitivity.py` used a
+geometric ladder around the present setting, which resolves a sharp knob beautifully
+and skips the middle of its range. CLARA's compressor holds the beam above
+|0.115| rad either side of zero and loses four fifths of it in between, so the scan
+declared the whole range usable and the first precompute spent four grid points of
+five on tunes nobody can run — 16 % feasible. With plain linear coverage unioned in,
+the range came out as the real band and the same precompute gave 82 %.
+
 ## A future improvement: differentiate the match instead of sampling it
 
 The grid is exponential in the number of scan axes, and the reason is that the
@@ -118,8 +171,39 @@ has to be stated rather than left to wherever the solver happens to stop. The
 cheapest first step is the SVD of the stacked sensitivity: it decides whether a
 dense grid is tractable at all, and it can be done on the nodes that already exist.
 
+## A family has to be smooth *and* cover what gets asked for
+
+The two pull against each other and getting either alone is worse than useless.
+
+Continuation keeps the grid on one branch, which is what makes it interpolable —
+and it can only extend the branch it starts on. On CLARA that branch stops at about
+0.5 mm vertically, so a third of the grid came back unmatched, and it was precisely
+the third the machine is asked for: `SimEnv` requests vertical spots of 0.11 to
+0.39 mm. Every lookup fell back to the nearest feasible node and the family quietly
+answered a different question than the one put to it.
+
+A Sobol sweep of the knob box reaches that corner easily — vertical spots down to
+0.023 mm — because it has no attachment to any branch. It also has no idea the rest
+of the grid exists, which is how the first version produced neighbouring nodes
+20 m⁻² apart.
+
+So `solve_coarse` uses each for what it is good at, in three stages:
+
+1. **continuation** outward from one seeded node, for coherence;
+2. **a Sobol rescue** of whatever that could not reach, for coverage;
+3. **a coherence relaxation** that re-matches every node from the mean of its
+   neighbours and keeps the result only when it converges *and* sits closer to
+   that mean — so rescued nodes get pulled onto the local branch and nodes already
+   agreeing with their neighbours do not move.
+
+Only the coarsest level does this; the finer levels inherit the branch choices
+through interpolation and refine locally. That is why the ladder starts at 13 × 13
+and not 7 × 7: at 7 × 7 only four nodes land in the sub-millimetre corner, which is
+not enough to discover that it is reachable at all.
+
 ## Status
 
-Being built. `describe.py` first, because nothing else can be written until the
-machine description has a shape. `sensitivity.py` ranks the knobs that invalidate
-the family; the interview takes the top *k* of that ranking as scan axes.
+Working end to end. `describe.py` → `sensitivity.py` → `precompute.py` →
+`optimise.py`, with `optics`, `steer` and `mpc` running against both `SimEnv` and a
+`Line` standing in for an arbitrary lattice. `bo` is written but needs botorch,
+which is not installed here.
