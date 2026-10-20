@@ -51,7 +51,7 @@ _WORKER: dict = {}
 def _init(config: MBRLConfig, targets: np.ndarray) -> None:
     """One twin machine and one agent per process, reused for every episode."""
     tune_threads()
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.screen_shape = config.screen_shape
     # Each worker holds four lattices — the OpticsEnv, its own error-free twin, the
     # stand-in machine and the agent's model — so the default 10,000-particle beam

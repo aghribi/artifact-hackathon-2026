@@ -81,8 +81,9 @@ class _BatchSegment:
 
 def _segment(env: OpticsEnv) -> _BatchSegment:
     if getattr(env, "_batch_segment", None) is None:
-        if env.twin.config.backend != "cheetah":
-            raise ValueError("probe_batch needs the Cheetah backend")
+        # There is only the Cheetah backend now; the xsuite one left SimEnv with
+        # the rest of the machine-specific code. The guard stays as an assertion
+        # rather than a choice.
         env._batch_segment = _BatchSegment(env.twin)
     return env._batch_segment
 

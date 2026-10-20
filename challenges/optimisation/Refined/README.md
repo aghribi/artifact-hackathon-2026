@@ -35,7 +35,7 @@ Everything downstream of it is per-request and cheap enough to do live.
 | `match.py` | the matcher: a whole grid of requested spots solved in lockstep |
 | `precompute.py` | stage 1: spec → `artifact.npz` |
 | `artifact.py` | `Family`: read the artifact back, look a request up |
-| `machines.py` | what a method drives: `SimEnvMachine` (CLARA) or `LineMachine` (anything) |
+| `machines.py` | what a method drives: `SimEnvMachine`, for whatever machine the spec describes |
 | `methods.py` | the tuning methods: `optics`, `steer`, `mpc`, `bo` |
 | `optimise.py` | stage 2: artifact + a request → a tuned machine |
 
@@ -201,9 +201,30 @@ through interpolation and refine locally. That is why the ladder starts at 13 ×
 and not 7 × 7: at 7 × 7 only four nodes land in the sub-millimetre corner, which is
 not enough to discover that it is reachable at all.
 
+## Testing it on a machine that is not CLARA
+
+For a while the lattice-agnosticism test was `LineMachine`: a `Line` perturbed
+into a machine, so the pipeline could be exercised without CLARA. It was a poor
+test and it is gone. It shared its code with the planning twin, so a model-based
+method faced no model error at all — the thing `mpc` exists to absorb — and it had
+no shot noise: identical settings gave identical readings, where `SimEnv`'s differ
+by about 5 %.
+
+`SimEnv` now takes a `MachineSpec` too, so the test is the honest one: point the
+whole pipeline at a different accelerator. `machines/clear.json` is CERN's CLEAR
+line, and `describe.py` → `sensitivity.py` → `precompute.py` → `optimise.py` runs
+on it end to end — 289 of 289 nodes matched in 4 seconds, and `steer` takes the
+score from 1.42 to 0.28 in four shots.
+
+That spec is **synthesised** and says so in its own notes: CLEAR ships as a
+lattice rather than a machine, with every quadrupole at zero, no beam
+distribution, no calibration and a 0.512 m half-size screen that is a converter
+default. The beam, the limits and the chamber were invented to give the pipeline
+a second machine to run on. It tests that the code is general; it is not a claim
+about CLEAR.
+
 ## Status
 
-Working end to end. `describe.py` → `sensitivity.py` → `precompute.py` →
-`optimise.py`, with `optics`, `steer` and `mpc` running against both `SimEnv` and a
-`Line` standing in for an arbitrary lattice. `bo` is written but needs botorch,
-which is not installed here.
+Working end to end on two machines. `describe.py` → `sensitivity.py` →
+`precompute.py` → `optimise.py`, with `optics`, `steer`, `mpc` and `bo` against
+`SimEnv`.

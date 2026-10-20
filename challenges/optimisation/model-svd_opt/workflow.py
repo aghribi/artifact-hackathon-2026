@@ -67,7 +67,7 @@ class Machine:
         self.truncated=False;started=time.perf_counter();obs,info=self.env.reset(seed=seed);duration=time.perf_counter()-started;self.last=(obs,info);self.record(obs,info,'reset',wall_time_s=duration);return self.last
     def shot(self,settings,stage):
         if self.truncated:raise BudgetExhausted('SimEnv episode truncated')
-        action=dict(magnets=settings,screen=self.env.config.target_screen)
+        action=dict(magnets=settings,screen=self.env.scored_screen)
         started=time.perf_counter()
         obs,_,terminated,self.truncated,info=self.env.step(action)
         duration=time.perf_counter()-started
@@ -192,7 +192,7 @@ def run_fixed_budget(config,out):
     models=Models(config.backend,config.target,out);models.save_orbits(models.orbit,'nominal_orbit');beta=models.beta_response()
     timings['nominal_setup_and_calibration_s']=time.perf_counter()-run_started
     maxsteps=config.repeats*(config.thread_budget+config.optics_budget+config.center_budget+20)
-    cfg=RLConfig(backend=config.backend,nominal_lattice_json=str(lattice),num_particles=config.particles,target=(0.,0.,*config.target),max_episode_steps=maxsteps,
+    cfg=RLConfig.clara(backend=config.backend,nominal_lattice_json=str(lattice),num_particles=config.particles,target=(0.,0.,*config.target),max_episode_steps=maxsteps,
         beam_variation=config.beam_variation,misalignment_variation=config.misalignment_variation,beam_jitter=config.beam_jitter,power_supply_ripple=config.ripple,bpm_noise=config.bpm_noise,
         include_cavity_phases=False,include_vbc_chicane=False)
     stage_started=time.perf_counter()

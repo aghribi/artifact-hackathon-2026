@@ -1,10 +1,10 @@
 """Stage 2: tune one episode from a precomputed family, by a method of your choice.
 
     python -I optimise.py machines/clara_febe.json artifacts/clara_febe.npz \
-        --method steer --machine simenv --seed 1000
+        --method steer --seed 1000
 
     python -I optimise.py machines/clara_febe.json artifacts/clara_febe.npz \
-        --method mpc --machine line --seed 3          # no SimEnv, seconds
+        --method mpc --seed 1002
 
 The cheap half. Everything expensive happened in `precompute.py`; this reads the
 artifact, looks the request up, and spends shots. A lookup is microseconds against
@@ -35,22 +35,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from artifact import Family  # noqa: E402
 from machine import MachineSpec  # noqa: E402
-from machines import LineMachine, SimEnvMachine  # noqa: E402
+from machines import SimEnvMachine  # noqa: E402
 from methods import METHODS, OutOfShots, Session  # noqa: E402
 
 
-def build_machine(kind: str, spec: MachineSpec, seed: int, particles: int):
-    if kind == "simenv":
-        return SimEnvMachine(spec, seed=seed)
-    if kind == "line":
-        return LineMachine(spec, seed=seed, particles=particles)
-    raise ValueError(f"{kind!r} is not a machine: simenv or line")
+def build_machine(spec: MachineSpec, seed: int):
+    return SimEnvMachine(spec, seed=seed)
 
 
-def run(spec: MachineSpec, family: Family, method: str, kind: str, seed: int,
+def run(spec: MachineSpec, family: Family, method: str, seed: int,
         budget: int, particles: int, say=print) -> dict:
     began = time.perf_counter()
-    machine = build_machine(kind, spec, seed, particles)
+    machine = build_machine(spec, seed)
     session = Session(machine, family, spec, budget=budget)
     start = machine.last
 
@@ -62,7 +58,7 @@ def run(spec: MachineSpec, family: Family, method: str, kind: str, seed: int,
     seconds = time.perf_counter() - began
     final = machine.last
     result = {
-        "method": method, "machine": kind, "seed": seed,
+        "method": method, "seed": seed,
         "score": machine.score,
         "best_seen": machine.best,
         "score_before": start.score,
@@ -79,7 +75,7 @@ def run(spec: MachineSpec, family: Family, method: str, kind: str, seed: int,
     }
 
     say("")
-    say(f"  {method} on {kind}, seed {seed}")
+    say(f"  {method}, seed {seed}")
     for line in session.log:
         say(f"      {line}")
     say("")
@@ -106,7 +102,6 @@ def main() -> None:
     parser.add_argument("spec", type=Path)
     parser.add_argument("artifact", type=Path)
     parser.add_argument("--method", default="steer", choices=sorted(METHODS))
-    parser.add_argument("--machine", default="simenv", choices=("simenv", "line"))
     parser.add_argument("--seed", type=int, default=1000)
     parser.add_argument("--budget", type=int, default=25,
                         help="shots the method may take")
@@ -125,7 +120,7 @@ def main() -> None:
         print(f"  warning: this family was built for "
               f"{family.provenance.get('spec')!r}, not {spec.name!r}")
 
-    result = run(spec, family, args.method, args.machine, args.seed,
+    result = run(spec, family, args.method, args.seed,
                  args.budget, args.particles)
     if args.json:
         import json

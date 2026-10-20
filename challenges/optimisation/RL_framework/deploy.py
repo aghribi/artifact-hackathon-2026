@@ -34,5 +34,5 @@ def deploy(
 
 
 if __name__ == "__main__":
-    cfg = RLConfig()
+    cfg = RLConfig.clara()
     deploy(cfg, model_path="models/ppo_accelerator_final.zip", virtual=True)

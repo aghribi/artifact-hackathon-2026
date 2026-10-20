@@ -88,18 +88,32 @@ def load_lattice(path: Path) -> tuple[dict[str, str], list[str], dict]:
 
 
 def classify(names: list[str], types: dict[str, str]) -> dict[str, list[str]]:
-    """Split the `Screen` elements into BPMs, screens and apertures by name."""
+    """Split the diagnostics into BPMs, screens and apertures.
+
+    The element type is believed first where it says anything: Cheetah has a
+    `BPM` type, and a lattice that uses it has already answered the question.
+    CLARA's does not — it models BPMs, screens *and* aperture markers all as
+    `Screen` — so for those the name tags decide, which is a convention of that
+    lattice and not a fact about Cheetah.
+    """
     found = {"bpm": [], "screen": [], "aperture": [], "untagged": []}
     for name in names:
-        if types.get(name) != "Screen":
+        kind = types.get(name)
+        if kind == "BPM":
+            found["bpm"].append(name)
+            continue
+        if kind != "Screen":
             continue
         lowered = name.lower()
-        for kind, tags in TAGS.items():
+        for tag_kind, tags in TAGS.items():
             if any(tag in lowered for tag in tags):
-                found[kind].append(name)
+                found[tag_kind].append(name)
                 break
         else:
-            found["untagged"].append(name)
+            # A `Screen` the tags do not recognise, in a lattice that types its
+            # BPMs separately, is simply a screen.
+            (found["screen"] if "BPM" in types.values()
+             else found["untagged"]).append(name)
     return found
 
 
@@ -447,7 +461,7 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
             from rl_framework.config import RLConfig
             from rl_framework.envs.sim_env import SimEnv
 
-            config = RLConfig()
+            config = RLConfig.clara()
             config.num_particles = 100  # nothing is tracked; this is for the table
             env = SimEnv(config)
             table = dict(env.magnet_limits)

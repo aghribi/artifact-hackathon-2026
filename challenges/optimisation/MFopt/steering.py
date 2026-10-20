@@ -48,7 +48,7 @@ def responses(env: OpticsEnv, settings: dict[str, float]) -> dict:
     if key in _cache:
         return _cache[key]
     base = _measured(env, env._probe(settings))
-    bpms, screen = env.bpm_names, env.config.target_screen
+    bpms, screen = env.bpm_names, env.scored_screen
     correctors = env.corrector_names
     upstream = [c for c in correctors if c not in FINAL_CORRECTORS]
     R_bpm = np.zeros((2 * len(bpms), len(upstream)))

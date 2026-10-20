@@ -1,15 +1,16 @@
-"""What a tuning method is driving: a real environment, or a `Line` standing in.
+"""What a tuning method is driving.
 
-    machine = SimEnvMachine(spec, seed=1000)   # CLARA, scored by the benchmark
-    machine = LineMachine(spec, seed=1000)     # any lattice, no SimEnv needed
+    machine = SimEnvMachine(spec, seed=1000)
     reading = machine.set({"cla_feh_mag_quad_01": 1.7})
     reading.sizes, reading.bpm, machine.score
 
-Two implementations behind one interface, because they answer different questions.
-`SimEnvMachine` is the one that counts — it is the benchmark, and a number from it
-is comparable with `MFopt` and `MBRL_opt`. `LineMachine` is the one that keeps the
-pipeline honest: it needs no CLARA, so a method that quietly depends on something
-CLARA-specific fails on it immediately, and it runs in a fraction of the time.
+One implementation, because `SimEnv` now takes a `MachineSpec` and runs whatever
+machine the spec describes. There used to be a second, `LineMachine`, which wrapped
+a `Refined.lattice.Line` so the pipeline could be tested without CLARA. It was a
+poor test and is gone: it shared its code with the planning twin, so a model-based
+method faced no model error at all, and it had no shot noise — identical settings
+gave identical readings where `SimEnv`'s differ by about 5 %. Lattice-agnosticism
+is now tested the honest way, by pointing `SimEnv` at a different machine.
 
 **The knob mapping is the awkward part and it is done up front.** A `MachineSpec`
 knob may be a group — two sextupoles on one supply, four chicane dipoles on one —
@@ -183,7 +184,7 @@ class SimEnvMachine(Machine):
         from rl_framework.envs.sim_env import SimEnv
 
         self.spec = spec
-        self.env = SimEnv(config or RLConfig())
+        self.env = SimEnv(config or RLConfig.clara())
         observation, info = self.env.reset(seed=seed)
         self.target = np.asarray(observation["target"], dtype=float)
         self.diagnostics = list(self.env.bpm_names)
@@ -317,89 +318,3 @@ def _present(env, plan) -> float:
 
 
 # ---------------------------------------------------------------- Line
-
-
-class LineMachine(Machine):
-    """Any lattice, perturbed into a machine, with no `SimEnv` anywhere.
-
-    The episode is dealt the same way `SimEnv` deals one — a beam of its own size
-    and launch, a request drawn from what the line can actually deliver — so the
-    scores are the same kind of number, if not the same machine. The point of it
-    is that a method which works here works on a lattice nobody has written any
-    code for, which is the whole claim `Refined/` is making.
-    """
-
-    def __init__(self, spec: MachineSpec, seed: int = 0, particles: int = 2000,
-                 target: np.ndarray | None = None, variation: float = 1.0):
-        super().__init__()
-        self.spec = spec
-        rng = np.random.default_rng(seed)
-        self.line = Line(spec, num_particles=particles)
-        self._perturb(rng, variation)
-        self.diagnostics = list(self.line.diagnostics)
-        self.knob_names = list(self.line.knobs)
-        self.limits = {
-            n: (k.low if k.low is not None else -np.inf,
-                k.high if k.high is not None else np.inf)
-            for n, k in self.line.knobs.items()
-        }
-        self.target = (np.asarray(target, dtype=float) if target is not None
-                       else self._request(rng))
-        self._settings: dict[str, float] = {}
-        self._observe()
-
-    def _perturb(self, rng, variation: float) -> None:
-        """A beam of its own, as `SimEnv._perturb_beam` deals one."""
-        if variation <= 0:
-            return
-        beam = self.line.reference.detach().cpu().numpy().copy()
-        centre = beam.mean(axis=0)
-        scale = np.exp(rng.normal(0.0, 0.1 * variation, size=6))
-        offset = rng.normal(0.0, variation * np.array(
-            [1e-4, 1e-5, 1e-4, 1e-5, 1e-4, 1e-4]
-        ))
-        import torch
-
-        from lattice import DTYPE
-
-        self.line.reference = torch.tensor(
-            (beam - centre) * scale + centre + offset, dtype=DTYPE
-        )
-
-    def _request(self, rng) -> np.ndarray:
-        """A spot the line can actually deliver, so the episode is winnable."""
-        reading = self.line.track()
-        _, size = reading.beam_at(self.line.readout)
-        base = size.detach().cpu().numpy().astype(float)
-        return np.array([0.0, 0.0,
-                         *(base * np.exp(rng.uniform(-0.7, 0.7, size=2)))])
-
-    def set(self, settings: dict[str, float]) -> Reading:
-        for name, value in settings.items():
-            if name not in self.line.knobs:
-                raise KeyError(f"{name} is not a knob of {self.spec.name}")
-            self._settings[name] = self.clip(name, float(value))
-        self.line.set(self._settings)
-        self.shots += 1
-        return self._observe()
-
-    def _observe(self) -> Reading:
-        readings = self.line.track()
-        index = self.line.readout
-        centroid, size = readings.at(index)
-        reading = Reading(
-            mu_x=float(centroid[0]), mu_y=float(centroid[1]),
-            sigma_x=float(size[0]), sigma_y=float(size[1]),
-            on_screen=bool(readings.valid[index] > 0),
-            transmission=float(readings.transmission),
-            bpm=readings.centroids.detach().cpu().numpy().astype(float),
-            bpm_valid=readings.valid.detach().cpu().numpy().astype(float),
-            settings=dict(self._settings),
-        )
-        reading.score = (
-            mismatch(reading.spot, self.target, reading.transmission,
-                     reading.on_screen)
-            + evaluation_cost(self.shots)
-        )
-        self.history.append(reading)
-        return reading

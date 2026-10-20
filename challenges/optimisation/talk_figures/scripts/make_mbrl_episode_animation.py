@@ -87,7 +87,7 @@ def record(seed: int, config) -> tuple[list[dict], object]:
     from screen import measure
     from twin import CheetahTwin
 
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.screen_shape = config.screen_shape
     env = OpticsEnv(rl)
     agent = MBRLAgent(config, CheetahTwin.for_env(env, config.twin_particles))
@@ -413,7 +413,7 @@ def main() -> None:
 
     from MFopt.optics_env import OpticsEnv
 
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.screen_shape = config.screen_shape
     extent = OpticsEnv(rl).screen_extent()
     print(

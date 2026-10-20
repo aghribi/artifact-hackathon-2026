@@ -11,7 +11,7 @@ d = Path(sys.argv[1]); g = np.load(sys.argv[2]); fig_dir = Path(sys.argv[3]) if 
 sys.path[:0] = [str(Path.cwd() / "RL_framework"), str(Path.cwd())]
 from rl_framework.config import RLConfig
 from rl_framework.envs.sim_env import SimEnv
-limits = SimEnv(RLConfig(backend="cheetah", num_particles=1000, beam_variation=0.0,
+limits = SimEnv(RLConfig.clara(backend="cheetah", num_particles=1000, beam_variation=0.0,
                          misalignment_variation=0.0, beam_jitter=0.0)).magnet_limits
 z = np.load(d / "rematched_grid_vbc_on.npz")
 Q = z["quadrupoles"].tolist(); s = z["spot_sizes_m"] * 1e3; K, KE = z["k1"], g["k1"]

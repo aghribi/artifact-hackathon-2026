@@ -35,9 +35,10 @@ def _env(case):
         import torch; torch.set_num_threads(1)
         sys.path[:0] = [str(ROOT / "RL_framework"), str(ROOT)]
         from rl_framework.config import RLConfig
-        from rl_framework.envs.sim_env import SimEnv, VBC_CHICANE
+        from machine_spec.sources.clara import VBC_CHICANE
+        from rl_framework.envs.sim_env import SimEnv
         spec = CASES[case]
-        env = SimEnv(RLConfig(backend="cheetah", num_particles=NUM, apertures=True,
+        env = SimEnv(RLConfig.clara(backend="cheetah", num_particles=NUM, apertures=True,
                               beam_variation=0.0, misalignment_variation=0.0, beam_jitter=0.0,
                               power_supply_ripple=0.0, nominal_lattice_json=spec["lattice"],
                               target=(0.0, 0.0, 1e-3, 1e-3)))

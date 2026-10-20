@@ -99,7 +99,7 @@ class BeamCalibration:
         beams, index = np.unique(thetas[:, :BEAM], axis=0, return_inverse=True)
         coords = np.stack([beam(self.nominal, t) for t in beams])
         stats, transmission, names = probe_beams(self.env, coords, settings)
-        row = stats[:, names.index(self.env.config.target_screen)][index.ravel()]
+        row = stats[:, names.index(self.env.scored_screen)][index.ravel()]
         variance = row[:, 2:4] ** 2 + thetas[:, BEAM:] * self.requested**2
         sigma = np.sqrt(np.maximum(variance, (0.2 * self.requested) ** 2))
         return np.column_stack([np.log(sigma), transmission[index.ravel()]])

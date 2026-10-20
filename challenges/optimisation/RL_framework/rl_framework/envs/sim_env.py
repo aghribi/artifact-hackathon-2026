@@ -1,13 +1,19 @@
-"""Simulation environment built on the nominal model.
+"""A simulated accelerator, described by a `MachineSpec`.
 
-Beam, lattice and magnet strengths all come from `nominal_model/xsuite_model.py`: the
-measured starting beam at `cla_s02_sim_aper_01`, tracked through the strengths stored in
-the Cheetah lattice file to `cla_feh_dia_scr_01`, the screen `score.py` is judged on.
+    env = SimEnv(RLConfig.clara())                       # the benchmark machine
+    env = SimEnv(RLConfig(spec="machines/clear.json"))   # or any other
 
-Either of two models does the tracking, under `config.backend`: `"cheetah"`, the
-default, which is the first-order physics the benchmark is scored on and starts in a
-second, or `"xsuite"`, which is thick and chromatic and spends a minute compiling a
-tracking kernel. The lattice, the beam and everything below are the same either way.
+Which accelerator this is comes from the spec and nothing else: the lattice, the
+beam, the vacuum chamber, which elements are switched off, which diagnostics are
+BPMs and which are screens, which magnets move together and with what signs, and
+what every magnet may be set to. `RLConfig.clara()` loads the one `score.py` is
+judged on — the measured beam at the start of S02 tracked to the FEBE readout —
+and gives exactly what a bare `RLConfig()` used to.
+
+Tracking is Cheetah, the first-order physics the benchmark is scored on. The
+thick, chromatic xsuite backend used to live here behind `config.backend` and
+does not any more; `nominal_model/xsuite_model.py` is still there for the code
+that uses it directly.
 
 An action is a dictionary::
 
@@ -74,9 +80,9 @@ import json
 import sys
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterator, Mapping
+from typing import Any, Iterator, Mapping, Sequence
 
 import cheetah
 import gymnasium as gym
@@ -87,48 +93,35 @@ from gymnasium import spaces
 from rl_framework.config import RLConfig
 from rl_framework.envs.base_env import BaseAcceleratorEnv
 
-# .../challenges/optimisation, which holds `nominal_model/` and `data/`.
-CHALLENGE_DIR = Path(__file__).resolve().parents[3]
-MAGNET_RANGES_JSON = (
-    CHALLENGE_DIR / "data" / "clara" / "lattice_data" / "magnet_ranges.json"
-)
-LATTICE_UTILS_PY = CHALLENGE_DIR / "data" / "clara" / "lattice_data" / "utils.py"
+# The shared machine description, which `Refined/` also reads. Added to the path
+# rather than packaged, matching how the rest of this challenge is laid out.
+_SHARED = Path(__file__).resolve().parents[3]
+if str(_SHARED) not in sys.path:
+    sys.path.insert(0, str(_SHARED))
+from machine_spec import lattice_io  # noqa: E402
 
-BPM_TAG = "dia_bpm"
-SCREEN_TAG = "dia_scr"
-APERTURE_TAG = "sim_aper"
+# .../challenges/optimisation, which holds `machine_spec/`, `machines/` and `data/`.
+CHALLENGE_DIR = Path(__file__).resolve().parents[3]
+
+
+def _is_diagnostic(element) -> bool:
+    """Anything that reads the beam or scrapes it, whatever the lattice calls it.
+
+    Cheetah has a `BPM` type and a `Screen` type, and lattices disagree about
+    which to use: CLARA models BPMs, screens *and* aperture markers all as
+    `Screen`, while CLEAR has real `BPM` elements. Both are stops.
+    """
+    return isinstance(element, (cheetah.Screen, cheetah.BPM))
 
 DTYPE = torch.float32  # what the Cheetah lattice file is parsed into
 
 # What one knob of each magnet type is called, and the suffix its knob name carries.
 PROPERTY_SUFFIX = {"k1": "", "k2": "", "horizontal_angle": "_h", "vertical_angle": "_v",
                    "angle": "", "phase": ""}
-# Half-span for a magnet nothing can give a range for, as in `score._span`.
-FALLBACK_SPAN = {"k1": 3.0, "k2": 50.0, "horizontal_angle": 5e-4,
-                 "vertical_angle": 5e-4, "angle": 0.1, "phase": 30.0}
-# What essentially every CLARA magnet can be driven to, whatever six months of
-# operation happened to use.
-MAGNET_CURRENT_LIMIT = 100.0  # A
-# What a magnet type has actually been run at, where that is tighter than the
-# supply. The sextupoles' history is +-30 A; driving the calibration to 100 A
-# instead would claim +-2800 m^-3, a range nobody has evidence the magnets hold.
-CURRENT_LIMIT_BY_PROPERTY = {"k2": 30.0}
-
-# The VBC chicane: four dipoles on one setting, alternating in sign, and the largest
-# bend it is configured for. The lattice file ships it flat.
-VBC_CHICANE = "cla_vbc_chicane"
-VBC_DIPOLES = ("cla_vbc_mag_dip_01", "cla_vbc_mag_dip_02",
-               "cla_vbc_mag_dip_03", "cla_vbc_mag_dip_04")
-VBC_SIGNS = (1.0, -1.0, -1.0, 1.0)
-# Which face of each VBC dipole turns with its angle, as `score.VBC_EDGE`: the
-# chicane's outer faces stay square to the beamline, the inner ones follow the bend.
-VBC_EDGE = {
-    "cla_vbc_mag_dip_01": "exit",
-    "cla_vbc_mag_dip_02": "entry",
-    "cla_vbc_mag_dip_03": "exit",
-    "cla_vbc_mag_dip_04": "entry",
-}
-VBC_MAX_ANGLE = 0.135  # rad, R56 = -60.5 mm: the top of the range quoted for CLARA (IPAC THP2100)
+# Magnet operating ranges, coupled-magnet groups, pole faces that follow a body
+# angle, and which elements are switched off all used to be constants here, every
+# one of them CLARA. They are properties of a machine, so they live in its
+# `MachineSpec` — see `machine_spec/spec.py` and `machines/clara_febe.json`.
 
 # ---- how far one episode's machine is from the next, at a variation of 1 ---- #
 
@@ -169,43 +162,6 @@ MAX_MISMATCH = 100.0
 def evaluation_cost(shots: int) -> float:
     """What `shots` shots have cost so far, in requested spot sizes."""
     return EVAL_WEIGHT * float(np.log2(1 + shots / EVAL_BUDGET))
-
-
-def _import_xsuite_model(directory: str | Path | None):
-    """The nominal model, which is a module in a folder rather than a package."""
-    directory = str(Path(directory or CHALLENGE_DIR / "nominal_model").resolve())
-    if directory not in sys.path:
-        sys.path.insert(0, directory)
-    import xsuite_model
-
-    return xsuite_model
-
-
-L4H = "cla_l4h_lin_cav_01"
-
-
-def _without_l4h(lattice_json) -> Path:
-    """A copy of the lattice file with L4H replaced by a second-order drift of the
-    same length and name, written next to the system's temporary files once per
-    source file and content."""
-    import hashlib
-    import tempfile
-
-    text = Path(lattice_json).read_text()
-    lattice = json.loads(text)
-    kind, params = lattice["elements"][L4H]
-    if kind == "Cavity":
-        lattice["elements"][L4H] = [
-            "Drift", {"length": params["length"], "tracking_method": "second_order"}
-        ]
-    digest = hashlib.sha1(text.encode()).hexdigest()[:12]
-    path = Path(tempfile.gettempdir()) / "rl_framework" / f"{Path(lattice_json).stem}_l4h_off_{digest}.json"
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        partial = path.with_suffix(f".{np.random.randint(1 << 30)}.part")
-        partial.write_text(json.dumps(lattice))
-        partial.replace(path)
-    return path
 
 
 class Transport(ABC):
@@ -275,11 +231,21 @@ class CheetahTransport(Transport):
     # `phase` needs nothing special here: Cheetah stores it on the cavity, in
     # degrees, and rebuilds the transfer map from it on every track.
 
-    def write(self, element: str, prop: str, value: float) -> None:
-        setattr(self._elements[element], prop, torch.tensor(value, dtype=DTYPE))
-        if prop == "angle" and element in VBC_EDGE:
-            face = "dipole_e2" if VBC_EDGE[element] == "exit" else "dipole_e1"
-            setattr(self._elements[element], face, torch.tensor(value, dtype=DTYPE))
+    def write(self, element: str, prop: str, value: float,
+              follow: Sequence[str] = ()) -> None:
+        """Set a property, and anything that has to move with it.
+
+        `follow` is the pole-face angles of a chicane dipole and the like: a
+        property that is not independently settable but is not constant either.
+        Which faces follow is a fact about the magnet, so it comes from the
+        machine spec rather than from a table in here — setting a chicane angle
+        without its edges is a different, far more lossy optic, and the error is
+        invisible until the knob is first turned.
+        """
+        tensor = torch.tensor(value, dtype=DTYPE)
+        setattr(self._elements[element], prop, tensor)
+        for extra in follow:
+            setattr(self._elements[element], extra, tensor)
 
     def read_shift(self, element: str) -> tuple[float, float]:
         misalignment = self._elements[element].misalignment
@@ -303,186 +269,6 @@ class CheetahTransport(Transport):
                 beam.y.detach().numpy(),
                 beam.survival_probabilities.detach().numpy() > 0.5,
             )
-
-
-class XsuiteTransport(Transport):
-    """xsuite: thick elements at each particle's own momentum, and standing-wave
-    cavities that focus at the energy the particle has.
-
-    Closer to the machine off momentum, and the model `nominal_model/README.md`
-    documents. Building the line compiles a tracking kernel, which takes a minute.
-    """
-
-    name = "xsuite"
-
-    # What has to be copied onto each piece of a cavity when it is re-expanded.
-    _CAVITY_FIELDS = {
-        "AxisymmetricThinLens": ("strength", "chromatic_power"),
-        "Cavity": ("voltage", "frequency", "phase"),
-        "ReferenceEnergyIncrease": ("Delta_p0c",),
-    }
-
-    def __init__(
-        self, model, segment, lattice_json, start, end, energy_ev, stops, apertures
-    ):
-        self.converted = model.build_line(
-            energy_ev, lattice_json, start, end, apertures
-        )
-        self._model = model
-        self._segment = segment
-        self._line = self.converted.line
-        self._index = {name: i for i, name in enumerate(self._line.element_names)}
-        self._stops = [(stop, self._index[stop]) for stop in stops]
-        # The cavities that are actually powered, in order. A cavity at zero volts
-        # converted to a drift and has no phase to set.
-        self._cavities = [
-            element
-            for element in segment.elements
-            if isinstance(element, cheetah.Cavity) and float(element.voltage)
-        ]
-
-    def _expand_cavities(self) -> None:
-        """Rebuild every cavity's slices from the phases the segment now carries.
-
-        A standing-wave cavity becomes some 1300 xsuite elements whose focusing,
-        acceleration and reference-energy steps all depend on the phase and on the
-        energy the beam arrives with, so changing a phase means redoing that
-        arithmetic — and redoing it for every cavity downstream too, because they
-        are each handed the energy the one before left. The numbers come from the
-        nominal model itself rather than a copy of it here, so the two cannot drift
-        apart; only the resulting values are transplanted onto the existing
-        elements, which leaves the line's structure untouched.
-        """
-        energy = self.converted.initial_energy_ev
-        for cavity in self._cavities:
-            pieces, energy = self._model._standing_wave_cavity(
-                cavity.name, cavity, energy
-            )
-            for piece_name, piece in pieces:
-                target = self._line.element_dict[piece_name]
-                for field in self._CAVITY_FIELDS[type(piece).__name__]:
-                    setattr(target, field, getattr(piece, field))
-        self.converted.final_energy_ev = energy
-
-    def _element(self, name: str):
-        return self._line.element_dict[name]
-
-    def _segment_element(self, name: str):
-        return next(e for e in self._segment.elements if e.name == name)
-
-    def read(self, element: str, prop: str) -> float:
-        if prop == "phase":
-            # The sliced line has no single phase to read; the segment holds it.
-            return float(self._segment_element(element).phase)
-        target = self._element(element)
-        if prop == "horizontal_angle":
-            return -float(target.knl[0])  # Cheetah's kick is the opposite of knl
-        if prop == "vertical_angle":
-            return float(target.ksl[0])
-        return float(getattr(target, prop))
-
-    def write(self, element: str, prop: str, value: float) -> None:
-        if prop == "phase":
-            self._segment_element(element).phase = torch.tensor(value, dtype=DTYPE)
-            self._expand_cavities()
-            return
-        target = self._element(element)
-        if prop == "horizontal_angle":
-            target.knl[0] = -value
-        elif prop == "vertical_angle":
-            target.ksl[0] = value
-        elif prop == "angle":
-            # Setting `angle` moves the reference curvature but leaves the field
-            # behind, so k0 has to follow it, as `xsuite_model._dipole` sets it.
-            target.angle = value
-            target.k0 = value / float(target.length) if float(target.length) else 0.0
-            if element in VBC_EDGE:
-                setattr(target, f"edge_{VBC_EDGE[element]}_angle", value)
-        else:
-            setattr(target, prop, value)
-
-    def read_shift(self, element: str) -> tuple[float, float]:
-        target = self._element(element)
-        return float(target.shift_x), float(target.shift_y)
-
-    def shift(self, element: str, dx: float, dy: float) -> None:
-        target = self._element(element)
-        target.shift_x, target.shift_y = dx, dy
-
-    def _ordered(self, particles, count):
-        """x, y and alive, in the order the particles were launched in."""
-        ids = np.asarray(particles.particle_id)
-        slots = np.flatnonzero((ids >= 0) & (ids < count))
-        x, y = np.zeros(count), np.zeros(count)
-        alive = np.zeros(count, dtype=bool)
-        x[ids[slots]] = np.asarray(particles.x)[slots]
-        y[ids[slots]] = np.asarray(particles.y)[slots]
-        alive[ids[slots]] = np.asarray(particles.state)[slots] > 0
-        return x, y, alive
-
-    def run(self, coordinates, stops):
-        x0, px0, y0, py0, tau0, delta0 = coordinates.T
-        particles = self._model.electron_particles(
-            self.converted.initial_energy_ev,
-            x=x0, px=px0, y=y0, py=py0, zeta=-tau0, delta=delta0,
-        )
-        count, at = len(coordinates), 0
-        for stop, index in self._stops[: len(stops)]:
-            if index > at:
-                self._line.track(particles, ele_start=at, ele_stop=index)
-                at = index
-            yield (stop, *self._ordered(particles, count))
-
-
-@lru_cache(maxsize=1)
-def _lattice_utils():
-    """`data/clara/lattice_data/utils.py`, the current-to-strength calibration.
-
-    Loaded by path rather than imported: `utils` is too common a name to put on the
-    import path of everything that uses this environment.
-    """
-    spec = importlib.util.spec_from_file_location(
-        "clara_lattice_utils", LATTICE_UTILS_PY
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _current_range(element: str, prop: str, amps: float) -> tuple[float, float] | None:
-    """What +-`amps` reaches, in the lattice file's units, or None where `utils.py`
-    has no calibration — anything not on CLARA's magnet list.
-
-    The momentum is `utils.beam_energy`, a fixed figure per section. That table puts
-    S02 at 32.8 MeV where the nominal model has 35.8, so S02 strengths carry about
-    9 % more range than they should (`nominal_model/README.md` raises the same point).
-    """
-    utils = _lattice_utils()
-    momentum = utils.beam_energy.get(element.split("_")[1])
-    if momentum is None:
-        return None
-    amps = min(amps, CURRENT_LIMIT_BY_PROPERTY.get(prop, amps))
-    name = element.upper().replace("_", "-")
-    if prop == "k1":
-        convert = utils.quadrupole_k_from_current
-    elif prop == "k2":
-        # The sextupoles do have a calibration, and leaving it out cost them most
-        # of their range: `FALLBACK_SPAN` gives +-50 m^-3 where +-30 A of the
-        # current the magnets have actually run at is +-841. Seventeen times, so
-        # a tuner working against the fallback had them all but pinned.
-        convert = utils.sextupole_k2_from_current
-    elif prop == "angle":
-        convert = utils.dipole_angle_from_current
-    elif prop in ("horizontal_angle", "vertical_angle"):
-        name = name.replace("HVCOR", "HCOR" if prop.startswith("h") else "VCOR")
-        convert = utils.corrector_angle_from_current
-    else:
-        return None
-    try:
-        low, high = sorted(convert(name, sign * amps, momentum) for sign in (-1, 1))
-    except KeyError:
-        return None
-    return low, high
 
 
 def _spread(rng, spread: float, variation: float) -> float:
@@ -515,8 +301,11 @@ class Knob:
     low: float
     high: float
     # Elements driven off the same setting, each with its sign — the four dipoles
-    # of the VBC chicane are one knob on the machine, not four.
+    # of a chicane are one knob on the machine, not four.
     coupled: tuple[tuple[str, float], ...] = ()
+    # Properties that must be written with the main one, per element: a chicane's
+    # pole faces live here. From the spec, because it is a fact about the magnet.
+    follow: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
     @property
     def value(self) -> float:
@@ -528,65 +317,75 @@ class Knob:
         value = float(value)
         if clip:
             value = float(np.clip(value, self.low, self.high))
-        self.transport.write(self.element_name, self.prop, value)
+        self.transport.write(self.element_name, self.prop, value,
+                             self.follow.get(self.element_name, ()))
         for element, sign in self.coupled:
-            self.transport.write(element, self.prop, sign * value)
+            self.transport.write(element, self.prop, sign * value,
+                                 self.follow.get(element, ()))
         return self.value
 
 
 class SimEnv(BaseAcceleratorEnv):
-    """Simulation environment using the nominal model of CLARA."""
+    """A simulated machine, described by a `MachineSpec`.
+
+    Nothing here knows which accelerator it is running. The lattice, the beam,
+    the vacuum chamber, which elements are switched off, which diagnostics are
+    BPMs and which are screens, and what every magnet may be set to all come
+    from the spec. `RLConfig.clara()` loads the one the benchmark is scored on.
+    """
 
     def __init__(self, config: RLConfig):
         super().__init__(config)
-        self.model = _import_xsuite_model(config.nominal_model_dir)
-        lattice_json = config.nominal_lattice_json or self.model.LATTICE_JSON
-        if config.l4h_off:
-            lattice_json = _without_l4h(lattice_json)
+        self.spec = config.machine_spec()
+        spec = self.spec
 
-        coordinates, energy_ev, self.beam_metadata = self.model.load_distribution(
-            config.distribution_path or self.model.INITIAL_DISTRIBUTION
+        coordinates, energy_ev, self.beam_metadata = lattice_io.load_beam(
+            spec, config.num_particles
         )
-        if config.num_particles is not None:
-            coordinates = coordinates[: config.num_particles]
         # The beam as it was measured, and the one this episode was dealt.
         self._reference_coordinates = np.ascontiguousarray(coordinates)
         self._coordinates = self._reference_coordinates
         self.energy_ev = energy_ev
 
-        # The Cheetah segment is the lattice: the element types, the magnet strengths
-        # and the screen geometry, which an xsuite line has no notion of (every
-        # diagnostic converts to a marker). One of the two models then tracks it.
-        self.segment = self.model.cheetah_segment(
-            lattice_json, config.lattice_start, config.lattice_end, config.apertures
-        )
+        # The Cheetah segment is the lattice: element types, magnet strengths and
+        # screen geometry, cut to the modelled stretch, with the chamber inserted
+        # and the spec's `disabled` elements replaced by drifts of their length.
+        self.segment = lattice_io.build_segment(spec)
 
         self._diagnostics = {
             element.name: Diagnostic(
                 name=element.name,
                 index=index,
-                extent=tuple(float(v) for v in element.extent),
-                misalignment=tuple(float(v) for v in element.misalignment),
+                extent=tuple(float(v) for v in getattr(element, "extent", (0,) * 4)),
+                misalignment=tuple(
+                    float(v) for v in getattr(element, "misalignment", (0.0, 0.0))
+                ),
             )
             for index, element in enumerate(self.segment.elements)
-            if isinstance(element, cheetah.Screen)
+            if _is_diagnostic(element)
         }
-        self.bpm_names = [n for n in self._diagnostics if BPM_TAG in n]
-        self.screen_names = [n for n in self._diagnostics if SCREEN_TAG in n]
+        self.bpm_names, self.screen_names = self._classify(spec)
         if not self.screen_names:
             raise ValueError(
-                f"no screens between {config.lattice_start} and {config.lattice_end}"
+                f"no screens between {spec.start} and {spec.end}. The spec may "
+                f"name them in `screens`; otherwise they are found by element "
+                f"type and by the tags in `config.diagnostic_tags`."
             )
         # Where tracking pauses to read a diagnostic and to scrape the beam pipe.
+        # Apertures are stops too: they read nothing but they can lose beam.
+        read = set(self.bpm_names) | set(self.screen_names)
+        aperture_tag = config.diagnostic_tags.get("aperture", "")
         self._stops = sorted(
             (
                 diagnostic
                 for name, diagnostic in self._diagnostics.items()
-                if any(tag in name for tag in (BPM_TAG, SCREEN_TAG, APERTURE_TAG))
+                if name in read or (aperture_tag and aperture_tag in name)
             ),
             key=lambda diagnostic: diagnostic.index,
         )
-        self.transport = self._build_transport(lattice_json, energy_ev)
+        self.transport = CheetahTransport(
+            self.segment, energy_ev, [d.name for d in self._stops]
+        )
 
         self._shape = tuple(int(n) for n in config.screen_shape)
         self._bin_edges = {
@@ -664,7 +463,11 @@ class SimEnv(BaseAcceleratorEnv):
 
         self._rng = np.random.default_rng()
         self.target = self._draw_target()
-        self.target_screen = config.target_screen
+        # The spec's readout unless the configuration names another.
+        # The spec's readout unless the configuration names another. Held on
+        # the environment, because the config's may be None.
+        self.scored_screen = config.target_screen or spec.readout
+        self.target_screen = self.scored_screen
         self._readings: dict[str, Any] = {}
         self._simulate()
         self._scored = self._readings["stats"]
@@ -672,143 +475,96 @@ class SimEnv(BaseAcceleratorEnv):
 
     # ---------- the model doing the tracking ----------
 
-    def _build_transport(self, lattice_json, energy_ev: float) -> Transport:
-        """Whichever of the two models `config.backend` asks for."""
-        stops = [diagnostic.name for diagnostic in self._stops]
-        if self.config.backend == CheetahTransport.name:
-            return CheetahTransport(self.segment, energy_ev, stops)
-        if self.config.backend == XsuiteTransport.name:
-            return XsuiteTransport(
-                self.model,
-                self.segment,
-                lattice_json,
-                self.config.lattice_start,
-                self.config.lattice_end,
-                energy_ev,
-                stops,
-                self.config.apertures,
-            )
-        raise ValueError(
-            f"{self.config.backend!r} is not a backend: "
-            f"{CheetahTransport.name!r} or {XsuiteTransport.name!r}."
-        )
+    def _classify(self, spec) -> tuple[list[str], list[str]]:
+        """(BPM names, screen names), in lattice order.
 
-    # ---------- magnets ----------
+        The spec's own lists come first, because only the machine knows: CLARA
+        models a BPM, a screen and an aperture marker with the same Cheetah type
+        and tells them apart by name, which is a convention and not a fact about
+        Cheetah. Where the spec is silent, the element type decides, and where
+        that cannot (every diagnostic is a `Screen`), the name tags do.
+        """
+        found = list(self._diagnostics)
+        named_bpms, named_screens = set(spec.bpms), set(spec.screens)
+        if named_bpms or named_screens:
+            return ([n for n in found if n in named_bpms],
+                    [n for n in found if n in named_screens])
+
+        tags = self.config.diagnostic_tags
+        elements = {e.name: e for e in self.segment.elements}
+        typed = [n for n in found if isinstance(elements[n], cheetah.BPM)]
+        if typed:
+            return typed, [n for n in found if n not in set(typed)
+                           and tags.get("aperture", "\0") not in n]
+        return ([n for n in found if tags.get("bpm", "\0") in n],
+                [n for n in found if tags.get("screen", "\0") in n])
 
     def _build_knobs(self, segment) -> dict[str, Knob]:
-        """Every magnet of the modelled stretch, as one knob per settable number.
+        """Every knob the spec declares that this stretch of lattice actually has.
 
-        All of them are modelled, because a magnet the agent is not allowed to touch
-        still sits where it sits; `controllable_magnets` only says which ones it may
-        set, and that becomes `self._controllable`.
+        A knob is not an element. It may drive several elements at once with
+        different signs — the four dipoles of a chicane are one number on the
+        machine — and setting it may require writing more than one property of
+        each, because a chicane's pole faces turn with its body angle. All of
+        that is in the spec, so there is no special case for any machine here.
+
+        **Signs are normalised so the first element takes the knob value
+        unchanged.** A spec records the absolute sense of each magnet, and which
+        end of a chicane counts as positive is a convention the two files need
+        not share: CLARA's spec says `[-1, 1, 1, -1]` where this environment has
+        always driven the knob as `[1, -1, -1, 1]`. Normalising keeps every
+        existing set point, response matrix and published result meaning what it
+        did, and leaves the two descriptions differing only by a stated
+        convention rather than silently.
         """
-        ranges = json.loads(MAGNET_RANGES_JSON.read_text())["elements"]
-        overrides = self.config.magnet_limits or {}
+        present = {element.name for element in segment.elements}
         wanted = self.config.controllable_magnets
-        properties = {
-            cheetah.Quadrupole: ("k1",),
-            cheetah.Sextupole: ("k2",),
-            cheetah.CombinedCorrector: ("horizontal_angle", "vertical_angle"),
-        }
-        if self.config.include_cavity_phases:
-            # Only the cavities that are powered: one at zero volts has no phase
-            # worth setting, and converts to a drift in the xsuite line anyway.
-            properties[cheetah.Cavity] = ("phase",)
+        overrides = self.config.magnet_limits or {}
 
         knobs: dict[str, Knob] = {}
-        for element in segment.elements:
-            props = next(
-                (p for kind, p in properties.items() if isinstance(element, kind)), ()
-            )
-            if isinstance(element, cheetah.Cavity) and not float(element.voltage):
+        for declared in self.spec.knobs:
+            if not all(name in present for name in declared.elements):
                 continue
-            for prop in props:
-                name = element.name + PROPERTY_SUFFIX[prop]
-                knob = Knob(
-                    name=name,
-                    element_name=element.name,
-                    prop=prop,
-                    transport=self.transport,
-                    low=-np.inf,
-                    high=np.inf,
+            low, high = declared.low, declared.high
+            if declared.name in overrides:
+                low, high = (float(v) for v in overrides[declared.name])
+            if low is None or high is None:
+                raise ValueError(
+                    f"{declared.name} has no operating range. Ranges come from "
+                    f"the spec now, not from a calibration table in here; "
+                    f"`describe.py` fills them in, and `MachineSpec.validate` "
+                    f"lists any it could not."
                 )
-                # Its range needs the strength it starts at, so it is set second.
-                knob.low, knob.high = self._limits(
-                    name, element.name, prop, knob.value, ranges, overrides
-                )
-                knobs[name] = knob
+            lead = declared.signs[0] if declared.signs else 1.0
+            sense = 1.0 / lead if lead else 1.0
+            # The range turns with the sense. A spec records limits in its own
+            # sign convention, so normalising the signs without normalising these
+            # silently widens the knob one way and narrows it the other: CLARA's
+            # chicane would read [-0.11561, 0.1317] where the machine has always
+            # had [-0.1317, 0.11561], and a request for 0.12 rad would be clipped
+            # to a different angle and track a different beam.
+            low, high = sorted((low * sense, high * sense))
+            knobs[declared.name] = Knob(
+                name=declared.name,
+                element_name=declared.elements[0],
+                prop=declared.prop,
+                transport=self.transport,
+                low=low, high=high,
+                coupled=tuple(
+                    (name, sign * sense)
+                    for name, sign in zip(declared.elements[1:], declared.signs[1:])
+                ),
+                follow={k: tuple(v) for k, v in declared.follow.items()},
+            )
 
-        if self.config.include_vbc_chicane and all(
-            name in {e.name for e in segment.elements} for name in VBC_DIPOLES
-        ):
-            knobs[VBC_CHICANE] = self._vbc_chicane(ranges, overrides)
         missing = set(wanted or ()) - set(knobs)
         if missing:
             raise KeyError(
-                f"no such magnets between {self.config.lattice_start} and "
-                f"{self.config.lattice_end}: {sorted(missing)}"
+                f"no such magnets between {self.spec.start} and {self.spec.end}: "
+                f"{sorted(missing)}"
             )
         self._controllable = list(wanted) if wanted is not None else list(knobs)
         return knobs
-
-    def _vbc_chicane(self, ranges, overrides) -> Knob:
-        """The VBC as one knob: four dipoles on one setting, alternating in sign.
-
-        Powering it compresses the bunch, which with the cavity phases is the handle
-        in this line on the energy spread at the readout. `score.TUNABLE_BY_NAME`
-        allows these four angles, so a tune that uses them is scorable; every other
-        dipole is the geometry of the machine and stays fixed.
-        """
-        knob = Knob(
-            name=VBC_CHICANE,
-            element_name=VBC_DIPOLES[0],
-            prop="angle",
-            transport=self.transport,
-            low=-VBC_MAX_ANGLE,
-            high=VBC_MAX_ANGLE,
-            coupled=tuple(zip(VBC_DIPOLES[1:], VBC_SIGNS[1:])),
-        )
-        low, high = self._limits(
-            VBC_CHICANE, VBC_DIPOLES[0], "angle", knob.value, ranges, overrides
-        )
-        knob.low, knob.high = max(low, -VBC_MAX_ANGLE), min(high, VBC_MAX_ANGLE)
-        return knob
-
-    def _limits(self, name, element, prop, nominal, ranges, overrides):
-        """What a magnet may be set to.
-
-        `config.magnet_range_source` chooses where the range comes from: "current",
-        what +-`config.magnet_current_limit` amps reaches through the calibration in
-        `data/clara/lattice_data/utils.py`, which is what the magnets can physically
-        do; or "archiver", the 0.5 to 99.5 percentiles of six months of operation in
-        `magnet_ranges.json`, which is only where they happened to run. The archiver
-        is far narrower — it has the FEA arc quadrupoles at [0, 0], never powered —
-        and will pin an optimiser long before the hardware does.
-
-        Either way the range is widened to hold the strength the lattice file
-        carries, so the tune the model starts from is always inside the range it
-        may be tuned in.
-        """
-        if name in overrides:
-            return float(overrides[name][0]), float(overrides[name][1])
-        if prop == "phase":
-            # Degrees, and a window about the phase the lattice file runs at: the
-            # klystron will go anywhere in 360, but a long way off this one is a
-            # different machine, not a tune of this one.
-            window = self.config.cavity_phase_range
-            return nominal - window, nominal + window
-        base = None
-        if self.config.magnet_range_source == "current":
-            base = _current_range(element, prop, self.config.magnet_current_limit)
-        archived = ranges.get(element, {}).get(prop)
-        if base is None and archived is not None:
-            base = (float(archived[0]), float(archived[1]))
-        if base is None:
-            base = (-FALLBACK_SPAN[prop], FALLBACK_SPAN[prop])
-        low, high = min(base[0], nominal), max(base[1], nominal)
-        if high == low:
-            low, high = nominal - FALLBACK_SPAN[prop], nominal + FALLBACK_SPAN[prop]
-        return low, high
 
     def magnet_settings(self) -> dict[str, float]:
         """What every controllable magnet is set to, in native units."""
@@ -958,9 +714,12 @@ class SimEnv(BaseAcceleratorEnv):
             dx, dy = np.array(self._nominal_shifts[name]) + error(MISALIGNMENT_RMS)
             self.transport.shift(name, float(dx), float(dy))
             self.misalignments[name] = (float(dx), float(dy))
+        # Readers get a centring error; an aperture marker is not a reader and
+        # has nothing to be off-centre about.
+        readers = set(self.bpm_names) | set(self.screen_names)
         for name, diagnostic in self._diagnostics.items():
             offset = np.array(diagnostic.misalignment)
-            if BPM_TAG in name or SCREEN_TAG in name:
+            if name in readers:
                 offset = offset + error(DIAGNOSTIC_OFFSET_RMS)
             self._offsets[name] = offset
         return self.misalignments
@@ -1100,7 +859,7 @@ class SimEnv(BaseAcceleratorEnv):
             # for, however many screens have been looked at since. `benchmark_score`
             # is `score.Report.calc_score` for this episode as one case, so it is
             # comparable to a scored tuner and lower is better.
-            "scored_screen": self.config.target_screen,
+            "scored_screen": self.scored_screen,
             "evaluations": self._step_count,
             "scored_transmission": self._scored_transmission,
             "scored_mismatch": self._mismatch(self._scored,
@@ -1126,7 +885,7 @@ class SimEnv(BaseAcceleratorEnv):
         if screen is not None:
             self.target_screen = screen
         self._simulate()
-        if self._target_screen == self.config.target_screen:
+        if self._target_screen == self.scored_screen:
             # a fresh reading of the request, and of how much of it arrived
             self._scored = self._readings["stats"]
             self._scored_transmission = self._readings["transmission"]
@@ -1248,7 +1007,7 @@ class SimEnv(BaseAcceleratorEnv):
         self._restore_nominal()
         self._draw_misalignments()
 
-        self.target_screen = self.config.target_screen
+        self.target_screen = self.scored_screen
         self._simulate()
         self._scored = self._readings["stats"]
         self._scored_transmission = self._readings["transmission"]

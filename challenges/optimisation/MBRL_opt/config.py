@@ -31,8 +31,8 @@ FINAL_CORRECTORS = [
 ]
 
 ENERGY_KNOBS = [
-    "cla_fea_mag_sext_01",
-    "cla_fea_mag_sext_02",
+    # One knob, not two: the two FEA sextupoles share a power supply and run alternating, so the machine spec drives them as one knob.
+    "fea_sextupoles",
     "cla_l02_lin_cav_01",
     "cla_l03_lin_cav_01",
     "cla_l4h_lin_cav_01",

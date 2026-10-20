@@ -146,7 +146,7 @@ class SpotBO:
         if self._stations is None:
             self._stations = Stations(self.env, self.base)
         stats, transmission, names = self._stations.track(dict(zip(KNOBS, values.T)))
-        readout = stats[:, names.index(self.env.config.target_screen)]
+        readout = stats[:, names.index(self.env.scored_screen)]
         return np.column_stack([readout, transmission])
 
     def _posterior(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:

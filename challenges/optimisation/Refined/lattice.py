@@ -39,6 +39,7 @@ import numpy as np
 import torch
 
 from machine import MachineSpec
+from machine_spec import lattice_io
 
 DTYPE = torch.float32
 # How far a wall is blurred when a gradient is wanted, in metres. Only the gradient
@@ -201,15 +202,14 @@ class Line:
 
     @staticmethod
     def _build(spec: MachineSpec) -> cheetah.Segment:
-        full = cheetah.Segment.from_lattice_json(str(spec.lattice))
-        if spec.disabled:
-            full = _disable(full, set(spec.disabled))
-        if spec.apertures:
-            full = _with_apertures(full, Path(spec.apertures))
-        if spec.start:
-            full = full.partition_at(spec.start, mode="after")[-1]
-        if spec.end:
-            full = full.partition_at(spec.end, mode="after")[0]
+        """The spec's segment, built by the shared loader the environment uses.
+
+        This used to be a second implementation of the same thing. Two readings
+        of one aperture file is one too many: the model the optimiser plans
+        against and the machine it is tuning must be the same lattice, and the
+        surest way to make them the same is to build both with one function.
+        """
+        full = lattice_io.build_segment(spec)
         for element in full.elements:
             if isinstance(element, cheetah.Screen):
                 # Readings are taken from the particles; an active screen would
@@ -219,11 +219,11 @@ class Line:
 
     def _load_beam(self, spec, num_particles, coordinates, energy_ev) -> None:
         if coordinates is None:
-            if not spec.beam:
-                raise ValueError("no beam: give the spec a `beam` or pass coordinates")
-            with np.load(spec.beam, allow_pickle=False) as data:
-                coordinates = data["particles"]
-                energy_ev = energy_ev or float(data["energy_ev"])
+            # The spec's distribution file, or its Twiss where it has none — the
+            # same loader the environment uses, so a machine with no measured
+            # beam works here too.
+            coordinates, loaded, _ = lattice_io.load_beam(spec, num_particles)
+            energy_ev = energy_ev or loaded
         coordinates = np.asarray(coordinates)[:num_particles]
         self.reference = torch.tensor(np.ascontiguousarray(coordinates), dtype=DTYPE,
                                       device=self.device)

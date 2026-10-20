@@ -74,7 +74,7 @@ def train(config: RLConfig, total_timesteps: int = 100, model_dir: str = "models
 
 
 if __name__ == "__main__":
-    cfg = RLConfig()
+    cfg = RLConfig.clara()
     # Train on the magnets RealEnv drives, over the ranges it denormalises with, so an
     # action means the same thing here and in `deploy.py`. Left alone, SimEnv offers
     # every magnet of the line over its archiver range instead.

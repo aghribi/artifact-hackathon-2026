@@ -4,7 +4,12 @@ from typing import Any
 
 @dataclass
 class RLConfig:
-    # Path to the cheetah lattice JSON
+    # Which machine. A path to a `MachineSpec` JSON, or a `MachineSpec`. There is
+    # no default: an accelerator is not a thing to guess at, and the benchmark's
+    # own machine is one line away as `RLConfig.clara()`.
+    spec: Any = None
+
+    # Path to the cheetah lattice JSON (RealEnv)
     lattice_path: str = "FEBE_full.json"
 
     # Beam factory parameters (Twiss + energy + charge)
@@ -20,18 +25,13 @@ class RLConfig:
     # screen elsewhere to look around, but that costs a shot and brings back no new
     # reading of the request — the score holds at the last reading of this screen,
     # as `score.py` measures only at its readout however many screens a tuner used.
-    target_screen: str = "cla_feh_dia_scr_01"
+    # None takes the spec's `readout`.
+    target_screen: str | None = None
 
     # Magnets the RL agent can control.
     # Each entry: [name, min_native_value, max_native_value]
     # Native units: k1 (1/m²) for quadrupoles, angle (mrad) for correctors.
-    magnet_config: list[list] = field(default_factory=lambda: [
-        ["cla_s04_mag_hvcor_01_h",  -5.0e-3, 5.0e-3],
-        ["cla_s04_mag_hvcor_01_v",  -5.0e-3, 5.0e-3],
-        ["cla_s04_mag_quad_01",  -15.0, 15.0],
-        ["cla_s04_mag_quad_02",  -15.0, 15.0],
-        ["cla_s04_mag_quad_03",  -15.0, 15.0],
-    ])
+    magnet_config: list[list] = field(default_factory=list)
 
     # Episode length before truncation
     max_episode_steps: int = 100
@@ -40,17 +40,7 @@ class RLConfig:
     # Everything below describes the model in `nominal_model/`, which SimEnv tracks
     # through. `lattice_path`, `beam` and `magnet_config` above are for RealEnv.
 
-    # Which model tracks the beam. "cheetah" is first-order magnets and achromatic
-    # cavities, the physics `score.py` is scored on, and starts in a second;
-    # "xsuite" is thick elements and cavities that focus at each particle's own
-    # energy, closer to the machine off momentum, and spends a minute compiling a
-    # tracking kernel. Same lattice, same beam, same interface either way.
-    backend: str = "cheetah"
 
-    # The X-band linearizer L4H (`cla_l4h_lin_cav_01`) is off on the machine: True
-    # tracks it as a drift of its own length (its iris aperture stays), as
-    # `orbit_matching/` does. False powers it as the lattice file has it.
-    l4h_off: bool = True
 
     # Where `xsuite_model.py` lives, and what it is given. None takes the defaults
     # of the nominal model: the challenge lattice file and its starting beam.
@@ -58,10 +48,6 @@ class RLConfig:
     nominal_lattice_json: str | None = None
     distribution_path: str | None = None
 
-    # The stretch of machine that is modelled. The default is the benchmark's:
-    # the start of S02 to the FEBE hutch screen scored by `score.py`.
-    lattice_start: str = "cla_s02_sim_aper_01"
-    lattice_end: str = "cla_feh_dia_scr_01"
 
     # Particles tracked per step, taken from the front of the 200,000 in the
     # distribution file. None uses all of them (slow).
@@ -77,11 +63,6 @@ class RLConfig:
     # Beam pipe the particles have to stay inside; a particle that leaves it stops
     # counting towards every reading further down the line. None removes the pipe.
     beam_pipe_radius: float | None = 50e-3
-    # The machine's vacuum chamber (`data/clara/lattice_data/apertures.json`, from
-    # STFC's SimFrame model of CLARA FEBE), checked along the whole line by both
-    # backends: a 17 mm half-aperture pipe, the linac irises, the TDC and the FEBE
-    # arc dipole chambers. False leaves only `beam_pipe_radius`.
-    apertures: bool = True
     # Fraction of the launched beam a diagnostic needs for its reading to count.
     min_screen_fraction: float = 0.10
     # Gaussian noise added to each BPM reading, in metres.
@@ -125,33 +106,48 @@ class RLConfig:
     # means nothing.
     power_supply_ripple: float = 0.0
 
-    # Where each magnet's operating range comes from. "current" is what
-    # +-`magnet_current_limit` amps reaches through the calibration in
-    # `data/clara/lattice_data/utils.py` — what the hardware can physically do.
-    # "archiver" is where the magnets happened to run over six months, from
-    # `magnet_ranges.json`; far narrower, and it has the FEA arc quadrupoles at
-    # [0, 0]. Magnets with no calibration (the sextupoles) fall back to the
-    # archiver either way.
-    magnet_range_source: str = "current"
-    magnet_current_limit: float = 100.0  # A
+    # How diagnostics are recognised when the spec does not list them and the
+    # element types cannot tell them apart — which is the case whenever a lattice
+    # models BPMs, screens and aperture markers all as `Screen`, as CLARA's does.
+    diagnostic_tags: dict[str, str] = field(default_factory=lambda: {
+        "bpm": "dia_bpm", "screen": "dia_scr", "aperture": "sim_aper",
+    })
 
-    # Offer the three powered linac cavities' RF phases as knobs, in degrees, each
-    # within `cavity_phase_range` of the phase the lattice file runs it at. Phase
-    # sets the chirp, and so the energy spread the dogleg turns into beam size at
-    # the readout. `score.TUNABLE` allows cavity phases, so a tune that moves one
-    # is scorable; voltage and frequency are not.
-    include_cavity_phases: bool = True
-    cavity_phase_range: float = 30.0  # degrees either side of nominal
-
-    # Offer the VBC chicane as a knob: four dipoles on one setting, up to 135 mrad.
-    # With the cavity phases, it is the handle on the energy spread at the readout.
-    # `score.TUNABLE_BY_NAME` allows the four VBC angles, so a tune that moves them
-    # is scorable; every other dipole in the line is geometry and stays fixed.
-    include_vbc_chicane: bool = True
-
-    # Magnets the agent may set, by knob name (`<quadrupole>`, `<sextupole>`,
-    # `<corrector>_h` / `_v`, or `cla_vbc_chicane`). None gives it every magnet in
-    # the modelled stretch.
+    # Magnets the agent may set, by knob name as the spec declares it. None gives
+    # it every knob the spec declares in the modelled stretch.
     controllable_magnets: list[str] | None = None
-    # {knob name: [low, high]} overriding the ranges worked out above.
+    # {knob name: [low, high]} overriding the spec's ranges.
     magnet_limits: dict[str, list[float]] | None = None
+
+    # ---------------- selecting a machine ---------------- #
+
+    def machine_spec(self):
+        """The `MachineSpec` this configuration names, loaded if it is a path."""
+        from machine_spec import MachineSpec
+
+        if self.spec is None:
+            raise ValueError(
+                "RLConfig has no machine. Pass `spec=` a MachineSpec or a path to "
+                "one, or use `RLConfig.clara()` for the machine the benchmark is "
+                "scored on. There is no default because an accelerator is not a "
+                "thing to guess at."
+            )
+        if isinstance(self.spec, MachineSpec):
+            return self.spec
+        return MachineSpec.load(self.spec)
+
+    @classmethod
+    def clara(cls, **overrides) -> "RLConfig":
+        """CLARA FEBE, the machine `score.py` is scored on.
+
+        Exactly what `RLConfig()` used to give. The values did not change, they
+        moved: into `machines/clara_febe.json`, where they are a description of a
+        machine rather than constants in an environment that claims to be general.
+        """
+        from pathlib import Path as _Path
+
+        here = _Path(__file__).resolve().parents[2]
+        # An explicit `spec` in the overrides wins, so callers that rebuild a
+        # config from an existing one's `__dict__` do not collide with this.
+        return cls(**{"spec": str(here / "machines" / "clara_febe.json"),
+                      **overrides})

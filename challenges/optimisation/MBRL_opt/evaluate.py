@@ -103,7 +103,7 @@ def build(config: MBRLConfig, particles: int, variation: float, misalignment: fl
     enough to mismeasure an rms by 70 microns. At 512 the measure tracks the true
     moments to a tenth of a micron.
     """
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = particles
     rl.beam_variation = variation
     rl.misalignment_variation = misalignment
