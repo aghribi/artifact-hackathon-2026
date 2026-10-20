@@ -109,6 +109,10 @@ FALLBACK_SPAN = {"k1": 3.0, "k2": 50.0, "horizontal_angle": 5e-4,
 # What essentially every CLARA magnet can be driven to, whatever six months of
 # operation happened to use.
 MAGNET_CURRENT_LIMIT = 100.0  # A
+# What a magnet type has actually been run at, where that is tighter than the
+# supply. The sextupoles' history is +-30 A; driving the calibration to 100 A
+# instead would claim +-2800 m^-3, a range nobody has evidence the magnets hold.
+CURRENT_LIMIT_BY_PROPERTY = {"k2": 30.0}
 
 # The VBC chicane: four dipoles on one setting, alternating in sign, and the largest
 # bend it is configured for. The lattice file ships it flat.
@@ -447,7 +451,7 @@ def _lattice_utils():
 
 def _current_range(element: str, prop: str, amps: float) -> tuple[float, float] | None:
     """What +-`amps` reaches, in the lattice file's units, or None where `utils.py`
-    has no calibration — the sextupoles, and anything not on CLARA's magnet list.
+    has no calibration — anything not on CLARA's magnet list.
 
     The momentum is `utils.beam_energy`, a fixed figure per section. That table puts
     S02 at 32.8 MeV where the nominal model has 35.8, so S02 strengths carry about
@@ -457,9 +461,16 @@ def _current_range(element: str, prop: str, amps: float) -> tuple[float, float] 
     momentum = utils.beam_energy.get(element.split("_")[1])
     if momentum is None:
         return None
+    amps = min(amps, CURRENT_LIMIT_BY_PROPERTY.get(prop, amps))
     name = element.upper().replace("_", "-")
     if prop == "k1":
         convert = utils.quadrupole_k_from_current
+    elif prop == "k2":
+        # The sextupoles do have a calibration, and leaving it out cost them most
+        # of their range: `FALLBACK_SPAN` gives +-50 m^-3 where +-30 A of the
+        # current the magnets have actually run at is +-841. Seventeen times, so
+        # a tuner working against the fallback had them all but pinned.
+        convert = utils.sextupole_k2_from_current
     elif prop == "angle":
         convert = utils.dipole_angle_from_current
     elif prop in ("horizontal_angle", "vertical_angle"):

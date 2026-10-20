@@ -111,22 +111,33 @@ class TwinMachine:
         beam_variation: float = 1.0,
         misalignment_variation: float = 1.0,
         beam_jitter: float = 0.1,
-        fit_misalignments: bool = True,
+        survey_error: bool = True,
         seed: int | None = None,
     ):
         # The optics lookup is model-only and expensive, so it is borrowed from a
         # real `OpticsEnv` rather than rebuilt; its cache then serves every episode
         # that asks for the same spot.
         self._optics = optics_source
-        self.twin = twin or CheetahTwin(num_particles=num_particles)
+        # Built from the environment the optics came from, not from this module's
+        # defaults: otherwise the stand-in machine carries a powered L4H while the
+        # optics it is handed were matched with L4H as a drift, and it is a
+        # different accelerator from the one the agent is being trained for.
+        self.twin = twin or CheetahTwin.for_env(self._optics, num_particles)
         self.magnet_limits = dict(self._optics.magnet_limits)
         self._shape = tuple(int(n) for n in screen_shape)
         self._variation = beam_variation
         self._misalignment = misalignment_variation
         self._jitter = beam_jitter
-        # Whether the drawn machine carries a survey error at all. Off leaves the
-        # twin's own alignment, which is what the aligned-twin ablation assumes.
-        self._survey = fit_misalignments
+        # Whether the machine this stands in for carries a survey error at all.
+        #
+        # This is a property of the *machine*, and must not be confused with the
+        # agent's `fit_misalignments`, which only says whether the agent tries to
+        # estimate one. Tying them together makes a training machine with
+        # perfectly aligned magnets: the reference optics then lands the size
+        # first time, the focus exits immediately, and 200 episodes yield not one
+        # decision to clone. SimEnv deals a survey error whatever the agent
+        # believes, so by default this does too.
+        self._survey = survey_error
         self._rng = np.random.default_rng(seed)
         self.target = draw_target(self._rng)
         self._latent = LatentState.nominal()
@@ -140,8 +151,10 @@ class TwinMachine:
     def screen_extent(self, screen: str | None = None):
         return self.twin.screen_extent(screen)
 
-    def optics_for_target(self, sigma_x: float, sigma_y: float):
-        return self._optics.optics_for_target(sigma_x, sigma_y)
+    def optics_for_target(self, sigma_x: float, sigma_y: float, **kwargs):
+        # Whatever the real environment's lookup takes, including `modes`, so this
+        # shim does not have to be edited every time that signature grows.
+        return self._optics.optics_for_target(sigma_x, sigma_y, **kwargs)
 
     def optics_action(self, optics) -> dict:
         return {"magnets": dict(optics.k1)}

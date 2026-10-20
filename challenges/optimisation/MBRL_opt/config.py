@@ -61,6 +61,19 @@ class MBRLConfig:
     # optimiser lets a quadrupole chase a 2 mm position error by distorting the
     # optics — which it can do, and which costs the size the focus just bought.
     focus_correctors: int = 0
+    # Ask `optics_for_target` for its SVD rankings. Off skips the two SVDs — 208
+    # of the lookup's tracks, about a tenth of its time — and falls back to
+    # `fallback_focus_quads`. The ranking is the better choice when the lookup is
+    # affordable; this is the switch for when it is not.
+    use_svd_ranking: bool = True
+    # Which quadrupoles the focus uses when there is no ranking to read. The
+    # final-focus four the matched family itself varies, then the two before them.
+    fallback_focus_quads: list[str] = field(default_factory=lambda: [
+        "cla_feh_mag_quad_01", "cla_feh_mag_quad_02",
+        "cla_fea_mag_quad_15", "cla_fea_mag_quad_16",
+        "cla_fea_mag_quad_13", "cla_fea_mag_quad_14",
+    ])
+
     # Knobs outside the SVD's reach that the focus should have anyway.
     focus_extra: list[str] = field(default_factory=lambda: list(ENERGY_KNOBS))
 
