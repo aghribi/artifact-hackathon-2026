@@ -1,0 +1,448 @@
+"""Any Cheetah lattice, driven by a `MachineSpec`, tracked in torch.
+
+The one piece of machinery everything else sits on. `MBRL_opt/twin.py` is the same
+code with CLARA written through it — a hard-coded chicane, hard-coded diagnostic
+tags, a hard-coded lattice path. Here all of that comes out of the spec, and what is
+left is the part that was hard to get right and is worth keeping exactly as it is:
+
+- **Coupled knobs.** One number drives several elements with signs, and may have to
+  write more than one property of each — a chicane's pole faces turn with its body
+  angle, and setting one without the other is a different magnet.
+- **The transfer-map cache.** Cheetah caches an element's map keyed on beam energy,
+  not on the strengths it was built from, so reassigning `k1` leaves the old map in
+  place. A batched evaluation then leaves a *batched* map behind and the next
+  unbatched track silently returns the wrong shape. Every write clears it.
+- **Apertures with a usable gradient.** Whether a particle is inside a wall is a
+  step function; a sum of ten thousand step functions is a staircase, not a slope.
+  Blurring the wall is badly biased, so the value comes from the hard edge and the
+  gradient from a sigmoid.
+- **Batching.** Element parameters take a leading dimension, so a population of
+  candidate settings tracks in little more time than one — but only the elements
+  downstream of a batched knob carry it, so readings come back at mixed shapes and
+  have to be broadcast before they can be stacked.
+
+    line = Line(spec, num_particles=4000)
+    line.set({"cla_feh_mag_quad_01": 1.7, "vbc_chicane": 0.12})
+    reading = line.track()
+    reading.sizes[line.index("cla_feh_dia_scr_01")]    # sigma_x, sigma_y there
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, Mapping, Sequence
+
+import cheetah
+import numpy as np
+import torch
+
+from machine import MachineSpec
+
+DTYPE = torch.float32
+# How far a wall is blurred when a gradient is wanted, in metres. Only the gradient
+# sees it; the value is always the hard edge.
+SOFT_EDGE = 1e-3
+
+
+def _forget_maps(element) -> None:
+    """Drop an element's cached transfer maps after its parameters change."""
+    cache = getattr(element, "_cache", None)
+    if isinstance(cache, dict):
+        cache.clear()
+
+
+def _aperture(margin: torch.Tensor, soft: float | None) -> torch.Tensor:
+    """Whether a particle is inside a wall it is `margin` metres clear of.
+
+    The value is the step function the machine applies. With `soft` set it also
+    carries the derivative of a sigmoid of that width, which is what lets anything
+    downstream be optimised; the value itself is untouched, so nothing is biased.
+    """
+    hard = (margin >= 0).to(DTYPE)
+    if soft is None:
+        return hard
+    smooth = torch.sigmoid(margin / soft)
+    return hard + (smooth - smooth.detach())
+
+
+def _masked_mean(values: torch.Tensor, weight: torch.Tensor) -> torch.Tensor:
+    total = weight.sum(dim=-1).clamp(min=1.0)
+    return (values * weight).sum(dim=-1) / total
+
+
+def _masked_std(values, weight, mean) -> torch.Tensor:
+    total = weight.sum(dim=-1).clamp(min=1.0)
+    spread = (weight * (values - mean.unsqueeze(-1)) ** 2).sum(dim=-1) / total
+    return torch.sqrt(spread.clamp(min=0.0) + 1e-24)
+
+
+@dataclass
+class Readings:
+    """What every diagnostic says, with gradient to whatever was being varied.
+
+    Rows follow `Line.diagnostics`; a leading batch dimension is present whenever
+    one was asked for. `valid` is 0 where too little beam arrived to read.
+    """
+
+    centroids: torch.Tensor  # (..., n_diagnostics, 2)
+    sizes: torch.Tensor  # (..., n_diagnostics, 2)
+    valid: torch.Tensor  # (..., n_diagnostics)
+    transmission: torch.Tensor  # (...,)
+    scrape: torch.Tensor  # (...,) mean metres outside the pipe
+    # The beam as the optics made it: moments over every surviving particle, about
+    # its own centroid, with no clipping to the camera chip. `sizes` is what an
+    # instrument reports and is the right thing to score a tune on; these are the
+    # right thing to ask physics questions with. A beam steered half off the chip
+    # reads as a tiny spot in `sizes` and an unchanged one here, and conflating the
+    # two makes every corrector look like it reshapes the beam.
+    beam_centroids: torch.Tensor  # (..., n_diagnostics, 2)
+    beam_sizes: torch.Tensor  # (..., n_diagnostics, 2)
+
+    def at(self, index: int):
+        """(centroid, size) at one diagnostic, as an instrument would report it."""
+        return self.centroids[..., index, :], self.sizes[..., index, :]
+
+    def beam_at(self, index: int):
+        """(centroid, size) at one diagnostic, as the optics made it."""
+        return self.beam_centroids[..., index, :], self.beam_sizes[..., index, :]
+
+
+class Line:
+    """A lattice, its knobs and its diagnostics, as the spec describes them."""
+
+    def __init__(
+        self,
+        spec: MachineSpec,
+        num_particles: int | None = None,
+        coordinates: np.ndarray | None = None,
+        energy_ev: float | None = None,
+    ):
+        self.spec = spec
+        self.segment = self._build(spec)
+        self._elements = {e.name: e for e in self.segment.elements}
+
+        # Where the beam is read and where it is scraped, in lattice order. A
+        # diagnostic the spec never named is still a stop if it can lose particles.
+        named = set(spec.bpms) | set(spec.screens)
+        self.stops: list[str] = []
+        self.diagnostics: list[str] = []
+        for element in self.segment.elements:
+            if not isinstance(element, cheetah.Screen):
+                continue
+            self.stops.append(element.name)
+            if element.name in named:
+                self.diagnostics.append(element.name)
+        if spec.readout and spec.readout not in self.diagnostics:
+            raise ValueError(f"the readout {spec.readout} is not a diagnostic of this line")
+        self._row = {name: i for i, name in enumerate(self.diagnostics)}
+        self.readout = self._row.get(spec.readout, -1)
+
+        self._extent = {
+            e.name: tuple(float(v) for v in e.extent)
+            for e in self.segment.elements if isinstance(e, cheetah.Screen)
+        }
+        # One sub-segment per stop, so each stretch is one fused transfer map
+        # rather than an element-by-element walk.
+        self._chunks, previous = {}, 0
+        for name in self.stops:
+            index = self.segment.element_index(name)
+            self._chunks[name] = cheetah.Segment(self.segment.elements[previous:index])
+            previous = index
+
+        self.knobs = {k.name: k for k in spec.knobs}
+        self._nominal = {
+            name: float(getattr(self._elements[knob.elements[0]], knob.prop))
+            * (1.0 / knob.signs[0] if knob.signs[0] else 1.0)
+            for name, knob in self.knobs.items()
+        }
+        self._setpoints: dict[str, float] = {}
+        self._written: set[str] = set()
+
+        self._load_beam(spec, num_particles, coordinates, energy_ev)
+
+    # ---------- construction ----------
+
+    @staticmethod
+    def _build(spec: MachineSpec) -> cheetah.Segment:
+        full = cheetah.Segment.from_lattice_json(str(spec.lattice))
+        if spec.disabled:
+            full = _disable(full, set(spec.disabled))
+        if spec.apertures:
+            full = _with_apertures(full, Path(spec.apertures))
+        if spec.start:
+            full = full.partition_at(spec.start, mode="after")[-1]
+        if spec.end:
+            full = full.partition_at(spec.end, mode="after")[0]
+        for element in full.elements:
+            if isinstance(element, cheetah.Screen):
+                # Readings are taken from the particles; an active screen would
+                # render a camera frame at every diagnostic for nothing.
+                element.is_active = False
+        return full
+
+    def _load_beam(self, spec, num_particles, coordinates, energy_ev) -> None:
+        if coordinates is None:
+            if not spec.beam:
+                raise ValueError("no beam: give the spec a `beam` or pass coordinates")
+            with np.load(spec.beam, allow_pickle=False) as data:
+                coordinates = data["particles"]
+                energy_ev = energy_ev or float(data["energy_ev"])
+        coordinates = np.asarray(coordinates)[:num_particles]
+        self.reference = torch.tensor(np.ascontiguousarray(coordinates), dtype=DTYPE)
+        self.centre = self.reference.mean(dim=0)
+        self.energy_ev = float(energy_ev)
+        self._energy = torch.tensor(self.energy_ev, dtype=DTYPE)
+        self.num_particles = len(coordinates)
+
+    # ---------- knobs ----------
+
+    def index(self, diagnostic: str) -> int:
+        return self._row[diagnostic]
+
+    def nominal(self, name: str) -> float:
+        return self._nominal[name]
+
+    def value(self, name: str) -> float:
+        return self._setpoints.get(name, self._nominal[name])
+
+    def set(self, values: Mapping[str, float]) -> None:
+        """Mirror a set of knob values; they persist until changed."""
+        for name, value in values.items():
+            if name not in self.knobs:
+                raise KeyError(f"{name} is not a knob of {self.spec.name}")
+            self._setpoints[name] = float(value)
+
+    def reset(self) -> None:
+        self._setpoints.clear()
+
+    def _write(self, name: str, value) -> None:
+        """Set one knob: every element it drives, with its sign and its faces."""
+        knob = self.knobs[name]
+        if not isinstance(value, torch.Tensor):
+            value = torch.tensor(float(value), dtype=DTYPE)
+        if not bool(torch.isfinite(value).all()):
+            value = torch.full_like(value, float(self.value(name)))
+        # Clipped to what the supply can deliver. A model that will happily set a
+        # strength the machine cannot reach is a model that matches to tunes
+        # nobody can load, and the error surfaces only when someone tries.
+        if knob.low is not None and knob.high is not None:
+            value = value.clamp(min=float(knob.low), max=float(knob.high))
+        self._written.add(name)
+        for element, sign in zip(knob.elements, knob.signs):
+            target = self._elements[element]
+            setattr(target, knob.prop, sign * value)
+            for extra in knob.follow.get(element, ()):
+                setattr(target, extra, sign * value)
+            _forget_maps(target)
+
+    def _apply(self, overrides: Mapping[str, torch.Tensor] | None) -> None:
+        """Every knob to its set point, then the caller's overrides on top.
+
+        Everything ever written is rewritten, not just what has a set point: an
+        override may have left a whole batch of candidate values on an element, and
+        the next track must not inherit it.
+        """
+        for name in self._written | set(self._setpoints):
+            self._write(name, self.value(name))
+        for name, value in (overrides or {}).items():
+            self._write(name, value)
+
+    # ---------- tracking ----------
+
+    def track(
+        self,
+        overrides: Mapping[str, torch.Tensor] | None = None,
+        batch: int | None = None,
+        soft: float | None = None,
+        upto: str | None = None,
+        beam: torch.Tensor | None = None,
+    ) -> Readings:
+        """Track to `upto` (the readout by default), reading every diagnostic."""
+        self._apply(overrides)
+        last = upto or self.spec.readout or self.stops[-1]
+        stop_index = self.stops.index(last)
+
+        particles = self.reference if beam is None else beam
+        travelling = cheetah.ParticleBeam(
+            particles=torch.cat(
+                [particles, torch.ones(len(particles), 1, dtype=DTYPE)], dim=1
+            ),
+            energy=self._energy,
+        )
+        minimum = self.spec.min_fraction * self.num_particles
+        radius = self.spec.pipe_radius
+
+        alive = margin = None
+        outside: list[torch.Tensor] = []
+        rows: dict[str, tuple] = {}
+
+        for name in self.stops[: stop_index + 1]:
+            chunk = self._chunks[name]
+            if len(chunk.elements):
+                travelling = chunk.track(travelling)
+            x, y = travelling.x, travelling.y
+            survived = (travelling.survival_probabilities > 0.5).to(DTYPE).expand_as(x)
+            alive = survived if alive is None else alive * survived
+            if radius is not None:
+                # How far inside the pipe each particle is at the worst stop it has
+                # passed: a running minimum is exactly the product of the per-stop
+                # tests, and unlike that product it is one number that can be
+                # softened, which is what gives anything downstream a gradient.
+                here = radius - torch.sqrt(x**2 + y**2 + 1e-18)
+                margin = here if margin is None else torch.minimum(margin, here)
+                outside.append((-here).clamp(min=0.0).mean(dim=-1))
+            live = alive if margin is None else alive * _aperture(margin, soft)
+
+            if name in self._row:
+                extent = self._extent[name]
+                on_chip = live * _aperture(
+                    torch.minimum(extent[1] - x.abs(), extent[3] - y.abs()), soft
+                )
+                count = on_chip.sum(dim=-1)
+                mu_x, mu_y = _masked_mean(x, on_chip), _masked_mean(y, on_chip)
+                bx, by = _masked_mean(x, live), _masked_mean(y, live)
+                rows[name] = (
+                    mu_x, mu_y,
+                    _masked_std(x, on_chip, mu_x), _masked_std(y, on_chip, mu_y),
+                    (count >= minimum).to(DTYPE),
+                    bx, by,
+                    _masked_std(x, live, bx), _masked_std(y, live, by),
+                )
+
+        transmission = live.sum(dim=-1) / self.num_particles
+        scrape = (
+            torch.stack(_broadcast(outside), dim=-1).mean(dim=-1)
+            if outside else torch.zeros_like(transmission)
+        )
+        shape = torch.broadcast_shapes(
+            transmission.shape, scrape.shape,
+            *(v[0].shape for v in rows.values()),
+            *(() if batch is None else ((batch,),)),
+        )
+        blank = torch.zeros(shape, dtype=DTYPE)
+        take = lambda name, i: (  # noqa: E731
+            rows[name][i].expand(shape) if name in rows else blank
+        )
+        centroids = torch.stack(
+            [torch.stack([take(n, 0), take(n, 1)], -1) for n in self.diagnostics], -2
+        )
+        sizes = torch.stack(
+            [torch.stack([take(n, 2), take(n, 3)], -1) for n in self.diagnostics], -2
+        )
+        valid = torch.stack([take(n, 4) for n in self.diagnostics], -1)
+        beam_centroids = torch.stack(
+            [torch.stack([take(n, 5), take(n, 6)], -1) for n in self.diagnostics], -2
+        )
+        beam_sizes = torch.stack(
+            [torch.stack([take(n, 7), take(n, 8)], -1) for n in self.diagnostics], -2
+        )
+        return Readings(centroids, sizes, valid, transmission.expand(shape),
+                        scrape.expand(shape), beam_centroids, beam_sizes)
+
+    # ---------- batching ----------
+
+    def columns(self, names: Sequence[str], population: np.ndarray) -> dict:
+        """A population of knob vectors as a batched override mapping."""
+        tensor = torch.tensor(np.asarray(population), dtype=DTYPE)
+        return {name: tensor[:, i] for i, name in enumerate(names)}
+
+    def probe(self, names: Sequence[str], steps: Sequence[float], base=None) -> dict:
+        """Overrides that evaluate the base point and each knob nudged, in one batch.
+
+        Column 0 is the machine as it stands and column i + 1 is knob i stepped, so
+        a response matrix over n knobs costs one track rather than n.
+        """
+        base = {n: self.value(n) for n in names} if base is None else dict(base)
+        population = np.repeat(
+            np.array([[base[n] for n in names]], dtype=float), len(names) + 1, axis=0
+        )
+        for i, step in enumerate(steps):
+            population[i + 1, i] += step
+        return self.columns(names, population)
+
+
+def _disable(segment: cheetah.Segment, names: set[str]) -> cheetah.Segment:
+    """Replace named elements with a drift of their own length.
+
+    An element in the lattice file is not necessarily an element on the machine.
+    CLARA's L4H linearizer is in the file as a powered cavity and is switched off
+    in reality, so a model that powers it is tuning a different accelerator — the
+    chirp, the energy spread and what the dogleg makes of them all change. The
+    length and the name stay, so apertures and diagnostics still line up.
+    """
+    elements = []
+    for element in segment.elements:
+        if element.name in names:
+            length = float(getattr(element, "length", 0.0) or 0.0)
+            # Second order, not whatever the original element used: a cavity's
+            # tracking method is not one a drift understands, and Cheetah quietly
+            # falls back to linear if given it — which tracks a different beam.
+            elements.append(cheetah.Drift(
+                length=torch.tensor(length, dtype=DTYPE),
+                tracking_method="second_order",
+                name=element.name,
+            ))
+        else:
+            elements.append(element)
+    return cheetah.Segment(elements, name=segment.name)
+
+
+def _broadcast(tensors: Iterable[torch.Tensor]) -> list[torch.Tensor]:
+    tensors = list(tensors)
+    shape = torch.broadcast_shapes(*(t.shape for t in tensors))
+    return [t.expand(shape) for t in tensors]
+
+
+def _aperture_element(entry: dict, name: str) -> cheetah.Aperture:
+    return cheetah.Aperture(
+        x_max=torch.tensor(float(entry["x_max"]), dtype=DTYPE),
+        y_max=torch.tensor(float(entry["y_max"]), dtype=DTYPE),
+        shape=entry.get("shape", "elliptical"),
+        name=name,
+    )
+
+
+def _with_apertures(segment: cheetah.Segment, path: Path) -> cheetah.Segment:
+    """Insert the vacuum chamber described by an aperture file.
+
+    Two kinds of entry, which is how a chamber is actually described:
+
+    - `pipe` sets the chamber *from its element onwards* — the beam is checked
+      there and at the exit of every element with a length, until the next pipe
+      entry supersedes it. A point-like aperture marker read as the chamber of the
+      section it starts.
+    - `collimators` are checked at the entrance and exit of their own element only.
+
+    The same semantics as `nominal_model.xsuite_model.with_apertures`, which is
+    what the environment uses; a simple `{element: half}` map is also accepted for
+    machines whose chamber is described that plainly.
+    """
+    table = json.loads(path.read_text())
+    if "pipe" not in table and "collimators" not in table:
+        flat = table.get("elements", table)
+        table = {"pipe": [], "collimators": [
+            {"element": name,
+             **(dict(zip(("x_max", "y_max"), v)) if isinstance(v, (list, tuple))
+                else {"x_max": v, "y_max": v})}
+            for name, v in flat.items() if not isinstance(v, str)
+        ]}
+    pipe = {e["element"]: e for e in table.get("pipe", [])}
+    collimators = {e["element"]: e for e in table.get("collimators", [])}
+
+    elements, chamber = [], None
+    for element in segment.elements:
+        name = element.name
+        collimator = collimators.get(name)
+        if collimator is not None:
+            elements.append(_aperture_element(collimator, f"{name}_col_in"))
+        elements.append(element)
+        if name in pipe:
+            chamber = pipe[name]
+            elements.append(_aperture_element(chamber, f"{name}_pipe"))
+        elif collimator is not None:
+            elements.append(_aperture_element(collimator, f"{name}_col_out"))
+        elif chamber is not None and float(getattr(element, "length", 0.0)) > 0.0:
+            elements.append(_aperture_element(chamber, f"{name}_pipe"))
+    return cheetah.Segment(elements, name=segment.name)
