@@ -76,7 +76,50 @@ Everything here was learned the hard way in `MBRL_opt/` and is kept deliberately
 - **Apertures get a straight-through gradient.** Value from the hard edge, gradient
   from a sigmoid. Blurring the edge outright is badly biased.
 
+## A future improvement: differentiate the match instead of sampling it
+
+The grid is exponential in the number of scan axes, and the reason is that the
+matched optics is treated as a black box that can only be sampled. It is not. The
+match solves a residual to zero, so the implicit function theorem gives its
+derivative with respect to anything held fixed, in closed form, from quantities the
+matcher already computes and currently throws away:
+
+```
+r(k, p) = 0        =>        dk*/dp = -J_k⁺ · ∂r/∂p
+```
+
+`k` is the matching quadrupoles, `p` a non-linear knob, `J_k` the Jacobian the
+least-squares solver builds at every iteration. `∂r/∂p` is one extra column per
+knob, from the same batched track. The derivative therefore costs a few percent on
+top of a match that was happening anyway.
+
+Three things fall out of it:
+
+- **Hermite interpolation instead of linear.** Error per axis goes `O(h²)` to
+  `O(h⁴)`, so the same accuracy needs roughly the square root of the points. That
+  is what makes a third or fourth axis survivable.
+- **The real axis count.** Stack `dk*/dp` over every candidate knob and take the
+  SVD. If the rank is two, then every one of those knobs moves the matched optics
+  along the same two directions, and the grid spans *those*, not the knobs. This is
+  the quantitative version of what `sensitivity.py` estimates by sweeping, which
+  reports per-knob magnitudes and cannot see that two knobs are redundant.
+- **Reparameterising onto the incoming beam.** On CLARA every candidate non-linear
+  knob sits strictly upstream of the four matched quadrupoles, so it can only
+  influence the match through the beam arriving at the final focus. The complete
+  mediator is that beam's second-moment matrix and energy spread — a handful of
+  numbers, fewer than the knobs. A family indexed by the incoming beam also
+  survives configuration changes nobody scanned.
+
+The caveats are real but bounded: a quadrupole pinned at a limit has a one-sided
+derivative and the solution is only piecewise smooth, `J_k` goes ill-conditioned
+near the edge of feasibility (which is physical, not numerical), and with more
+quadrupoles than constraints the matched point is not unique, so the min-norm gauge
+has to be stated rather than left to wherever the solver happens to stop. The
+cheapest first step is the SVD of the stacked sensitivity: it decides whether a
+dense grid is tractable at all, and it can be done on the nodes that already exist.
+
 ## Status
 
 Being built. `describe.py` first, because nothing else can be written until the
-machine description has a shape.
+machine description has a shape. `sensitivity.py` ranks the knobs that invalidate
+the family; the interview takes the top *k* of that ranking as scan axes.

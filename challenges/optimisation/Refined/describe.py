@@ -10,13 +10,18 @@ strings are knobs, what shares a power supply, where the limits come from, and �
 one that is easy to forget — whether anything other than the requested spot changes
 the optics enough that the precomputed family has to span it.
 
-That last question is why this is an interview and not a detector. A matched family
-answers "which quadrupole strengths give this spot?", and that has a single answer
-only if everything else about the beam is pinned. On CLARA the L4H linearizer is
-presently run as a drift, so it is; powered, its phase would set the chirp, and the
-energy spread, and therefore what the dogleg turns into horizontal size at the
-readout — and a family built at one phase would be wrong at every other. Nothing in
-the lattice file marks which elements have that character. The user does.
+A matched family answers "which quadrupole strengths give this spot?", and that has
+a single answer only if everything else about the beam is pinned. On CLARA the L4H
+linearizer is presently run as a drift, so it is; powered, its phase would set the
+chirp, and the energy spread, and therefore what the dogleg turns into horizontal
+size at the readout — and a family built at one phase would be wrong at every other.
+
+That part is measurable: `sensitivity.py` sweeps each candidate knob with the
+quadrupoles held still and ranks it by how far the readout spot moves, which is how
+far the family would have been wrong to ignore it. What is not measurable is how
+many of them to pay for, because every axis multiplies a precompute counted in
+hours and the ranking usually falls away sharply after the leader. So the script
+ranks and the user takes the top *k* — one, on a first pass.
 
 Every answer is recorded, so a session can be replayed, scripted or audited. The
 interview is the interface; `machine.json` and the answer file are the artifacts.
@@ -61,6 +66,9 @@ MAX_GROUP = 6
 SAME_STRENGTH = 1e-6
 GROUP_MIN = 2
 CLOSED_BUMP = 0.05  # a string whose angles sum to within this of its largest closes
+# Most scan axes the grid may have. The precompute is a product over them, so four
+# is already a job nobody runs twice.
+MAX_AXES = 4
 
 
 # ---------------------------------------------------------------- reading
@@ -422,8 +430,65 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
     return unresolved
 
 
-def ask_axes(ask: Interview, knobs: list[Knob]) -> list[ScanAxis]:
-    """What else the optics depends on, beyond the requested spot."""
+def ask_points(ask: Interview, index: int) -> int:
+    return int(ask.number(
+        f"axes.{index}.points", "Points along it", default=5, cast=int,
+        bounds=(2, 51),
+        help="Every point multiplies the precompute. 5 is plenty for a smooth\n"
+             "dependence; more only if the optics turns sharply.",
+    ))
+
+
+def axes_by_hand(ask: Interview, candidates: list[str]) -> list[ScanAxis]:
+    """Axes named outright, for when the scan cannot run or is not trusted."""
+    count = int(ask.number("axes.count", "How many extra axes?", default=0,
+                           cast=int, bounds=(0, MAX_AXES)))
+    axes: list[ScanAxis] = []
+    for index in range(count):
+        ask.say("", f"--- axis {index + 1} of {count}")
+        knob = ask.text(f"axes.{index}.knob", "Which knob does it vary?",
+                        default=candidates[0] if candidates else "", allow_empty=False)
+        low = ask.number(f"axes.{index}.low", "Lowest value", default=0.0)
+        high = ask.number(f"axes.{index}.high", "Highest value", default=1.0)
+        points = ask_points(ask, index)
+        note = ask.text(f"axes.{index}.note", "Why does it change the optics?",
+                        default="")
+        axes.append(ScanAxis(name=knob, kind="knob", knob=knob, low=low, high=high,
+                             points=points, spacing="linear", note=note))
+    return axes
+
+
+def scan_ranking(spec: MachineSpec, particles: int, points: int):
+    """Sweep every candidate knob and rank it by how far it moves the spot.
+
+    Imported here rather than at the top: the scan pulls in torch and Cheetah and
+    tracks a beam, and an interview that only names its axes should not pay for it.
+    """
+    import sensitivity
+    from lattice import Line
+
+    line = Line(spec, num_particles=particles)
+    candidates, matching, steering = sensitivity.candidates_for(spec)
+    print(f"\n  {len(matching)} matching quadrupole(s) and {len(steering)} "
+          f"corrector(s) are not candidates: the first are what the family solves\n"
+          f"  for, the second are a separable orbit with their own stage.")
+    effects = sensitivity.measure(line, candidates, points)
+    sensitivity.report(effects, spec)
+    return sensitivity.rank(effects), sensitivity.AXIS_THRESHOLD
+
+
+def ask_axes(ask: Interview, spec: MachineSpec, particles: int = 2000,
+             points: int = 5) -> list[ScanAxis]:
+    """What else the optics depends on, beyond the requested spot.
+
+    The ranking is a measurement and the cut is a judgement, so the script makes
+    the first and the user makes the second. `sensitivity.py` sweeps every
+    candidate knob with the quadrupoles held still and orders them by how far the
+    readout spot moves — which is exactly how far the family would have been wrong
+    had it ignored that knob. What it cannot decide is how many of them are worth
+    paying for, because each one multiplies a precompute measured in hours and the
+    ranking usually falls away sharply after the leader. So the user picks *k*.
+    """
     ask.section("What the family must span")
     ask.say(
         "The family answers 'which quadrupole strengths give this spot?'. That has",
@@ -434,30 +499,73 @@ def ask_axes(ask: Interview, knobs: list[Knob]) -> list[ScanAxis]:
         "length — the family has to span it too, or it is right at one value of",
         "that knob and wrong at every other.",
         "",
-        "Each axis multiplies the precompute. Most machines need none.",
+        "Each axis multiplies the precompute, so the question is not which knobs",
+        "matter at all, but which few matter most.",
     )
-    candidates = [k.name for k in knobs if k.nonlinear]
+    candidates = [k.name for k in spec.knobs if k.nonlinear]
     if candidates:
         ask.say("", f"non-linear knobs, the usual suspects: {candidates}")
-    count = int(ask.number("axes.count", "How many extra axes?", default=0,
-                           cast=int, bounds=(0, 4)))
+    source = ask.choose(
+        "axes.source", "How should the axes be chosen?",
+        ["scan", "manual", "none"], default="scan",
+        help="scan:   sweep every candidate knob, rank them, take the top k\n"
+             "manual: name them yourself\n"
+             "none:   span the requested spot and nothing else",
+    )
+    if source == "none":
+        return []
+    if source == "manual":
+        return axes_by_hand(ask, candidates)
+
+    try:
+        ranked, threshold = scan_ranking(spec, particles, points)
+    except Exception as error:  # noqa: BLE001 — the scan is an aid, not a gate
+        ask.say("", f"the scan could not run ({error!r}) — naming them by hand")
+        spec.unresolved.append(f"the sensitivity scan did not run: {error!r}")
+        return axes_by_hand(ask, candidates)
+
+    usable = [e for e in ranked if e.usable]
+    if not usable:
+        ask.say("", "No candidate knob both holds the beam and moves the spot, so a",
+                "family over the requested spot alone is enough.")
+        return []
+
+    strong = sum(1 for e in usable if e.proposes_axis)
+    ask.say(
+        "",
+        f"{strong} of {len(usable)} knob(s) move the spot by more than "
+        f"{threshold:.0%}.",
+        "The ranking normally falls away sharply after the leader, so 1 is the",
+        "usual first pass; take more only if the second is close behind the first.",
+    )
+    top_k = int(ask.number(
+        "axes.top_k", "How many of the top-ranked knobs become axes?",
+        default=1, cast=int, bounds=(0, min(MAX_AXES, len(usable))),
+        help="\n".join(
+            f"{i + 1}: {e.knob}  moves the spot {e.size_change:.1%} over "
+            f"[{e.low:g}, {e.high:g}]"
+            for i, e in enumerate(usable[:MAX_AXES])),
+    ))
+
     axes: list[ScanAxis] = []
-    for index in range(count):
-        ask.say("", f"--- axis {index + 1} of {count}")
-        knob = ask.text(f"axes.{index}.knob", "Which knob does it vary?",
-                        default=candidates[0] if candidates else "", allow_empty=False)
-        low = ask.number(f"axes.{index}.low", "Lowest value", default=0.0)
-        high = ask.number(f"axes.{index}.high", "Highest value", default=1.0)
-        points = int(ask.number(
-            f"axes.{index}.points", "Points along it", default=5, cast=int,
-            bounds=(2, 51),
-            help="Every point multiplies the precompute. 5 is plenty for a smooth\n"
-                 "dependence; more only if the optics turns sharply.",
+    for index, effect in enumerate(usable[:top_k]):
+        ask.say("", f"--- axis {index + 1}: {effect.knob}")
+        ask.say(
+            f"    swept [{effect.low:g}, {effect.high:g}]"
+            + ("  (narrowed from its limits to where the beam survives)"
+               if effect.narrowed else "")
+            + f", moving the spot by {effect.size_change:.1%}"
+        )
+        low = ask.number(f"axes.{index}.low", "Lowest value", default=effect.low)
+        high = ask.number(f"axes.{index}.high", "Highest value", default=effect.high)
+        axes.append(ScanAxis(
+            name=effect.knob, kind="knob", knob=effect.knob,
+            low=low, high=high, points=ask_points(ask, index), spacing="linear",
+            note=f"ranked {index + 1} of {len(usable)} by the sensitivity scan: "
+                 f"sweeping it over [{effect.low:g}, {effect.high:g}] with the "
+                 f"quadrupoles held still moves the readout spot by "
+                 f"{effect.size_change:.1%}, so the matched family depends on it",
         ))
-        note = ask.text(f"axes.{index}.note", "Why does it change the optics?",
-                        default="")
-        axes.append(ScanAxis(name=knob, kind="knob", knob=knob, low=low, high=high,
-                             points=points, spacing="linear", note=note))
     return axes
 
 
@@ -482,7 +590,8 @@ def ask_grid(ask: Interview, spec: MachineSpec, axes: list[ScanAxis]) -> None:
 
 
 def run(path: Path, ask: Interview, start=None, end=None, beam=None,
-        apertures=None, pipe_radius=None) -> MachineSpec:
+        apertures=None, pipe_radius=None, scan_particles=2000,
+        scan_points=5) -> MachineSpec:
     types, sequence, raw = load_lattice(path)
     if start or end:
         lo = sequence.index(start) + 1 if start else 0
@@ -526,8 +635,9 @@ def run(path: Path, ask: Interview, start=None, end=None, beam=None,
             knobs = [k for k in knobs if k.name not in dead]
 
     unresolved = ask_limits(ask, knobs)
-    axes = ask_axes(ask, knobs)
 
+    # The spec is built before the axes are chosen, because choosing them by
+    # measurement means tracking a beam through this very machine.
     spec = MachineSpec(
         lattice=str(path), beam=str(beam) if beam else None,
         apertures=str(apertures) if apertures else None,
@@ -536,6 +646,7 @@ def run(path: Path, ask: Interview, start=None, end=None, beam=None,
         pipe_radius=pipe_radius, knobs=knobs, fixed=fixed,
         name=path.stem, unresolved=unresolved,
     )
+    axes = ask_axes(ask, spec, scan_particles, scan_points)
     ask_grid(ask, spec, axes)
     return spec
 
@@ -554,11 +665,16 @@ def main() -> None:
     parser.add_argument("--beam", type=Path, default=None)
     parser.add_argument("--apertures", type=Path, default=None)
     parser.add_argument("--pipe-radius", type=float, default=None)
+    parser.add_argument("--scan-particles", type=int, default=2000,
+                        help="particles tracked by the sensitivity scan")
+    parser.add_argument("--scan-points", type=int, default=5,
+                        help="values sampled per knob by the sensitivity scan")
     args = parser.parse_args()
 
     ask = Interview.replay(args.answers, defaults_only=args.defaults)
     spec = run(args.lattice, ask, args.start, args.end,
-               args.beam, args.apertures, args.pipe_radius)
+               args.beam, args.apertures, args.pipe_radius,
+               args.scan_particles, args.scan_points)
     spec.save(args.out)
     record = args.record or args.out.with_name(args.out.stem + "_answers.json")
     ask.save(record)

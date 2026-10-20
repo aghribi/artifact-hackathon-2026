@@ -240,12 +240,22 @@ def candidates_for(spec: MachineSpec) -> tuple[list[str], list[str], list[str]]:
     return candidates, sorted(matching), sorted(steering)
 
 
-def report(effects: list[Effect], spec: MachineSpec) -> list[Effect]:
-    """Print the ranking and return what should become axes."""
-    ranked = sorted(
+def rank(effects: list[Effect]) -> list[Effect]:
+    """Worst invalidator of the family first; knobs that lose the beam last.
+
+    The ordering, not just the threshold, is the useful output: every axis
+    multiplies the precompute, so what is wanted in practice is the top few rather
+    than everything that clears a bar. `describe.py` asks the user for that *k*.
+    """
+    return sorted(
         effects, key=lambda e: (-1 if np.isnan(e.size_change) else e.size_change),
         reverse=True,
     )
+
+
+def report(effects: list[Effect], spec: MachineSpec) -> list[Effect]:
+    """Print the ranking and return what should become axes."""
+    ranked = rank(effects)
     print(f"\n  sweeping {len(effects)} candidate knobs, optics held still")
     print(f"  the family is invalidated by anything that moves the spot it promises\n")
     print(f"  {'knob':<30}{'prop':<20}{'|dln sigma|':>12}{'min trans':>11}  note")
