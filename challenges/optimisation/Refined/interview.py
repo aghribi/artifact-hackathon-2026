@@ -37,7 +37,6 @@ class Interview:
     defaults_only: bool = False
     # Everything asked, in order, with what was given and where it came from.
     transcript: list[dict[str, Any]] = field(default_factory=list)
-    stream = sys.stdin
 
     # ---------- the primitives ----------
 

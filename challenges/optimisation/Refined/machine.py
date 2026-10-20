@@ -13,14 +13,3 @@ if str(_SHARED.parent) not in sys.path:
     sys.path.insert(0, str(_SHARED.parent))
 
 from machine_spec.spec import *  # noqa: F401,F403
-from machine_spec.spec import (  # noqa: F401
-    NONLINEAR_PROPERTIES,
-    PLANE_SUFFIX,
-    SETTABLE,
-    STEERING_PROPERTIES,
-    Knob,
-    MachineSpec,
-    ScanAxis,
-    default_knobs,
-    plane_name,
-)

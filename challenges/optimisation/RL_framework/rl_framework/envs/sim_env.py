@@ -466,6 +466,17 @@ class SimEnv(BaseAcceleratorEnv):
         # The spec's readout unless the configuration names another.
         # The spec's readout unless the configuration names another. Held on
         # the environment, because the config's may be None.
+        # The chamber and the reading threshold describe the machine, so the
+        # spec owns them; the config may override, which is how a study varies
+        # them. Read from the config alone, a 20 mm CLEAR pipe was scraped at the
+        # 50 mm CLARA default while the twin used 20 — the same physical fact
+        # with two values, visible only as unexplained transmission error.
+        self.beam_pipe_radius = (config.beam_pipe_radius
+                                 if config.beam_pipe_radius is not None
+                                 else spec.pipe_radius)
+        self.min_screen_fraction = (config.min_screen_fraction
+                                    if config.min_screen_fraction is not None
+                                    else spec.min_fraction)
         self.scored_screen = config.target_screen or spec.readout
         self.target_screen = self.scored_screen
         self._readings: dict[str, Any] = {}
@@ -763,8 +774,8 @@ class SimEnv(BaseAcceleratorEnv):
             self._coordinates, self.shot_variation
         )
         count = len(shot)
-        minimum = self.config.min_screen_fraction * count
-        radius = self.config.beam_pipe_radius
+        minimum = self.min_screen_fraction * count
+        radius = self.beam_pipe_radius
 
         bpm_x = np.zeros(len(self.bpm_names))
         bpm_y = np.zeros(len(self.bpm_names))
@@ -823,7 +834,7 @@ class SimEnv(BaseAcceleratorEnv):
             image = image / image.max()
 
         fraction = float(on_chip.sum()) / len(live)
-        if fraction < self.config.min_screen_fraction:
+        if fraction < self.min_screen_fraction:
             return image, fraction, (0.0, 0.0, 0.0, 0.0, False)
         stats = (
             float(x.mean()),

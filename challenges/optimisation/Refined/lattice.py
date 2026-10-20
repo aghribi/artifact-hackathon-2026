@@ -42,11 +42,6 @@ from machine import MachineSpec
 from machine_spec import lattice_io
 
 DTYPE = torch.float32
-# How far a wall is blurred when a gradient is wanted, in metres. Only the gradient
-# sees it; the value is always the hard edge.
-SOFT_EDGE = 1e-3
-
-
 def _forget_maps(element) -> None:
     """Drop an element's cached transfer maps after its parameters change."""
     cache = getattr(element, "_cache", None)
@@ -487,86 +482,7 @@ class Line:
         return self.columns(names, population)
 
 
-def _disable(segment: cheetah.Segment, names: set[str]) -> cheetah.Segment:
-    """Replace named elements with a drift of their own length.
-
-    An element in the lattice file is not necessarily an element on the machine.
-    CLARA's L4H linearizer is in the file as a powered cavity and is switched off
-    in reality, so a model that powers it is tuning a different accelerator — the
-    chirp, the energy spread and what the dogleg makes of them all change. The
-    length and the name stay, so apertures and diagnostics still line up.
-    """
-    elements = []
-    for element in segment.elements:
-        if element.name in names:
-            length = float(getattr(element, "length", 0.0) or 0.0)
-            # Second order, not whatever the original element used: a cavity's
-            # tracking method is not one a drift understands, and Cheetah quietly
-            # falls back to linear if given it — which tracks a different beam.
-            elements.append(cheetah.Drift(
-                length=torch.tensor(length, dtype=DTYPE),
-                tracking_method="second_order",
-                name=element.name,
-            ))
-        else:
-            elements.append(element)
-    return cheetah.Segment(elements, name=segment.name)
-
-
 def _broadcast(tensors: Iterable[torch.Tensor]) -> list[torch.Tensor]:
     tensors = list(tensors)
     shape = torch.broadcast_shapes(*(t.shape for t in tensors))
     return [t.expand(shape) for t in tensors]
-
-
-def _aperture_element(entry: dict, name: str) -> cheetah.Aperture:
-    return cheetah.Aperture(
-        x_max=torch.tensor(float(entry["x_max"]), dtype=DTYPE),
-        y_max=torch.tensor(float(entry["y_max"]), dtype=DTYPE),
-        shape=entry.get("shape", "elliptical"),
-        name=name,
-    )
-
-
-def _with_apertures(segment: cheetah.Segment, path: Path) -> cheetah.Segment:
-    """Insert the vacuum chamber described by an aperture file.
-
-    Two kinds of entry, which is how a chamber is actually described:
-
-    - `pipe` sets the chamber *from its element onwards* — the beam is checked
-      there and at the exit of every element with a length, until the next pipe
-      entry supersedes it. A point-like aperture marker read as the chamber of the
-      section it starts.
-    - `collimators` are checked at the entrance and exit of their own element only.
-
-    The same semantics as `nominal_model.xsuite_model.with_apertures`, which is
-    what the environment uses; a simple `{element: half}` map is also accepted for
-    machines whose chamber is described that plainly.
-    """
-    table = json.loads(path.read_text())
-    if "pipe" not in table and "collimators" not in table:
-        flat = table.get("elements", table)
-        table = {"pipe": [], "collimators": [
-            {"element": name,
-             **(dict(zip(("x_max", "y_max"), v)) if isinstance(v, (list, tuple))
-                else {"x_max": v, "y_max": v})}
-            for name, v in flat.items() if not isinstance(v, str)
-        ]}
-    pipe = {e["element"]: e for e in table.get("pipe", [])}
-    collimators = {e["element"]: e for e in table.get("collimators", [])}
-
-    elements, chamber = [], None
-    for element in segment.elements:
-        name = element.name
-        collimator = collimators.get(name)
-        if collimator is not None:
-            elements.append(_aperture_element(collimator, f"{name}_col_in"))
-        elements.append(element)
-        if name in pipe:
-            chamber = pipe[name]
-            elements.append(_aperture_element(chamber, f"{name}_pipe"))
-        elif collimator is not None:
-            elements.append(_aperture_element(collimator, f"{name}_col_out"))
-        elif chamber is not None and float(getattr(element, "length", 0.0)) > 0.0:
-            elements.append(_aperture_element(chamber, f"{name}_pipe"))
-    return cheetah.Segment(elements, name=segment.name)

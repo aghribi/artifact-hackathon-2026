@@ -55,6 +55,24 @@ NONLINEAR_PROPERTIES = {"k2", "k3", "phase"}
 # independently settable numbers under distinct names.
 PLANE_SUFFIX = {"horizontal_angle": "_h", "vertical_angle": "_v"}
 
+# ---- thresholds everything downstream has to agree on ----
+#
+# Each of these was a separate literal in three or four modules, with comments
+# saying "kept in step" — by hand. The one that matters most is `HEALTHY`: the
+# threshold deciding which tunes go *into* a precomputed family and the one
+# deciding which come back *out* of it have to be the same number, or the lookup
+# hands back nodes the precompute rejected and says nothing.
+
+# Below this fraction of the beam arriving, a tune is not one anybody would load,
+# however well its spot matched.
+HEALTHY = 0.5
+# What a beam that never arrives costs, against the error in the spot that did.
+# `score.TRANSMISSION_WEIGHT`, which the benchmark charges.
+TRANSMISSION_WEIGHT = 2.0
+# Finite-difference kick for measuring a corrector's response, in rad. Small
+# enough to still be a derivative on a 50 mrad corrector.
+KICK = 2e-5
+
 
 @dataclass
 class Knob:
@@ -258,8 +276,6 @@ class MachineSpec:
         """The knobs that have to be searched: sextupoles, RF phases, compressors."""
         return [k for k in self.knobs if k.nonlinear]
 
-    def touched_elements(self) -> set[str]:
-        return {e for k in self.knobs for e in k.elements}
 
     def grid_shape(self) -> tuple[int, ...]:
         """How many matched tunes the precompute will have to compute."""

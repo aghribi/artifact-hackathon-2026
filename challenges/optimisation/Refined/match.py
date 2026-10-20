@@ -50,7 +50,8 @@ from typing import Sequence
 import numpy as np
 import torch
 
-from lattice import DTYPE, Line, Waypoint
+from lattice import Line, Waypoint
+from machine import HEALTHY  # noqa: E402
 
 # Forward-difference step for the Jacobian, in k1 (m^-2). Large enough that the
 # answer is not float32 rounding of a 9 ms track, small enough to still be a
@@ -80,9 +81,6 @@ DAMPING = 0.7
 MAX_STEP = 1.0
 # What a lost beam books in the residual, as in `MFopt.optics_env._match`.
 LOST = 10.0
-# Below this transmission a node is not a tune anyone would load, however well the
-# sizes matched: `MatchResult.feasible` refuses it.
-HEALTHY = 0.5
 
 
 @dataclass
@@ -94,7 +92,6 @@ class MatchResult:
     k1: np.ndarray  # (N, n_quads)
     achieved: np.ndarray  # (N, 2) what the model delivers, m
     transmission: np.ndarray  # (N,)
-    iterations: int
     # Per node: worse plane of |achieved / requested - 1|, as
     # `MFopt.optics_env.TargetOptics.relative_error`.
     relative_error: np.ndarray = field(default=None)
@@ -112,9 +109,6 @@ class MatchResult:
         """Nodes the family can honestly claim: matched, and the beam arrives."""
         return (self.relative_error < 0.01) & (self.transmission > HEALTHY)
 
-    def as_dict(self, index: int) -> dict[str, float]:
-        """One node's strengths, ready for `Line.set` or a machine action."""
-        return {name: float(v) for name, v in zip(self.knobs, self.k1[index])}
 
 
 class Matcher:
@@ -183,8 +177,7 @@ class Matcher:
         return (sizes.detach().cpu().numpy().astype(float),
                 readings.transmission.detach().cpu().numpy().astype(float))
 
-    def _residuals(self, sizes: np.ndarray, transmission: np.ndarray,
-                   targets: np.ndarray) -> np.ndarray:
+    def _residuals(self, sizes: np.ndarray, targets: np.ndarray) -> np.ndarray:
         """What the match drives to zero: the log size ratio in each plane.
 
         `MFopt.optics_env._match` carries a third residual, `2(1 - T)`, and feeds
@@ -222,9 +215,7 @@ class Matcher:
         for j in range(m):
             population[j + 1::m + 1, j] += self.step
         sizes, transmission = self._evaluate(population)
-        residuals = self._residuals(
-            sizes, transmission, np.repeat(targets, m + 1, axis=0)
-        ).reshape(n, m + 1, 2)
+        residuals = self._residuals(sizes, np.repeat(targets, m + 1, axis=0)).reshape(n, m + 1, 2)
         base = residuals[:, 0, :]
         jacobian = (residuals[:, 1:, :] - base[:, None, :]).transpose(0, 2, 1)
         return base, jacobian / self.step, sizes[0::m + 1], transmission[0::m + 1]
@@ -299,7 +290,7 @@ class Matcher:
         # the residual is not monotone in k1 and a Gauss-Newton step can land
         # worse than it started. Returning the last point throws away a good match
         # because of a bad final step.
-        best = np.abs(self._residuals(*self._evaluate(k1), targets)).max(axis=-1)
+        best = np.abs(self._residuals(self._evaluate(k1)[0], targets)).max(axis=-1)
         best_k1 = k1.copy()
         stalled = np.zeros(n, dtype=int)
         iteration = 0
@@ -311,7 +302,7 @@ class Matcher:
                 jacobian[index] = jac
             else:
                 size, trans = self._evaluate(k1[index])
-                base = self._residuals(size, trans, targets[index])
+                base = self._residuals(size, targets[index])
 
             worst = np.abs(base).max(axis=-1)
             better = worst < best[index] - PROGRESS
@@ -339,11 +330,11 @@ class Matcher:
         # returned strengths actually do.
         k1 = best_k1
         sizes, transmission = self._evaluate(k1)
-        residuals = self._residuals(sizes, transmission, targets)
+        residuals = self._residuals(sizes, targets)
         pinned = (np.abs(k1 - self.low) < 1e-9) | (np.abs(k1 - self.high) < 1e-9)
         return MatchResult(
             knobs=list(self.knobs), targets=targets, k1=k1, achieved=sizes,
-            transmission=transmission, iterations=iteration,
+            transmission=transmission,
             clipped=pinned, converged=np.abs(residuals).max(axis=-1) < tolerance,
         )
 

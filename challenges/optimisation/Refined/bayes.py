@@ -25,6 +25,8 @@ shot costs in the score.
 from __future__ import annotations
 
 import numpy as np
+
+from machine import TRANSMISSION_WEIGHT  # noqa: E402
 import torch
 
 # The GPs run in double precision, set per tensor. The tracking in the same
@@ -37,7 +39,6 @@ MODEL_SAMPLES = 256
 CANDIDATES = 4096
 # Posterior samples the composite objective is averaged over.
 POSTERIOR_SAMPLES = 128
-TRANSMISSION_WEIGHT = 2.0
 # How far around the present setting the search box reaches, as a fraction of
 # each knob's usable span.
 REACH = 0.3

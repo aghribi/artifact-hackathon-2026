@@ -41,7 +41,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lattice import Line  # noqa: E402
-from machine import MachineSpec  # noqa: E402
+from machine import KICK, MachineSpec  # noqa: E402
 from match import SEED_SAMPLES, MatchResult, Matcher  # noqa: E402
 
 # Spot-grid sizes the solve steps through. Each level is one batched solve warm
@@ -62,9 +62,6 @@ REPAIRS = 2
 # bare match and vary smoothly, so they are sampled coarsely and interpolated, as
 # `MFopt.responses` does with its 12 x 12 nodes behind a 49 x 49 family.
 RESPONSE_POINTS = 7
-# Finite-difference step for the corrector responses, rad. `MFopt` probes with the
-# same, and it is small enough to stay a derivative on a 50 mrad corrector.
-KICK = 2e-5
 # Standing-optics repair, `repair_optics`. CLARA is at 0.995 by the fifth round and
 # 0.998 by the twelfth, so there is little past that.
 REPAIR_ITERATIONS = 14
@@ -209,7 +206,7 @@ def solve_coarse(matcher: Matcher, spec: MachineSpec, n: int,
 
     whole = MatchResult(
         knobs=list(matcher.knobs), targets=targets, k1=k1, achieved=achieved,
-        transmission=transmission, iterations=0, clipped=clipped,
+        transmission=transmission, clipped=clipped,
         converged=converged,
     )
     say(f"      continuation: {converged.sum()} of {len(targets)} matched")

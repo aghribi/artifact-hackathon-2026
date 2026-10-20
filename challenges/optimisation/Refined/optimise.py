@@ -28,7 +28,6 @@ import sys
 import time
 from pathlib import Path
 
-import numpy as np
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -44,7 +43,7 @@ def build_machine(spec: MachineSpec, seed: int):
 
 
 def run(spec: MachineSpec, family: Family, method: str, seed: int,
-        budget: int, particles: int, say=print) -> dict:
+        budget: int, say=print) -> dict:
     began = time.perf_counter()
     machine = build_machine(spec, seed)
     session = Session(machine, family, spec, budget=budget)
@@ -105,8 +104,6 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=1000)
     parser.add_argument("--budget", type=int, default=25,
                         help="shots the method may take")
-    parser.add_argument("--particles", type=int, default=2000,
-                        help="particles, for the `line` machine and the twin")
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--json", type=Path, default=None)
     args = parser.parse_args()
@@ -120,8 +117,7 @@ def main() -> None:
         print(f"  warning: this family was built for "
               f"{family.provenance.get('spec')!r}, not {spec.name!r}")
 
-    result = run(spec, family, args.method, args.seed,
-                 args.budget, args.particles)
+    result = run(spec, family, args.method, args.seed, args.budget)
     if args.json:
         import json
 

@@ -15,10 +15,13 @@ the running.
 """
 
 from .spec import (  # noqa: F401
+    HEALTHY,
+    KICK,
     NONLINEAR_PROPERTIES,
     PLANE_SUFFIX,
     SETTABLE,
     STEERING_PROPERTIES,
+    TRANSMISSION_WEIGHT,
     Knob,
     MachineSpec,
     ScanAxis,

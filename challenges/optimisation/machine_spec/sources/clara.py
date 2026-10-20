@@ -31,16 +31,10 @@ SPEC = MachineSpec.load(SPEC_PATH)
 # apart — a convention of this lattice, not a fact about Cheetah.
 BPM_TAG = "dia_bpm"
 SCREEN_TAG = "dia_scr"
-APERTURE_TAG = "sim_aper"
 
 # The variable bunch compressor: four dipoles on one supply.
 VBC_CHICANE = "cla_vbc_chicane"
 _CHICANE = SPEC.knob(VBC_CHICANE)
-VBC_DIPOLES = tuple(_CHICANE.elements)
-VBC_SIGNS = tuple(_CHICANE.signs)
-# The furthest the *supply* reaches, 131.7 mrad — not the 135 mrad design figure
-# quoted for the compressor (IPAC THP2100), which the magnets cannot be driven to.
-VBC_SUPPLY_LIMIT = float(max(abs(_CHICANE.low), abs(_CHICANE.high)))
 
 # Which face of each dipole turns with its angle. The chicane's outer faces stay
 # square to the beamline and the inner ones follow the bend, so it alternates

@@ -41,7 +41,6 @@ over *that*, and proposes it with the narrowed range.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,7 +51,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lattice import Line  # noqa: E402
-from machine import MachineSpec, ScanAxis  # noqa: E402
+from machine import HEALTHY, STEERING_PROPERTIES, MachineSpec, ScanAxis  # noqa: E402
 
 # Points sampled across each knob's range, including both ends.
 SWEEP_POINTS = 5
@@ -65,22 +64,18 @@ LINEAR_POINTS = 21
 # tight request is scored against, so a family that ignores it is wrong by more
 # than the tuning is trying to achieve.
 AXIS_THRESHOLD = 0.05
-# Below this transmission the beam is being lost rather than resized, and the size
-# reading means nothing.
-HEALTHY = 0.5
-# Correctors. Excluded from the optics scan altogether, not swept narrowly.
+# Correctors are excluded from the optics scan altogether, not swept narrowly.
 #
-# A corrector adds an orbit. That is a linear, separable response, and the pipeline
-# already has a stage that solves it: the SVD of corrector against position, applied
-# after the optics is set. It is not part of what a matched family has to span, and
-# precomputing over it would be precomputing the thing that is cheapest to solve
-# live.
+# A corrector adds an orbit. That is a linear, separable response, and the
+# pipeline already has a stage that solves it: the SVD of corrector against
+# position, applied after the optics is set. It is not part of what a matched
+# family has to span, and precomputing over it would be precomputing the thing
+# that is cheapest to solve live.
 #
 # They do perturb the measured spot — walk a beam off axis and dispersion, the
-# sextupoles and the chamber all reshape it, which is why an earlier version of this
-# scan ranked four correctors above every real optics knob at up to 60 %. That is
-# the orbit talking, not the optics, and the orbit has its own stage.
-STEERING_PROPS = {"horizontal_angle", "vertical_angle"}
+# sextupoles and the chamber all reshape it, which is why an earlier version of
+# this scan ranked four correctors above every real optics knob at up to 60 %.
+# That is the orbit talking, not the optics, and the orbit has its own stage.
 
 
 @dataclass
@@ -261,7 +256,7 @@ def candidates_for(spec: MachineSpec) -> tuple[list[str], list[str], list[str]]:
     """
     quadrupoles = {k.name for k in spec.knobs if k.prop == "k1"}
     matching = set(spec.matching_quads) or quadrupoles
-    steering = {k.name for k in spec.knobs if k.prop in STEERING_PROPS}
+    steering = {k.name for k in spec.knobs if k.prop in STEERING_PROPERTIES}
     candidates = [
         k.name for k in spec.knobs
         if k.name not in quadrupoles and k.name not in steering

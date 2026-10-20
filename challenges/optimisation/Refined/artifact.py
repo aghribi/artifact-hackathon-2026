@@ -30,9 +30,8 @@ from pathlib import Path
 
 import numpy as np
 
-# Below this transmission a node's strengths are not a tune anybody would load,
-# however close its spot came. `precompute.HEALTHY`, kept in step.
-HEALTHY = 0.5
+from machine import HEALTHY  # noqa: E402
+
 
 
 @dataclass

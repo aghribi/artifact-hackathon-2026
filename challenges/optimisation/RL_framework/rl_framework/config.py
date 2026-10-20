@@ -62,9 +62,11 @@ class RLConfig:
 
     # Beam pipe the particles have to stay inside; a particle that leaves it stops
     # counting towards every reading further down the line. None removes the pipe.
-    beam_pipe_radius: float | None = 50e-3
+    # None takes the spec's `pipe_radius`.
+    beam_pipe_radius: float | None = None
     # Fraction of the launched beam a diagnostic needs for its reading to count.
-    min_screen_fraction: float = 0.10
+    # None takes the spec's `min_fraction`.
+    min_screen_fraction: float | None = None
     # Gaussian noise added to each BPM reading, in metres.
     bpm_noise: float = 0.0
 

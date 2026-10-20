@@ -22,20 +22,17 @@ in the constructor and anything that cannot be mapped is an error there, not a
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from lattice import Line  # noqa: E402
-from machine import MachineSpec  # noqa: E402
+from machine import TRANSMISSION_WEIGHT, MachineSpec  # noqa: E402
 
 # What the benchmark books for a beam that never arrived, `score.FAILURE_SCORE`.
 FAILURE_SCORE = 10.0
-# Transmission's weight in the mismatch, `sim_env.TRANSMISSION_WEIGHT`.
-TRANSMISSION_WEIGHT = 2.0
 # What moving the beam-intercepting screen costs on CLARA: only one may be in the
 # beam and swapping takes about half a minute of mechanics, far longer than the
 # shot itself, so it is counted separately from the shot budget.
@@ -66,13 +63,17 @@ class Reading:
         return np.array([self.mu_x, self.mu_y, self.sigma_x, self.sigma_y])
 
 
-def evaluation_cost(shots: int, weight: float = 0.1, budget: float = 10.0) -> float:
+def evaluation_cost(shots: int) -> float:
     """What shots have cost so far, in requested spot sizes.
 
-    `sim_env.evaluation_cost`. It is why a method cannot simply scan forever: the
-    twentieth shot is nearly free, the two hundredth is not.
+    The benchmark's own function, imported rather than restated — this was a
+    local copy with `weight=0.1, budget=10.0` against `score.EVAL_WEIGHT = 0.5`
+    and `EVAL_BUDGET = 50.0`, so it priced a shot five times too cheaply and the
+    BO stopping rule read "worth another shot" long after it was not.
     """
-    return weight * float(np.log2(1 + shots / budget))
+    from rl_framework.envs.sim_env import evaluation_cost as _cost
+
+    return float(_cost(shots))
 
 
 def mismatch(spot: np.ndarray, target: np.ndarray, transmission: float,
@@ -184,7 +185,20 @@ class SimEnvMachine(Machine):
         from rl_framework.envs.sim_env import SimEnv
 
         self.spec = spec
-        self.env = SimEnv(config or RLConfig.clara())
+        # The environment simulates *this* spec. Defaulting to CLARA here meant
+        # `optimise.py --spec machines/clear.json` tuned CLARA and said nothing:
+        # the caller had to pass the spec a second time, through the config, and
+        # the two could disagree without complaint.
+        if config is None:
+            config = RLConfig(spec=spec)
+        elif config.spec is None:
+            config = replace(config, spec=spec)
+        elif config.spec is not spec and config.machine_spec().name != spec.name:
+            raise ValueError(
+                f"this machine was given the spec {spec.name!r} but a config for "
+                f"{config.machine_spec().name!r}; they must be the same machine"
+            )
+        self.env = SimEnv(config)
         observation, info = self.env.reset(seed=seed)
         self.target = np.asarray(observation["target"], dtype=float)
         self.diagnostics = list(self.env.bpm_names)
@@ -317,4 +331,3 @@ def _present(env, plan) -> float:
     return float(env._knobs[target].value) / sign
 
 
-# ---------------------------------------------------------------- Line

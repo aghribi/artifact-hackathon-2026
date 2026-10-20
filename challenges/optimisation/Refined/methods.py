@@ -37,7 +37,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from artifact import Family, Tune  # noqa: E402
-from machine import MachineSpec  # noqa: E402
+from machine import KICK, TRANSMISSION_WEIGHT, MachineSpec  # noqa: E402
 from machines import Machine  # noqa: E402
 
 # Singular values below this fraction of the largest are dropped from a steering
@@ -55,9 +55,6 @@ FINAL_CORRECTOR_RATIO = 1e-2
 # Below this the corrector does not move the readout at all and is numerical
 # noise rather than a knob, in metres of spot per radian of kick.
 USELESS = 1e-6
-# Finite-difference kick for re-measuring the placement response in the twin,
-# rad. The same step `precompute` probes the correctors with.
-KICK = 2e-5
 # CEM, for the MPC tweak.
 CEM_POPULATION = 192
 CEM_ITERATIONS = 4
@@ -68,8 +65,6 @@ CEM_ELITES = 24
 TRUST = 0.25
 TRUST_GROWTH = 1.3
 TRUST_DECAY = 0.5
-# Transmission's weight in the planner's cost, as in the benchmark.
-TRANSMISSION_WEIGHT = 2.0
 # What a candidate that misses the screen is charged: more than the worst beam
 # that lands can cost, so the planner never prefers losing it.
 LOST_BEAM_COST = 20.0
