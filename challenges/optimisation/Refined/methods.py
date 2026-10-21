@@ -58,11 +58,12 @@ FINAL_CORRECTOR_RATIO = 1e-2
 PLACEMENT_RANK_RATIO = 1e-3
 # Corrector elements the placement solve takes at minimum, nearest the readout.
 PLACEMENT_ELEMENTS = 2
-# Screens the orbit stage may move to, when there are no BPMs to read instead.
-# One, because one recovers the dead BPMs almost exactly and the rest is flat:
-# measured over 12 seeds, score 2.028 with none, 1.671 with one, 1.793 with two
-# and 1.645 with three, against 1.680 on the same machine with its BPMs working.
-# Each costs a shot and about half a minute, so the second is 30 s for nothing.
+# Screens the orbit stage may move to where the spec does not say — a fallback,
+# not a recommendation. `calibrate.py` measures the right number for a machine
+# and writes it into the spec. One is the answer for CLARA: measured over 12
+# seeds, 2.028 with no screen, 1.671 with one, 1.793 with two, 1.645 with three,
+# against 1.680 on the same machine with its BPMs working. One recovers the
+# BPMs; the rest is flat and costs half a minute apiece.
 SCREEN_BUDGET = 1
 # Below this the corrector does not move the readout at all and is numerical
 # noise rather than a knob, in metres of spot per radian of kick.
@@ -186,7 +187,7 @@ def optics(session: Session) -> None:
 
 
 def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
-          restore: bool = True, screen_budget: int = SCREEN_BUDGET) -> None:
+          restore: bool = True, screen_budget: int | None = None) -> None:
     """Optics, then the orbit, then the spot where it was asked for.
 
     Both solves use the family's own response matrix, measured in the model at
@@ -209,11 +210,14 @@ def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
       where it stops. That is the only case where a switch is needed rather than
       chosen.
     - `screen_budget` above zero additionally spends that many switches
-      correcting the orbit from upstream screens. It defaults to zero because
-      the measurement says not to: `mpc`, which re-optimises the focus against
-      its twin, scores *better* with no orbit correction at all (0.396 against
-      0.560, and five fewer shots).
+      correcting the orbit from upstream screens. Left as None it takes the
+      spec's `screen_budget`, which `calibrate.py` measures for the machine —
+      how many screens are worth moving depends on the lattice and is not a
+      thing to guess. `SCREEN_BUDGET` is the fallback where nobody has measured.
     """
+    if screen_budget is None:
+        declared = getattr(session.spec, "screen_budget", None)
+        screen_budget = SCREEN_BUDGET if declared is None else declared
     optics(session)
     tune = session.tune
     rows, upstream, final = _split_correctors(session, tune)

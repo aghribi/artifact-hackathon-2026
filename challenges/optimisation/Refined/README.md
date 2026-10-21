@@ -37,6 +37,7 @@ Everything downstream of it is per-request and cheap enough to do live.
 | `artifact.py` | `Family`: read the artifact back, look a request up |
 | `machines.py` | what a method drives: `SimEnvMachine`, for whatever machine the spec describes |
 | `methods.py` | the tuning methods: `optics`, `steer`, `mpc`, `bo` |
+| `calibrate.py` | measure what a machine needs that only a family can reveal |
 | `optimise.py` | stage 2: artifact + a request → a tuned machine |
 
 ```bash
@@ -44,6 +45,7 @@ python -I describe.py lattice.json --out machines/mine.json   # once per machine
 python -I sensitivity.py machines/mine.json                   # what to scan over
 python -I precompute.py machines/mine.json --pilot            # a coarse dry run
 python -I precompute.py machines/mine.json                    # the real thing
+python -I calibrate.py machines/mine.json artifacts/mine.npz --apply
 python -I optimise.py machines/mine.json artifacts/mine.npz --method steer
 ```
 

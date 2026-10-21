@@ -1841,7 +1841,9 @@
   "about 70% of that box is not reachable with four final-focus quadrupoles: the vertical plane will not go below ~270 um at the readout whatever sigma_x is asked for (a dedicated CEM reaches 301 um for an 80x80 um request). SimEnv draws sigma_y log-uniform from 80 um up and does not check reachability, so the family marks those nodes infeasible and the lookup falls back to the nearest tune that exists",
   "screens are the `dia_scr` set the environment has always offered. describe.py's broader `_scr` tag also caught cla_fea_dia_col_03_scr and cla_s07_dcp_scr_01, which are a collimator and a dechirper screen rather than diagnostics an agent has ever been able to select; including them would change the observation and action spaces and every recorded result",
   "the chicane keeps the environment's long-standing knob name cla_vbc_chicane; every caller, response table and recorded result uses it",
-  "knob signs are normalised so the first element takes the knob value unchanged. Two consumers read this spec and they must agree on which way is positive: SimEnv has always driven the chicane lead-positive, and leaving the spec lead-negative made the same number mean opposite angles in the environment and in Refined's model. Limits and scan-axis ranges are flipped with the signs. Normalised: ['cla_vbc_chicane']"
+  "knob signs are normalised so the first element takes the knob value unchanged. Two consumers read this spec and they must agree on which way is positive: SimEnv has always driven the chicane lead-positive, and leaving the spec lead-negative made the same number mean opposite angles in the environment and in Refined's model. Limits and scan-axis ranges are flipped with the signs. Normalised: ['cla_vbc_chicane']",
+  "screen_budget 1 measured by calibrate.py over 12 seeds: 0->2.028, 1->1.671, 2->1.793, 3->1.645"
  ],
- "unresolved": []
+ "unresolved": [],
+ "screen_budget": 1
 }

@@ -181,6 +181,11 @@ class MachineSpec:
     pipe_radius: float | None = None
     # Fraction of the launched beam a diagnostic needs before its reading counts.
     min_fraction: float = 0.10
+    # Upstream screens the tuner may move to when there are no BPMs to read the
+    # orbit from. Each costs a shot and about half a minute of mechanics, so it
+    # is a real budget and not a free parameter. `calibrate.py` measures it; None
+    # means nobody has, and the tuner falls back to its own default.
+    screen_budget: int | None = None
 
     # ---- what may be turned ----
     knobs: list[Knob] = field(default_factory=list)
