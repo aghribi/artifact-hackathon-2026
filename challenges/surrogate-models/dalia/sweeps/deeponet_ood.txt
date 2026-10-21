@@ -1,0 +1,8 @@
+# One train.py run per line (a job array task each), on the Hard OOD split of the trajectory.
+# Arguments given after the file in `dalia.sh sweep <file> ...` are added to every line.
+--split ood_density --model-file models/MO_DeepOnet.py
+--split ood_density --model-file models/MO_DeepOnet.py --params '{"iterations": 80000}'
+--split ood_density --model-file models/MO_DeepOnet.py --params '{"ensemble": 4}'
+--split ood_density --model-file models/MO_DeepOnet.py --params '{"baseline": "linear_z"}'
+--split ood_density --model-file models/MO_DeepOnet.py --params '{"weight_decay": 1e-4}'
+--split ood_density --model-file models/torch_mlp.py --params '{"epochs": 200}'

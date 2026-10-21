@@ -59,10 +59,54 @@ on the full pack, since every number differs on the sample.
 - `pallas_score.py` — the scorer, imported by the kickoff notebook
 - `PHYSICS.md` and `physics_formulas.py` — the physics kit: the gas density profile from the knobs for both campaigns, the laser parameters, and seven textbook formulas as functions (for the physics-informed track, and for anyone adding physics to a model)
 - `data/` — dataset description and schema; `data/sample/` holds the 10 % sample
+- `status.py` — the team's live status page (see below)
 
 The kickoff notebook runs on a laptop CPU in under a minute and writes two valid submission
 files (inverse and direct). Do that first; it also walks through the pack's id conventions and its single injection
 flag, which are what a join or a quoted rate gets wrong.
+
+## Team status page
+
+`status.py` builds one HTML page with the best model of each case: the official score the
+organisers published on W&B (`pallas/mean_r2` on the hidden test), the bar from `objectives.md`,
+and the best holdout score among the models in the Hopsworks registry, per target. It only
+reads; nothing is written to Hopsworks or W&B.
+
+It needs the packages of `requirements.txt` and a `.env` in this folder or above it with
+`HOPSWORKS_HOST`, `HOPSWORKS_API_KEY` (an account with access to `m4cast_plasma_pirates`) and
+`WANDB_API_KEY` (copy `.env.example`; `python check_setup.py` checks all of it). From this folder:
+
+```bash
+python status.py                # writes outputs/status.html and opens it in the browser
+python status.py --watch 300    # rebuilds every 5 minutes; the open page reloads itself
+python status.py --no-open      # writes the page without opening it
+```
+
+`outputs/` is git-ignored, so the page stays local. Registry scores are each author's own
+holdout, a guide for choosing what to submit; only the W&B score counts for the ranking.
+
+The same page also runs live in Hopsworks, as the app `plasma_pirates_status` of the project
+`m4cast_plasma_pirates` (Hopsworks UI → Apps; only project members can open it). `status_app.py`
+is its Streamlit entry point: Hopsworks clones this repository's `master` and redeploys the app
+on every push, reads the registry with the app's own session and the W&B key from the Hopsworks
+secret `WANDB_API_KEY`, and the page refreshes itself every 2 minutes.
+
+## Feature explorer app
+
+`app.py` is the GitHub-visible Streamlit entry point for the interactive feature-store explorer.
+It launches `feature_target_explorer.py`, which reads the selected feature group from Hopsworks
+and displays statistics, correlations, distributions, trajectories, and candidate outliers.
+
+Run it locally with:
+
+```bash
+.venv/bin/streamlit run app.py
+```
+
+For a Hopsworks App, create a Streamlit app from this Git repository and set the entrypoint to
+`app.py`. Configure `HOPSWORKS_HOST` and `HOPSWORKS_API_KEY` as app environment variables or
+secrets; never commit the API key. For Streamlit Community Cloud, select `app.py` as the main
+file and add the same two values under **App settings → Secrets**.
 
 ## Getting help
 

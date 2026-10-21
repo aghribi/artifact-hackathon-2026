@@ -1,0 +1,78 @@
+<!-- In the markup (not set from JS) so a self-contained render embeds it. -->
+<!-- <img id="title-artwork-source" class="title-artwork" hidden
+     src="index_files/images/plasma_pirates.jpeg"
+     alt="Plasma Pirates crew with a dragon under the moon"> -->
+
+<script>
+  // Keep the deck intentionally quiet: the placeholders are meant to be replaced
+  // with the final figures and narrative as the R&D work matures.
+  document.querySelectorAll('.placeholder').forEach((node) => {
+    node.setAttribute('aria-label', 'Presentation placeholder: replace with final content');
+  });
+
+  const titleSlide = document.querySelector('#title-slide');
+  if (titleSlide && document.getElementById('title-artwork-source')) {
+    const artworkFrame = document.createElement('div');
+    artworkFrame.className = 'title-artwork-frame';
+    const artwork = document.getElementById('title-artwork-source');
+    artwork.hidden = false;
+    artworkFrame.appendChild(artwork);
+    titleSlide.appendChild(artworkFrame);
+  }
+
+  // Iframes with data-src load when their slide is first shown; .frame-switch buttons swap them.
+  if (typeof Reveal !== 'undefined') {
+    const loadFrames = (slide) => slide?.querySelectorAll('iframe[data-src]').forEach((frame) => {
+      if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
+    });
+    Reveal.on('slidechanged', (event) => loadFrames(event.currentSlide));
+    Reveal.on('ready', () => loadFrames(Reveal.getCurrentSlide()));
+    if (Reveal.isReady()) loadFrames(Reveal.getCurrentSlide());
+  }
+  document.querySelectorAll('.frame-switch').forEach((group) => {
+    group.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
+      group.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === button));
+      const frame = document.getElementById(group.dataset.for);
+      frame.dataset.src = button.dataset.src;
+      frame.src = button.dataset.src;
+    }));
+  });
+
+  const videoFrames = document.querySelectorAll('.video-frame');
+  if (videoFrames.length && typeof Reveal !== 'undefined') {
+    videoFrames.forEach((videoFrame) => {
+      const videoSlide = videoFrame.closest('section');
+      if (!videoSlide) return;
+
+      if (window.location.protocol === 'file:') {
+        videoFrame.hidden = true;
+        const fallback = document.createElement('div');
+        fallback.className = 'video-fallback';
+        const videoUrl = videoFrame.dataset.videoUrl || videoFrame.src;
+        // YouTube refuses to play inside a page opened from disk (error 153: no referrer).
+        fallback.innerHTML = 'The video cannot play inside a deck opened from a file. '
+          + `<a href="${videoUrl}" target="_blank" rel="noopener">`
+          + 'Watch it on YouTube ↗</a>';
+        videoFrame.parentElement.appendChild(fallback);
+      }
+
+      const playVideoOnEntry = (event) => {
+        if (event.currentSlide === videoSlide && window.location.protocol !== 'file:') {
+          // Reload the muted player on entry so playback starts with the slide.
+          const autoplaySrc = videoFrame.dataset.autoplaySrc;
+          if (autoplaySrc) {
+            videoFrame.src = `${autoplaySrc}&session=${Date.now()}`;
+          }
+        } else {
+          videoFrame.contentWindow?.postMessage(
+            JSON.stringify({event: 'command', func: 'pauseVideo', args: []}), '*'
+          );
+        }
+      };
+      Reveal.on('slidechanged', playVideoOnEntry);
+      if (Reveal.getCurrentSlide() === videoSlide) {
+        playVideoOnEntry({currentSlide: videoSlide});
+      }
+    });
+  }
+</script>

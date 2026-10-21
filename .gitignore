@@ -9,3 +9,18 @@ lectures/04-feature-store/data/llrf/
 lectures/04-feature-store/**/.zenodo/
 lectures/04-feature-store/data/air/
 lectures/04-feature-store/**/.lcsqa/
+
+# surrogate-models full data pack (~200 MB), kept local only; data/sample/ and the docs stay tracked
+challenges/surrogate-models/data/pallas_hackathon_data/
+# feature-view rows exported for DALIA (train.py --rows export), regenerated from Hopsworks
+challenges/surrogate-models/data/fv_rows/
+
+# surrogate pipeline outputs: models live in the Hopsworks registry, CSVs go to DALIA
+challenges/surrogate-models/outputs/
+challenges/surrogate-models/submissions/
+
+# credentials (HOPSWORKS_*, WANDB_API_KEY): never committed
+.env
+
+# local W&B run files (e.g. from log_official_score.py); the runs themselves live on wandb.ai
+wandb/
