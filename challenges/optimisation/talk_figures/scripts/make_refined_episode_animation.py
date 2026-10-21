@@ -65,6 +65,9 @@ STAGE_TEXT = {
     "optics": "1 · family optics loaded, compressor chosen for the request",
     "steer": "2 · steering the orbit on the BPMs",
     "place": "2 · placing the spot, one linear solve",
+    "screens": "2 · reading the orbit off an upstream screen",
+    "hunt": "2 · the beam is lost; bisecting the screens to find it",
+    "return": "2 · the readout back in the beam, 30 s a switch",
     "focus": "3 · matching the spot size against the twin (CEM)",
     "bayes": "3 · matching the spot size against the twin (multi-fidelity BO)",
     "final": "4 · placing the spot again, at the new optics",
@@ -72,15 +75,16 @@ STAGE_TEXT = {
 }
 
 
-def record(seed: int, method: str, budget: int, particles: int):
+def record(seed: int, method: str, budget: int, particles: int,
+           spec_path: Path, artifact: Path):
     """Run one episode, keeping the camera frame and the numbers of every shot."""
     from artifact import Family
     from machine import MachineSpec
     from machines import SimEnvMachine
     from methods import METHODS, Session
 
-    spec = MachineSpec.load(CHALLENGE / "Refined/machines/clara_febe.json")
-    family = Family.load(CHALLENGE / "Refined/artifacts/clara_febe.npz")
+    spec = MachineSpec.load(spec_path)
+    family = Family.load(artifact)
     machine = SimEnvMachine(spec, seed=seed)
     env = machine.env
     extent = env.screen_extent()
@@ -91,7 +95,14 @@ def record(seed: int, method: str, budget: int, particles: int):
 
     def note(observation, info, stage):
         on_screen = bool(info["on_screen"])
+        # Which camera this is. The orbit stage puts an upstream screen in the
+        # beam, and that picture is not the readout's — it must not be drawn
+        # against the request, so the frame carries the screen and its extent.
+        screen = info["screen"]
+        elsewhere = None if screen == env.scored_screen else screen
         frames.append({
+            "elsewhere": elsewhere,
+            "extent": env.screen_extent(screen),
             "image": np.asarray(observation["screen_image"], dtype=float),
             "target": np.asarray(observation["target"], dtype=float),
             "moments": (np.array([info["mu_x"], info["mu_y"],
@@ -121,6 +132,10 @@ def record(seed: int, method: str, budget: int, particles: int):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=1000)
+    parser.add_argument("--spec", type=Path,
+                        default=CHALLENGE / "Refined/machines/clara_febe.json")
+    parser.add_argument("--artifact", type=Path,
+                        default=CHALLENGE / "Refined/artifacts/clara_febe.npz")
     parser.add_argument("--method", default="mpc")
     parser.add_argument("--budget", type=int, default=25)
     parser.add_argument("--particles", type=int, default=1000,
@@ -144,7 +159,8 @@ def main() -> None:
     if args.scan:
         for seed in range(args.scan[0], args.scan[1] + 1):
             frames, machine, _, _ = record(
-                seed, args.method, args.budget, args.particles
+                seed, args.method, args.budget, args.particles,
+                args.spec, args.artifact
             )
             print(f"  seed {seed}  shots {machine.shots:>2}  "
                   f"score {machine.score:6.3f}  "
@@ -153,7 +169,8 @@ def main() -> None:
 
     print(f"running {args.method}, seed {args.seed}")
     frames, machine, session, extent = record(
-        args.seed, args.method, args.budget, args.particles
+        args.seed, args.method, args.budget, args.particles,
+        args.spec, args.artifact
     )
     target = machine.target
     print(f"  {machine.shots} shots, score {machine.score:.3f}, "
@@ -161,16 +178,21 @@ def main() -> None:
     for line in session.log:
         print(f"    {line}")
 
+    # The machine names itself, and says whether it has BPMs to steer on — both
+    # read off the spec, so any lattice titles its own animation.
+    spec = session.spec
     title = (
-        f"CLARA · one episode of the Refined pipeline ({args.method})"
+        f"{spec.name} · one episode of the Refined pipeline"
+        f" ({args.method}{'' if spec.bpms else ', no BPMs'})"
         f"        final score {machine.score:.2f}"
         f" in {machine.shots} shots, {machine.screen_switches} screen changes"
     )
     # One directory per run: the frames are numbered, so two methods rendered
-    # into the same place would overwrite each other's.
-    drawing.render(frames, extent, args.out / f"{args.method}_{args.seed}",
-                   machine, title=title,
-                   name=f"refined_{args.method}_{args.seed}")
+    # into the same place would overwrite each other's. The spec names the
+    # machine, so two specs do not collide either.
+    tag = f"{args.spec.stem}_{args.method}_{args.seed}"
+    drawing.render(frames, extent, args.out / tag, machine, title=title,
+                   name=f"refined_{tag}")
 
 
 if __name__ == "__main__":

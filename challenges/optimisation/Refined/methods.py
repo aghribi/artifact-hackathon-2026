@@ -230,6 +230,7 @@ def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
         # The beam is not where the request is. Nothing else can proceed until
         # it is found, and finding it is the one thing worth a switch outright.
         _find_beam(session, tune, upstream)
+        session.stage = "steer"
 
     # Screens substitute for BPMs, they do not supplement them: where the orbit
     # can be read every shot for free, paying half a minute to read two numbers
@@ -588,6 +589,7 @@ def _find_beam(session: Session, tune: Tune, upstream: list[int]) -> None:
     if not screens:
         session.say("the beam is off the readout and there is no screen to look at")
         return
+    session.stage = "hunt"
 
     low, high, found = 0, len(screens) - 1, None
     while low <= high and session.left > 2:
@@ -601,6 +603,7 @@ def _find_beam(session: Session, tune: Tune, upstream: list[int]) -> None:
             high = middle - 1         # it is already lost; look further back
     if found is None:
         session.say("no screen sees the beam; it is lost before the first of them")
+        session.stage = "return"
         machine.look_at(machine.readout)
         return
 
@@ -616,6 +619,7 @@ def _find_beam(session: Session, tune: Tune, upstream: list[int]) -> None:
             n: machine.clip(n, now.get(n, 0.0) + float(dk))
             for n, dk in zip([session.family.correctors[j] for j in usable], kicks)
         })
+    session.stage = "return"
     machine.look_at(machine.readout)
 
 
@@ -672,8 +676,11 @@ def _steer_on_screens(session: Session, tune: Tune, upstream: list[int],
         })
         session.say(f"orbit corrected from {len(keep) // 2} screen(s), "
                     f"{machine.screen_switches} switch(es) so far")
-    # Always back to the readout: it is the only place the score is read.
+    # Always back to the readout: it is the only place the score is read. Its
+    # own stage, because this shot sees the readout again and anything watching
+    # `session.stage` would otherwise label the picture as the upstream screen's.
     if not machine.looking_at_readout:
+        session.stage = "return"
         machine.look_at(machine.readout)
 
 

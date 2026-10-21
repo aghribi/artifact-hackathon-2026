@@ -163,7 +163,10 @@ def windows_for(frames: list[dict]) -> list[float]:
     floor = max(max(target[2], target[3]) * 4, MIN_WINDOW)
     needed = []
     for frame in frames:
-        if frame["moments"] is None:
+        # A frame taken while an upstream screen is in the beam is a different
+        # camera: its centroid says nothing about where the readout is looking,
+        # and letting it into the schedule would pull every earlier frame out.
+        if frame["moments"] is None or frame.get("elsewhere"):
             needed.append(floor)
             continue
         mu_x, mu_y, sigma_x, sigma_y = frame["moments"]
@@ -174,7 +177,24 @@ def windows_for(frames: list[dict]) -> list[float]:
                 1.15 * (abs(mu_y - target[1]) + 2 * sigma_y),
             )
         )
-    return list(np.maximum.accumulate(needed[::-1])[::-1])
+    schedule = list(np.maximum.accumulate(needed[::-1])[::-1])
+
+    # The away frames are a different camera and get their own window: one
+    # constant, centred on that screen's axis, big enough for every one of them.
+    # Constant matters — the whole point of those frames is that the orbit moves
+    # between them, and a view that re-centres each shot hides exactly that.
+    away = [i for i, f in enumerate(frames) if f.get("elsewhere")]
+    if away:
+        span = max(
+            [floor] + [
+                1.15 * max(abs(frames[i]["moments"][0]) + 2 * frames[i]["moments"][2],
+                           abs(frames[i]["moments"][1]) + 2 * frames[i]["moments"][3])
+                for i in away if frames[i]["moments"] is not None
+            ]
+        )
+        for i in away:
+            schedule[i] = span
+    return schedule
 
 
 def _rebinned(image, extent, centre, window):
@@ -203,7 +223,12 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     camera.clear()
     trace.clear()
     target = frame["target"]
-    centre = target[:2]
+    # While an upstream screen intercepts the beam, the picture is that screen's.
+    # The request belongs to the readout, so it is not drawn here and the view
+    # centres on what this camera actually sees.
+    elsewhere = frame.get("elsewhere")
+    extent = frame.get("extent", extent)
+    centre = (0.0, 0.0) if elsewhere else target[:2]
 
     patch, patch_extent = _rebinned(frame["image"], extent, centre, window)
     camera.imshow(
@@ -219,22 +244,23 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     camera.set_xlim((centre[0] - window) * 1e3, (centre[0] + window) * 1e3)
     camera.set_ylim((centre[1] - window) * 1e3, (centre[1] + window) * 1e3)
 
-    # What was asked for: one sigma, dashed, always in the middle of the view.
-    camera.add_patch(
-        Ellipse(
-            (centre[0] * 1e3, centre[1] * 1e3),
-            2 * target[2] * 1e3,
-            2 * target[3] * 1e3,
-            fill=False, edgecolor=REQUESTED, lw=2.0, ls="--", zorder=4,
-            label="requested",
+    if not elsewhere:
+        # What was asked for: one sigma, dashed, always in the middle of the view.
+        camera.add_patch(
+            Ellipse(
+                (centre[0] * 1e3, centre[1] * 1e3),
+                2 * target[2] * 1e3,
+                2 * target[3] * 1e3,
+                fill=False, edgecolor=REQUESTED, lw=2.0, ls="--", zorder=4,
+                label="requested",
+            )
         )
-    )
-    # Early on the request is a few pixels across; the cross says where the beam
-    # has to end up before the ellipse is big enough to see.
-    camera.plot(
-        centre[0] * 1e3, centre[1] * 1e3, "+",
-        color=REQUESTED, ms=11, mew=1.8, zorder=5,
-    )
+        # Early on the request is a few pixels across; the cross says where the
+        # beam has to end up before the ellipse is big enough to see.
+        camera.plot(
+            centre[0] * 1e3, centre[1] * 1e3, "+",
+            color=REQUESTED, ms=11, mew=1.8, zorder=5,
+        )
 
     if frame["moments"] is not None:
         mu_x, mu_y, sigma_x, sigma_y = frame["moments"]
@@ -245,10 +271,12 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
                 label="measured",
             )
         )
-        sizes = (
-            f"$\\sigma$  {sigma_x * 1e6:.0f} × {sigma_y * 1e6:.0f} µm"
-            f"      asked {target[2] * 1e6:.0f} × {target[3] * 1e6:.0f} µm"
-        )
+        sizes = f"$\\sigma$  {sigma_x * 1e6:.0f} × {sigma_y * 1e6:.0f} µm"
+        if elsewhere:
+            sizes += f"      on {elsewhere}, not the readout"
+        else:
+            sizes += (f"      asked {target[2] * 1e6:.0f}"
+                      f" × {target[3] * 1e6:.0f} µm")
     else:
         sizes = "no beam on the screen"
 
