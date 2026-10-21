@@ -268,6 +268,29 @@ class MachineSpec:
                 return k
         raise KeyError(f"{name} is not a knob of {self.name or 'this machine'}")
 
+    def element_order(self) -> dict[str, int]:
+        """Where each element sits along the lattice, by name.
+
+        The order knobs are *declared* in is not the order they stand in: a
+        grouped knob is folded to the end of the list when the interview makes
+        it, so CLARA's chicane is declared after magnets it physically precedes.
+        Anything that means "nearest the readout" has to ask the lattice, not
+        the spec's own ordering.
+
+        Read once from the lattice file and cached — it is a property of the
+        file, which does not change under a running spec.
+        """
+        if getattr(self, "_order", None) is None:
+            raw = json.loads(Path(self.lattice).read_text())
+            root = raw.get("root") or next(iter(raw["lattices"]))
+            self._order = {n: i for i, n in enumerate(raw["lattices"][root])}
+        return self._order
+
+    def knob_position(self, knob: Knob) -> int:
+        """The furthest-along element a knob drives; -1 if the lattice has none."""
+        order = self.element_order()
+        return max((order.get(e, -1) for e in knob.elements), default=-1)
+
     def linear_knobs(self) -> list[Knob]:
         """The knobs an SVD of a linear response can speak for."""
         return [k for k in self.knobs if not k.nonlinear]

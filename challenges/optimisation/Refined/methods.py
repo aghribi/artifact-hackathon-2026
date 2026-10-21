@@ -52,9 +52,11 @@ RCOND_CEILING = 0.1
 # the readout. Derived from the response rather than named, so it works on a
 # lattice nobody has written a list for.
 FINAL_CORRECTOR_RATIO = 1e-2
-# Corrector elements the placement solve may use, nearest the readout. Two gives
-# four planes, which is two degrees of freedom per plane for a two-degree
-# problem — enough to be exact, few enough to disturb nothing upstream.
+# How well the weaker of the two placement directions must be controlled against
+# the stronger before the set is called complete. Below this the solve is
+# effectively one-dimensional and would ask for a huge kick in the other plane.
+PLACEMENT_RANK_RATIO = 1e-3
+# Corrector elements the placement solve takes at minimum, nearest the readout.
 PLACEMENT_ELEMENTS = 2
 # Screens the orbit stage may move to, when there are no BPMs to read instead.
 # One, because one recovers the dead BPMs almost exactly and the rest is flat:
@@ -542,7 +544,7 @@ def _split_correctors(session: Session, tune: Tune):
     #
     # With working BPMs the last monitor is already inside the final focus, so
     # this changes nothing there: the invisible set is those same two elements.
-    final = _nearest_elements(session, final, PLACEMENT_ELEMENTS)
+    final = _placement_set(session, tune, final, readout_rows)
     upstream = [j for j in range(tune.R.shape[1])
                 if j not in final and at_monitors[j] > 0]
     return rows, upstream, final
@@ -671,19 +673,52 @@ def _steer_on_screens(session: Session, tune: Tune, upstream: list[int],
         machine.look_at(machine.readout)
 
 
-def _nearest_elements(session: Session, columns: list[int], count: int) -> list[int]:
-    """The planes of the `count` corrector elements closest to the readout."""
+def _placement_set(session: Session, tune: Tune, columns: list[int],
+                   readout_rows: list[int]) -> list[int]:
+    """The correctors nearest the readout that between them control both planes.
+
+    Two things this must not assume, both of which cost a machine its
+    agnosticism:
+
+    *Order.* "Nearest the readout" is a fact about the lattice, not about the
+    order the spec happens to list its knobs in — a grouped knob is folded to
+    the end when the interview makes it, so CLARA's chicane is declared after
+    magnets it physically precedes. `MachineSpec.knob_position` asks the lattice.
+
+    *Planes.* Counting *elements* is only right where a corrector steers both
+    planes. `HorizontalCorrector` and `VerticalCorrector` each give one, so the
+    two nearest elements on such a machine could both be horizontal, leaving the
+    solve rank-deficient in y — and a pseudo-inverse answers that silently, with
+    a correction that cannot move the beam vertically.
+
+    So: walk back from the readout taking corrector elements until there are at
+    least `PLACEMENT_ELEMENTS` of them *and* the readout response spans both
+    planes. The rank test is what makes it general — on a machine of
+    single-plane correctors it keeps going until it has one of each. The minimum
+    is what keeps this machine's recorded results exactly as they were; measured
+    over 12 seeds the two rules are indistinguishable (1.641 against 1.680 with
+    BPMs, 1.690 against 1.671 without), so there is nothing to trade.
+    """
     names = session.family.correctors
-    order = {name: i for i, name in enumerate(session.spec.knobs and
-                                              [k.name for k in session.spec.knobs])}
-    # A plane is `<element>_h` / `_v`; group by element, keep the last few in
-    # lattice order, which is the order the spec declares its knobs in.
+    spec = session.spec
     by_element: dict[str, list[int]] = {}
     for j in columns:
-        by_element.setdefault(names[j].rsplit("_", 1)[0], []).append(j)
-    latest = sorted(by_element, key=lambda e: max(
-        order.get(f"{e}_h", -1), order.get(f"{e}_v", -1), order.get(e, -1)))
-    return [j for element in latest[-count:] for j in by_element[element]]
+        by_element.setdefault(spec.knob(names[j]).elements[0], []).append(j)
+    order = spec.element_order()
+    nearest = sorted(by_element, key=lambda e: order.get(e, -1), reverse=True)
+
+    chosen: list[int] = []
+    for used, element in enumerate(nearest, start=1):
+        chosen += by_element[element]
+        singular = np.linalg.svd(tune.R[readout_rows][:, chosen], compute_uv=False)
+        # Both planes reachable, and not just in principle: the weaker direction
+        # has to be worth something against the stronger, or the solve will ask
+        # for an enormous kick in it.
+        spans_both = (len(singular) >= 2
+                      and singular[-1] > PLACEMENT_RANK_RATIO * singular[0])
+        if used >= PLACEMENT_ELEMENTS and spans_both:
+            break
+    return chosen
 
 
 def _orbit_error(session: Session, reading, tune: Tune, rows):
