@@ -1,0 +1,49 @@
+2026-10-08_00-08-19: 19400 shots, test from shot 17460 (1940 shots, 1939 scored); 5 dropouts, 5 BCM-wrong shots
+
+1. rolling mean of the last W good shots: test MAE (nC) per horizon; * = window picked on the train part
+   W    h=1     h=2     h=5     h=10    h=20    h=50    
+   1    0.1770  0.1817  0.1877  0.1903  0.1958  0.2088  
+   3    0.1497  0.1548  0.1621  0.1654  0.1668  0.1813  
+   5    0.1439  0.1475  0.1543  0.1558  0.1586  0.1762  
+   9    0.1414  0.1438  0.1486  0.1489  0.1519  0.1739  
+   20   0.1388* 0.1402* 0.1423* 0.1440* 0.1513* 0.1726* 
+   50   0.1433  0.1441  0.1464  0.1499  0.1572  0.1809  
+   100  0.1570  0.1580  0.1605  0.1642  0.1723  0.1955  
+   200  0.1868  0.1876  0.1899  0.1936  0.2010  0.2224  
+   500  0.2463  0.2468  0.2480  0.2501  0.2540  0.2646  
+
+2. ridge on past charge + laser + step vs the 9-shot mean (test region)
+       MAE      R2  baseline_MAE    dMAE  coverage  dMAE %  tuned W  tuned MAE
+h                                                                             
+1   0.1353  0.6532        0.1414  0.0061       1.0  4.3238       20     0.1388
+2   0.1378  0.6415        0.1438  0.0060       1.0  4.1878       20     0.1402
+5   0.1412  0.6245        0.1486  0.0074       1.0  4.9780       20     0.1423
+10  0.1438  0.6139        0.1489  0.0050       1.0  3.3869       20     0.1440
+20  0.1502  0.5846        0.1519  0.0017       1.0  1.0876       20     0.1513
+50  0.1709  0.4692        0.1739  0.0030       1.0  1.7410       20     0.1726
+
+   largest standardised ridge coefficients (nC per std):
+   h=1   q50 +0.033  q20 +0.013  q1 +0.013  q3 +0.010
+   h=10  q50 +0.029  q20 +0.020  clex9 +0.005  clex1 +0.005
+   h=50  q20 +0.025  q200 +0.016  lab9 +0.014  q50 +0.013
+
+autocorrelation of (charge - 9-shot mean): lag1 +0.133, lag5 -0.084, lag20 +0.004
+
+3. test MAE (nC) split by regime: 1939 steady shots, 0 within 20 shots of a level change
+   h=1    9-shot mean: steady 0.1414 change nan  mean W=20: steady 0.1388 change nan  ridge: steady 0.1353 change nan
+   h=5    9-shot mean: steady 0.1486 change nan  mean W=20: steady 0.1423 change nan  ridge: steady 0.1412 change nan
+   h=10   9-shot mean: steady 0.1489 change nan  mean W=20: steady 0.1440 change nan  ridge: steady 0.1438 change nan
+-> results/2026-10-08_00-08-19/next_shot.png
+
+5. next-shot residual = measured - predicted, 19291 stable shots of the whole run (skew SE 0.02, excess-kurtosis SE 0.04; Gaussian: both 0)
+                 model         shots     n   mean   std   MAE  rel std %   skew  ex.kurt
+9-shot mean (baseline)       all, nC 19291 -0.000 0.170 0.133      3.535 -0.086    0.689
+9-shot mean (baseline)       ~5.5 nC 19291 -0.000 0.170 0.133      3.535 -0.086    0.689
+9-shot mean (baseline) all, relative 19291    NaN   NaN   NaN      3.535 -0.071    0.674
+          20-shot mean       all, nC 19291 -0.001 0.167 0.131      3.479 -0.075    0.708
+          20-shot mean       ~5.5 nC 19291 -0.001 0.167 0.131      3.479 -0.075    0.708
+          20-shot mean all, relative 19291    NaN   NaN   NaN      3.479 -0.057    0.676
+   ridge (out-of-fold)       all, nC 19291 -0.001 0.164 0.128      3.404 -0.097    0.755
+   ridge (out-of-fold)       ~5.5 nC 19291 -0.001 0.164 0.128      3.404 -0.097    0.755
+   ridge (out-of-fold) all, relative 19291    NaN   NaN   NaN      3.404 -0.079    0.731
+-> results/2026-10-08_00-08-19/residuals_stable.png

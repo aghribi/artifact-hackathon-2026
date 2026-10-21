@@ -1,0 +1,42 @@
+2026-10-07_21-43-26: jitter (train, stable) charge 7.65 %, lab meter 1.44 %
+
+next-shot MAE (nC). test = last 10 % (603 scored: 603 stable, 0 within 20 shots after a level change); "run stable" = stable shots of the whole run (train + test)
+                              model  train MAE  test MAE changes test changes  test dMAE %  test: stable test: after change run stable ~5.5 nC run stable ~10 nC
+             9-shot mean (baseline)     0.0140    0.0195                            0.0000        0.0195                                                        
+                        3-shot mean     0.0151    0.0203                           -4.0032        0.0203                                                        
+                       20-shot mean     0.0136    0.0187                            3.9534        0.0187                                                        
+      hybrid, charge (z=6, wmax=50)     0.0135    0.0182     0.0          0.0       6.6966        0.0182                                                        
+hybrid, charge+laser (z=4, wmax=50)     0.0135    0.0182     0.0          0.0       6.6966        0.0182                                                        
+   hybrid, charge x2 (z=4, wmax=50)     0.0135    0.0182     0.0          0.0       6.6461        0.0182                                                        
+
+train MAE over the grid (rows z, columns wmax):
+  charge
+      9       20      30      50      100
+3  0.0146  0.0142  0.0141  0.0141  0.0142
+4  0.0142  0.0138  0.0137  0.0137  0.0138
+5  0.0141  0.0137  0.0136  0.0135  0.0136
+6  0.0140  0.0136  0.0135  0.0135  0.0135
+8  0.0140  0.0136  0.0135  0.0135  0.0135
+  charge+laser
+      9       20      30      50      100
+3  0.0141  0.0137  0.0135  0.0135  0.0136
+4  0.0140  0.0136  0.0135  0.0135  0.0135
+5  0.0140  0.0136  0.0135  0.0135  0.0135
+6  0.0140  0.0136  0.0135  0.0135  0.0135
+8  0.0140  0.0136  0.0135  0.0135  0.0135
+  charge x2
+      9       20      30      50      100
+3  0.0139  0.0136  0.0135  0.0135  0.0135
+4  0.0140  0.0136  0.0135  0.0135  0.0135
+5  0.0140  0.0136  0.0135  0.0135  0.0135
+6  0.0140  0.0136  0.0135  0.0135  0.0135
+8  0.0140  0.0136  0.0135  0.0135  0.0135
+-> results/2026-10-07_21-43-26/hybrid_next_shot.png
+
+test MAE, charge variant, over the grid (rows z, columns wmax) - for sensitivity, not selection:
+      9       20      30      50      100
+3  0.0209  0.0203  0.0200  0.0200  0.0201
+4  0.0199  0.0198  0.0197  0.0195  0.0197
+5  0.0197  0.0194  0.0191  0.0189  0.0188
+6  0.0195  0.0192  0.0189  0.0182  0.0183
+8  0.0195  0.0187  0.0184  0.0182  0.0183
