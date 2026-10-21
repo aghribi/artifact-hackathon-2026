@@ -519,14 +519,12 @@ class SimEnv(BaseAcceleratorEnv):
         each, because a chicane's pole faces turn with its body angle. All of
         that is in the spec, so there is no special case for any machine here.
 
-        **Signs are normalised so the first element takes the knob value
-        unchanged.** A spec records the absolute sense of each magnet, and which
-        end of a chicane counts as positive is a convention the two files need
-        not share: CLARA's spec says `[-1, 1, 1, -1]` where this environment has
-        always driven the knob as `[1, -1, -1, 1]`. Normalising keeps every
-        existing set point, response matrix and published result meaning what it
-        did, and leaves the two descriptions differing only by a stated
-        convention rather than silently.
+        **A knob value is the first element's strength**, so the spec's first
+        sign must be positive. The environment used to re-base any spec that
+        disagreed, by dividing through by `signs[0]` — which meant the same
+        number drove opposite angles here and in a model reading the same file,
+        and the only symptom was a tune clipped at the wrong end of its range.
+        A disagreement is now an error.
         """
         present = {element.name for element in segment.elements}
         wanted = self.config.controllable_magnets
@@ -546,25 +544,25 @@ class SimEnv(BaseAcceleratorEnv):
                     f"`describe.py` fills them in, and `MachineSpec.validate` "
                     f"lists any it could not."
                 )
-            lead = declared.signs[0] if declared.signs else 1.0
-            sense = 1.0 / lead if lead else 1.0
-            # The range turns with the sense. A spec records limits in its own
-            # sign convention, so normalising the signs without normalising these
-            # silently widens the knob one way and narrows it the other: CLARA's
-            # chicane would read [-0.11561, 0.1317] where the machine has always
-            # had [-0.1317, 0.11561], and a request for 0.12 rad would be clipped
-            # to a different angle and track a different beam.
-            low, high = sorted((low * sense, high * sense))
+            # Lead-positive, so a knob value is the first element's strength.
+            # This used to be re-based here by dividing through by `signs[0]`,
+            # which made the same number mean opposite angles in the environment
+            # and in a model reading the same spec — and the only symptom was a
+            # tune clipped at the wrong end of its range. Said once, in the spec,
+            # and an error if a spec disagrees rather than a silent correction.
+            if declared.signs and declared.signs[0] < 0:
+                raise ValueError(
+                    f"{declared.name} leads with sign {declared.signs[0]}. A knob "
+                    f"value is the first element's strength, so the first sign "
+                    f"must be positive; flip the signs and the limits together."
+                )
             knobs[declared.name] = Knob(
                 name=declared.name,
                 element_name=declared.elements[0],
                 prop=declared.prop,
                 transport=self.transport,
                 low=low, high=high,
-                coupled=tuple(
-                    (name, sign * sense)
-                    for name, sign in zip(declared.elements[1:], declared.signs[1:])
-                ),
+                coupled=tuple(zip(declared.elements[1:], declared.signs[1:])),
                 follow={k: tuple(v) for k, v in declared.follow.items()},
             )
 

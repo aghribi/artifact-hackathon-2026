@@ -198,8 +198,8 @@ class OpticsEnv(SimEnv):
             twin._knobs[name].set(value, clip=False)
         coordinates = twin._coordinates
         count = len(coordinates)
-        radius = twin.config.beam_pipe_radius
-        minimum = twin.config.min_screen_fraction * count
+        radius = twin.beam_pipe_radius
+        minimum = twin.min_screen_fraction * count
         live = np.ones(count, dtype=bool)
         names, stats = [], []
         for name, x, y, alive in twin.transport.run(

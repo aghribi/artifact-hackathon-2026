@@ -257,7 +257,10 @@ def _place(session: Session, tune: Tune, final: list[int], shots: int = 2,
         matrix = (_placement_response(twin, names) if twin is not None
                   else _family_response(session, tune, final))
         error = np.array([reading.mu_x, reading.mu_y]) - session.target[:2]
-        kicks = -np.linalg.pinv(matrix) @ error
+        # The same truncated inverse the orbit solve uses: it drops singular
+        # values that would ask for an enormous kick in a direction the magnets
+        # barely move, and guards the NaNs a lost beam leaves in the response.
+        kicks = -_pseudo_inverse(matrix, RCOND) @ error
         now = reading.settings
         after = session.set({
             name: session.machine.clip(name, now.get(name, 0.0) + float(dk))

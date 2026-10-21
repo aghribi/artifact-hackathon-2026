@@ -120,9 +120,9 @@ def _launch(env: OpticsEnv, coordinates: np.ndarray | None):
 def _run(env: OpticsEnv, chunks, beam, live, count: int):
     """Track `beam` through `chunks`, reading every BPM and screen on the way.
     `live` is updated in place."""
-    radius = env.twin.config.beam_pipe_radius
+    radius = env.twin.beam_pipe_radius
     launched = live.shape[-1]
-    minimum = env.twin.config.min_screen_fraction * launched
+    minimum = env.twin.min_screen_fraction * launched
     names, stats = [], []
     with torch.no_grad():
         for stop, chunk in chunks:

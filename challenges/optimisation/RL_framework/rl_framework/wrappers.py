@@ -55,7 +55,7 @@ class SB3Wrapper(gym.Wrapper):
             low=-1.0, high=1.0, shape=(len(self.magnets),), dtype=np.float32
         )
 
-        self._scale = sim.config.beam_pipe_radius or DEFAULT_PIPE_RADIUS
+        self._scale = sim.beam_pipe_radius or DEFAULT_PIPE_RADIUS
         self._image_as_uint8 = image_as_uint8
         # Position and size of the request, each against the half-width of the chip
         # it is asked for on.
