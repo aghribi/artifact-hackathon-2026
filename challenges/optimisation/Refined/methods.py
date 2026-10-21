@@ -52,6 +52,16 @@ RCOND_CEILING = 0.1
 # the readout. Derived from the response rather than named, so it works on a
 # lattice nobody has written a list for.
 FINAL_CORRECTOR_RATIO = 1e-2
+# Corrector elements the placement solve may use, nearest the readout. Two gives
+# four planes, which is two degrees of freedom per plane for a two-degree
+# problem — enough to be exact, few enough to disturb nothing upstream.
+PLACEMENT_ELEMENTS = 2
+# Screens the orbit stage may move to, when there are no BPMs to read instead.
+# One, because one recovers the dead BPMs almost exactly and the rest is flat:
+# measured over 12 seeds, score 2.028 with none, 1.671 with one, 1.793 with two
+# and 1.645 with three, against 1.680 on the same machine with its BPMs working.
+# Each costs a shot and about half a minute, so the second is 30 s for nothing.
+SCREEN_BUDGET = 1
 # Below this the corrector does not move the readout at all and is numerical
 # noise rather than a knob, in metres of spot per radian of kick.
 USELESS = 1e-6
@@ -174,16 +184,33 @@ def optics(session: Session) -> None:
 
 
 def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
-          restore: bool = True) -> None:
-    """Optics, then the orbit on the BPMs, then the spot where it was asked for.
+          restore: bool = True, screen_budget: int = SCREEN_BUDGET) -> None:
+    """Optics, then the orbit, then the spot where it was asked for.
 
     Both solves use the family's own response matrix, measured in the model at
     this optics, so they already carry the chicane, the cavities and the
-    chromatic averaging over the beam's energy spread.
+    chromatic averaging over the beam's energy spread. The orbit is compared
+    against the **model's** orbit, not against zero: with dispersion the
+    error-free beam is not on axis, so zero is the wrong place to steer to and
+    steering there bends a good orbit into a bad one.
 
-    The orbit is compared against the **model's** orbit, not against zero. With
-    dispersion the error-free beam is not on axis, so zero is the wrong place to
-    steer to and steering there bends a good orbit into a bad one.
+    **Where the monitors come from.** With working BPMs the orbit is read every
+    shot for free and the loop below runs as it always has. With none — CLARA at
+    the moment — the only monitor is whichever screen is in the beam, and a
+    screen intercepts: moving it costs a shot and about half a minute, and while
+    it is upstream the request is not being read at all. So:
+
+    - The readout screen is already in the beam when the optics loads, and on
+      every seed measured the beam arrives there. Its centroid is all the
+      placement solve needs, so the ordinary episode moves no screen at all.
+    - If the beam is *not* on the readout, `_find_beam` walks upstream to find
+      where it stops. That is the only case where a switch is needed rather than
+      chosen.
+    - `screen_budget` above zero additionally spends that many switches
+      correcting the orbit from upstream screens. It defaults to zero because
+      the measurement says not to: `mpc`, which re-optimises the focus against
+      its twin, scores *better* with no orbit correction at all (0.396 against
+      0.560, and five fewer shots).
     """
     optics(session)
     tune = session.tune
@@ -192,11 +219,26 @@ def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
         session.say("steer: no corrector has a usable response; nothing to do")
         return
 
-    rcond = RCOND
     session.stage = "steer"
+    if not session.machine.last.on_screen:
+        # The beam is not where the request is. Nothing else can proceed until
+        # it is found, and finding it is the one thing worth a switch outright.
+        _find_beam(session, tune, upstream)
+
+    # Screens substitute for BPMs, they do not supplement them: where the orbit
+    # can be read every shot for free, paying half a minute to read two numbers
+    # off one screen buys nothing. So this engages only when there is no
+    # continuously readable monitor — and only if the beam is actually at the
+    # readout, because correcting an orbit that does not arrive is two more
+    # switches spent on a measurement that cannot be scored.
+    if (screen_budget > 0 and upstream and not rows
+            and session.machine.last.on_screen):
+        _steer_on_screens(session, tune, upstream, screen_budget)
+
+    rcond = RCOND
     best = session.machine.last
     for _ in range(min(orbit_shots, max(0, session.left - spot_shots - 1))):
-        if not upstream:
+        if not upstream or not rows:
             break
         reading = session.machine.last
         error, keep = _orbit_error(session, reading, tune, rows)
@@ -429,31 +471,52 @@ def _finish(session: Session) -> None:
 def _split_correctors(session: Session, tune: Tune):
     """(row map, upstream corrector columns, final corrector columns).
 
-    A "final" corrector is one the BPMs cannot see — downstream of the last of
-    them — so it moves the spot at the readout and nothing else. That makes
-    placement a two-by-two solve that cannot disturb the orbit, which is why it
-    is worth separating. Found from the response matrix itself rather than from a
+    A "final" corrector is one **no monitor in use can see** — downstream of all
+    of them — so it moves the spot at the readout and nothing else. That makes
+    placement a small solve that cannot disturb the orbit, which is why it is
+    worth separating. Found from the response matrix itself rather than from a
     list of names, so it needs nothing said about the lattice.
 
-    The row map pairs each BPM's rows in the family's response with the same
-    BPM's row in whatever the machine reports. The two are *not* the same list:
-    the family carries every diagnostic of the line, `SimEnv` reports only its
-    BPMs, and the orders differ. Indexing one with the other's rows compares a
-    BPM against a screen somewhere else in the machine and steers confidently to
-    the wrong orbit, so they are matched by name.
+    "Monitor" means the BPMs *and* the upstream screens, not the BPMs alone.
+    With working BPMs the screens are redundant — a BPM sits near enough every
+    screen — and the answer is the same four planes as before. With the BPMs
+    dead, reading it as BPMs-only makes every one of the 58 planes "invisible",
+    and the placement solve would reach the length of the machine to move the
+    spot a millimetre.
+
+    The row map pairs each monitor's rows in the family's response with the same
+    monitor's row in whatever the machine reports. The two are *not* the same
+    list: the family carries every diagnostic of the line and the machine may
+    report a different subset in a different order. Indexing one with the
+    other's rows compares a monitor against something else entirely and steers
+    confidently to the wrong orbit, so they are matched by name.
     """
     family = session.family
     readout = family.diagnostics.index(family.readout)
     machine_rows = {name: i for i, name in enumerate(session.machine.diagnostics)}
+    # Two different questions, and they want different lists.
+    #
+    # *Where do the final correctors start?* Every monitor upstream of the
+    # readout bounds that, whether or not it can be read this shot — a screen
+    # exists and will be looked at if the orbit needs it.
+    monitors = set(session.spec.bpms) | set(session.spec.screens)
+    flat = [r for i, name in enumerate(family.diagnostics)
+            if name in monitors and i < readout
+            for r in (2 * i, 2 * i + 1)]
+
+    # *Which monitors can I read continuously?* Only those the machine reports
+    # every shot, which is the BPMs: a screen reads only while it is the one in
+    # the beam, and `steer`'s screen stage handles those one at a time. Mapping
+    # a screen to a machine row it does not have gave it index -1, which is the
+    # last BPM — steering confidently against the wrong monitor.
     rows = [
         (2 * i, 2 * i + 1, machine_rows[name])
         for i, name in enumerate(family.diagnostics)
         if name in set(session.spec.bpms) and name in machine_rows
     ]
-    flat = [r for pair in rows for r in pair[:2]]
     readout_rows = [2 * readout, 2 * readout + 1]
-    at_bpms = (np.abs(tune.R[flat]).max(axis=0) if flat
-               else np.zeros(tune.R.shape[1]))
+    at_monitors = (np.abs(tune.R[flat]).max(axis=0) if flat
+                   else np.zeros(tune.R.shape[1]))
     at_readout = np.abs(tune.R[readout_rows]).max(axis=0)
     # "Final" means one thing only: no BPM can see it, so it is downstream of all
     # of them and moves the spot without disturbing the orbit.
@@ -465,12 +528,162 @@ def _split_correctors(session: Session, tune: Tune):
     # 0.077 m/rad for the corrector a metre before the screen. Comparing the two
     # is meaningless — the near one is the only one that can place the spot
     # without moving the orbit, whatever the far one's lever arm is.
-    invisible = at_bpms <= FINAL_CORRECTOR_RATIO * max(at_bpms.max(), 1e-30)
+    invisible = at_monitors <= FINAL_CORRECTOR_RATIO * max(at_monitors.max(), 1e-30)
     final = [j for j in range(tune.R.shape[1])
              if invisible[j] and at_readout[j] > USELESS]
+    # Placing a spot is a two-degree-of-freedom problem, so it wants the fewest
+    # correctors that can do it, nearest the readout. Being invisible to the
+    # monitors is necessary and not sufficient: a corrector upstream of the
+    # final-focus quadrupoles is invisible too, and tilting the beam through
+    # them changes the *size*, which placement has no business touching. With
+    # the BPMs dead the invisible set runs to ten planes, three elements of
+    # which sit before the last quadrupoles — using all of them cost 537 um of
+    # vertical spot against 422 um for the nearest two elements alone.
+    #
+    # With working BPMs the last monitor is already inside the final focus, so
+    # this changes nothing there: the invisible set is those same two elements.
+    final = _nearest_elements(session, final, PLACEMENT_ELEMENTS)
     upstream = [j for j in range(tune.R.shape[1])
-                if j not in final and at_bpms[j] > 0]
+                if j not in final and at_monitors[j] > 0]
     return rows, upstream, final
+
+
+def _upstream_screens(session: Session) -> list[tuple[str, int]]:
+    """(screen, family row index) for every screen before the readout, in order."""
+    family = session.family
+    readout = family.diagnostics.index(family.readout)
+    wanted = set(session.spec.screens)
+    return [(name, i) for i, name in enumerate(family.diagnostics)
+            if name in wanted and i < readout]
+
+
+def _screen_error(session: Session, reading, tune: Tune, row: int):
+    """How far the beam sits from where the model says it should, on one screen."""
+    measured = np.array([reading.mu_x, reading.mu_y])
+    predicted = tune.orbit.ravel()[[2 * row, 2 * row + 1]]
+    return measured - predicted
+
+
+def _find_beam(session: Session, tune: Tune, upstream: list[int]) -> None:
+    """The beam is not on the readout. Walk upstream until something sees it.
+
+    A bisection rather than a sweep, because each look costs a switch: if the
+    middle screen of the remaining stretch sees beam the problem is downstream
+    of it, and if it does not the problem is upstream. That finds the last
+    screen with beam in about log2(21) ~ 5 looks instead of 21.
+
+    Having found it, the orbit is corrected there with the correctors upstream
+    of that screen, and the readout is put back in the beam — always, because
+    the score is only read there and a budget spent without returning is a
+    total loss.
+    """
+    machine = session.machine
+    screens = _upstream_screens(session)
+    if not screens:
+        session.say("the beam is off the readout and there is no screen to look at")
+        return
+
+    low, high, found = 0, len(screens) - 1, None
+    while low <= high and session.left > 2:
+        middle = (low + high) // 2
+        name, row = screens[middle]
+        reading = machine.look_at(name)
+        if reading.on_screen:
+            found = (name, row, reading)
+            low = middle + 1          # beam reaches here; look further along
+        else:
+            high = middle - 1         # it is already lost; look further back
+    if found is None:
+        session.say("no screen sees the beam; it is lost before the first of them")
+        machine.look_at(machine.readout)
+        return
+
+    name, row, reading = found
+    session.say(f"the beam reaches {name} but not the readout; correcting there")
+    usable = [j for j in upstream
+              if abs(tune.R[2 * row, j]) + abs(tune.R[2 * row + 1, j]) > USELESS]
+    if usable and session.left > 2:
+        error = _screen_error(session, reading, tune, row)
+        kicks = -_pseudo_inverse(tune.R[[2 * row, 2 * row + 1]][:, usable], RCOND) @ error
+        now = reading.settings
+        session.set({
+            n: machine.clip(n, now.get(n, 0.0) + float(dk))
+            for n, dk in zip([session.family.correctors[j] for j in usable], kicks)
+        })
+    machine.look_at(machine.readout)
+
+
+def _steer_on_screens(session: Session, tune: Tune, upstream: list[int],
+                      budget: int) -> None:
+    """Correct the orbit from a few upstream screens, within a switch budget.
+
+    Which screens: the ones that between them pin the correctors down best, by
+    the conditioning of the response they give. Greedy on the smallest singular
+    value of `R[chosen rows][:, upstream]` — adding the screen that most
+    improves how well the solve is determined. The response is the family's
+    own, so this costs no tracking, only the looking.
+
+    Each screen is one shot and one switch, and the return to the readout is one
+    more. That is why the budget exists: at about half a minute each, three
+    screens is two minutes of machine time against roughly a second a shot.
+    """
+    machine = session.machine
+    screens = _upstream_screens(session)
+    if not screens or budget <= 0:
+        return
+    session.stage = "screens"
+
+    chosen: list[tuple[str, int]] = []
+    rows: list[int] = []
+    for _ in range(min(budget, len(screens), max(0, session.left - 3))):
+        best, best_score = None, -np.inf
+        for name, row in screens:
+            if (name, row) in chosen:
+                continue
+            trial = rows + [2 * row, 2 * row + 1]
+            singular = np.linalg.svd(tune.R[trial][:, upstream], compute_uv=False)
+            if singular[-1] > best_score:
+                best, best_score = (name, row), float(singular[-1])
+        if best is None:
+            break
+        chosen.append(best)
+        rows += [2 * best[1], 2 * best[1] + 1]
+
+    error, keep = [], []
+    for name, row in chosen:
+        reading = machine.look_at(name)
+        if not reading.on_screen:
+            session.say(f"{name} sees no beam; skipping it")
+            continue
+        error += list(_screen_error(session, reading, tune, row))
+        keep += [2 * row, 2 * row + 1]
+    if keep and session.left > 2:
+        kicks = -_pseudo_inverse(tune.R[keep][:, upstream], RCOND) @ np.array(error)
+        now = machine.last.settings
+        session.set({
+            n: machine.clip(n, now.get(n, 0.0) + float(dk))
+            for n, dk in zip([session.family.correctors[j] for j in upstream], kicks)
+        })
+        session.say(f"orbit corrected from {len(keep) // 2} screen(s), "
+                    f"{machine.screen_switches} switch(es) so far")
+    # Always back to the readout: it is the only place the score is read.
+    if not machine.looking_at_readout:
+        machine.look_at(machine.readout)
+
+
+def _nearest_elements(session: Session, columns: list[int], count: int) -> list[int]:
+    """The planes of the `count` corrector elements closest to the readout."""
+    names = session.family.correctors
+    order = {name: i for i, name in enumerate(session.spec.knobs and
+                                              [k.name for k in session.spec.knobs])}
+    # A plane is `<element>_h` / `_v`; group by element, keep the last few in
+    # lattice order, which is the order the spec declares its knobs in.
+    by_element: dict[str, list[int]] = {}
+    for j in columns:
+        by_element.setdefault(names[j].rsplit("_", 1)[0], []).append(j)
+    latest = sorted(by_element, key=lambda e: max(
+        order.get(f"{e}_h", -1), order.get(f"{e}_v", -1), order.get(e, -1)))
+    return [j for element in latest[-count:] for j in by_element[element]]
 
 
 def _orbit_error(session: Session, reading, tune: Tune, rows):

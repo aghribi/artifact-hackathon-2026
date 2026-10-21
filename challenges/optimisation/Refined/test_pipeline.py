@@ -284,6 +284,79 @@ def test_other_machine(full: bool) -> None:
           f"{scores['steer']:.3f} against {scores['none']:.3f}")
 
 
+def test_no_bpms(full: bool) -> None:
+    """A machine whose BPMs are dead still tunes, on its screens.
+
+    CLARA's are, at the moment. A screen is not a BPM: only one may be in the
+    beam, it intercepts so nothing downstream reads, and moving it costs about
+    half a minute against a second for a shot. So the measure of success is not
+    only the score but how many switches it took.
+    """
+    print("\n7. the pipeline tunes a machine with no working BPMs")
+    spec_path = ROOT / "machines" / "clara_febe_no_bpms.json"
+    artifact = HERE / "artifacts" / "clara_febe.npz"
+    if not spec_path.exists() or not artifact.exists():
+        print("      skipped: no no-BPM spec or artifact")
+        return
+    from machine_spec import MachineSpec
+    from rl_framework.config import RLConfig
+    from rl_framework.envs.sim_env import SimEnv
+
+    from artifact import Family
+    from machines import SimEnvMachine
+    from methods import METHODS, Session, _split_correctors, optics
+
+    spec = MachineSpec.load(spec_path)
+    # `spaces.MultiBinary(0)` is rejected by gymnasium, which used to take the
+    # environment down at construction before anything could run.
+    env = SimEnv(RLConfig(spec=spec))
+    check("the environment builds with zero BPMs", not env.bpm_names,
+          f"{len(env.screen_names)} screens, no BPMs")
+    observation, _ = env.reset(seed=1000)
+    check("its observation matches its own space",
+          env.observation_space.contains(observation))
+
+    family = Family.load(artifact)
+    machine = SimEnvMachine(spec, seed=1000)
+    session = Session(machine, family, spec, budget=25)
+    optics(session)
+    _, _, final = _split_correctors(session, session.tune)
+    # Being invisible to the monitors is necessary and not sufficient: with the
+    # BPMs gone, ten planes qualify and three of those elements sit before the
+    # final-focus quadrupoles, where a kick changes the spot *size*. Using all
+    # ten cost 537 um of vertical spot against 422 um for the nearest two.
+    check("placement uses the two corrector elements nearest the readout",
+          len(final) == 4,
+          f"{[session.family.correctors[i] for i in final]}")
+
+    # One screen switch pair recovers the dead BPMs almost exactly: measured
+    # over 12 seeds, 1.671 against 1.680 with the BPMs working, and a smaller
+    # vertical spot (287 um against 309). Two and three switches are flat.
+    machine = SimEnvMachine(spec, seed=1000)
+    METHODS["steer"](Session(machine, family, spec, budget=25))
+    check("steering on screens scores like the BPM machine",
+          machine.score < 1.2,
+          f"{machine.score:.3f}, {machine.screen_switches} switch(es), "
+          f"{machine.machine_seconds:.0f} s of machine time")
+    check("and it cost switches, which are now counted",
+          machine.screen_switches > 0,
+          "screen_switches was always 0 before this")
+
+    if not full:
+        return
+    # The recovery path: when the beam does not reach the readout at all, walk
+    # upstream to find where it stops rather than steering blind.
+    found = 0
+    for seed in (2002, 2003):
+        hurt = RLConfig(spec=spec, misalignment_variation=5.0)
+        machine = SimEnvMachine(spec, seed=seed, config=hurt)
+        session = Session(machine, family, spec, budget=25)
+        METHODS["steer"](session)
+        found += any("reaches" in line for line in session.log)
+    check("a lost beam is searched for, not steered blind", found == 2,
+          "both lost-beam seeds located the beam upstream")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full", action="store_true",
@@ -298,6 +371,7 @@ def main() -> int:
     test_family()
     test_tuning(args.full)
     test_other_machine(args.full)
+    test_no_bpms(args.full)
 
     print(f"\n{len(PASSED)} passed, {len(FAILED)} failed")
     for name in FAILED:

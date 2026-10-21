@@ -444,11 +444,18 @@ class SimEnv(BaseAcceleratorEnv):
             }
         )
         image_high = 1.0 if config.normalise_image else np.inf
+        # A machine with no working BPMs is still a machine — CLARA is one at
+        # the moment. The readings stay in the observation as empty arrays so
+        # every consumer keeps working; only the *space* needs care, because
+        # `spaces.MultiBinary(0)` is rejected outright ("n (counts) have to be
+        # positive, got 0") and takes the environment down at construction.
+        count = len(self.bpm_names)
         self.observation_space = spaces.Dict(
             {
-                "bpm_x": spaces.Box(-np.inf, np.inf, (len(self.bpm_names),), np.float32),
-                "bpm_y": spaces.Box(-np.inf, np.inf, (len(self.bpm_names),), np.float32),
-                "bpm_valid": spaces.MultiBinary(len(self.bpm_names)),
+                "bpm_x": spaces.Box(-np.inf, np.inf, (count,), np.float32),
+                "bpm_y": spaces.Box(-np.inf, np.inf, (count,), np.float32),
+                "bpm_valid": (spaces.MultiBinary(count) if count
+                              else spaces.Box(0, 1, (0,), np.int8)),
                 "screen_image": spaces.Box(0.0, image_high, self._shape, np.float32),
                 "screen_index": spaces.Discrete(len(self.screen_names)),
                 "target": spaces.Box(-np.inf, np.inf, (4,), np.float32),

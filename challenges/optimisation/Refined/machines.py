@@ -54,6 +54,10 @@ class Reading:
     bpm: np.ndarray
     bpm_valid: np.ndarray
     settings: dict[str, float] = field(default_factory=dict)
+    # Which screen was in the beam. Only one may be, and it intercepts: while it
+    # is an upstream screen, `mu_x`, `sigma_x` and the rest describe *that*
+    # screen and not the request, and nothing downstream of it reads at all.
+    screen: str = ""
     # What the episode books if it stops here: the benchmark's mismatch on this
     # reading plus what the shots have cost. Lower is better.
     score: float = FAILURE_SCORE
@@ -114,6 +118,17 @@ class Machine:
     def set(self, settings: dict[str, float]) -> Reading:
         raise NotImplementedError
 
+    def look_at(self, screen: str) -> Reading:
+        """Move the beam-intercepting screen and read it.
+
+        Costs a shot like any other, and about half a minute of machine time on
+        top — only one screen may be in the beam, and swapping which is
+        mechanical. That is why `screen_switches` is counted separately from
+        `shots`: they are not the same expense, and a method that treats them
+        as interchangeable will plan a very slow tune.
+        """
+        raise NotImplementedError
+
     def clip(self, name: str, value: float) -> float:
         low, high = self.limits.get(name, (-np.inf, np.inf))
         return float(np.clip(value, low, high))
@@ -121,6 +136,15 @@ class Machine:
     @property
     def last(self) -> Reading:
         return self.history[-1]
+
+    @property
+    def readout(self) -> str:
+        """The screen the request is about, and where the score is read."""
+        return self.spec.readout
+
+    @property
+    def looking_at_readout(self) -> bool:
+        return self.last.screen == self.readout
 
     @property
     def score(self) -> float:
@@ -226,6 +250,21 @@ class SimEnvMachine(Machine):
         self.shots += 1
         return self._record(observation, info)
 
+    def look_at(self, screen: str) -> Reading:
+        """Move the screen into the beam and read it. One shot, one switch."""
+        if screen not in self.env.screen_names:
+            raise KeyError(
+                f"{screen} is not a screen of this machine; it has "
+                f"{len(self.env.screen_names)}"
+            )
+        if screen == self.env.target_screen:
+            # Already there, so this is an ordinary shot and costs no switch.
+            return self.set({})
+        observation, _, _, _, info = self.env.step({"screen": screen})
+        self.shots += 1
+        self.screen_switches += 1
+        return self._record(observation, info)
+
     def _record(self, observation, info) -> Reading:
         reading = Reading(
             mu_x=float(info.get("mu_x", np.nan)),
@@ -242,8 +281,11 @@ class SimEnvMachine(Machine):
             settings=dict(self._settings),
             # The environment's own number, not a reimplementation of it: this is
             # what the benchmark books and what every other method in this repo
-            # is quoted against.
+            # is quoted against. While an upstream screen is in the beam this
+            # holds at the last reading of the scored one, which is exactly what
+            # looking away costs.
             score=float(info["benchmark_score"]),
+            screen=str(info.get("screen", self.env.target_screen)),
         )
         self.history.append(reading)
         return reading
