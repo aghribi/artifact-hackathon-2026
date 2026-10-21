@@ -290,7 +290,11 @@ class Matcher:
         # the residual is not monotone in k1 and a Gauss-Newton step can land
         # worse than it started. Returning the last point throws away a good match
         # because of a bad final step.
-        best = np.abs(self._residuals(self._evaluate(k1)[0], targets)).max(axis=-1)
+        # Seeded at infinity rather than by evaluating `k1` here: iteration 1
+        # always refreshes the Jacobian, and row 0 of that batch is this exact
+        # point, so evaluating it first was one wasted batched track per solve
+        # — and `precompute` makes a couple of hundred solves per axis value.
+        best = np.full(n, np.inf)
         best_k1 = k1.copy()
         stalled = np.zeros(n, dtype=int)
         iteration = 0

@@ -153,6 +153,11 @@ class Line:
         self.device = torch.device(device or "cpu")
         self.segment = self._build(spec).to(self.device)
         self._elements = {e.name: e for e in self.segment.elements}
+        # Positions, once. `cheetah.Segment.element_index` rebuilds the whole
+        # 655-name list and scans it — 18 us a call — and the resume guard used
+        # to make one per knob per track, 2.65 ms of pure lookup on every track
+        # however short the tail was.
+        self._at = {e.name: i for i, e in enumerate(self.segment.elements)}
 
         # Where the beam is read and where it is scraped, in lattice order. A
         # diagnostic the spec never named is still a stop if it can lose particles.
@@ -168,6 +173,7 @@ class Line:
         if spec.readout and spec.readout not in self.diagnostics:
             raise ValueError(f"the readout {spec.readout} is not a diagnostic of this line")
         self._row = {name: i for i, name in enumerate(self.diagnostics)}
+        self._stop_row = {name: i for i, name in enumerate(self.stops)}
         self.readout = self._row.get(spec.readout, -1)
 
         self._extent = {
@@ -178,7 +184,7 @@ class Line:
         # rather than an element-by-element walk.
         self._chunks, previous = {}, 0
         for name in self.stops:
-            index = self.segment.element_index(name)
+            index = self._at[name]
             self._chunks[name] = cheetah.Segment(self.segment.elements[previous:index])
             previous = index
 
@@ -190,6 +196,10 @@ class Line:
         }
         self._setpoints: dict[str, float] = {}
         self._written: set[str] = set()
+        # Knobs that still carry a batch, and knobs whose set point has moved
+        # since they were last written. `_apply` rewrites exactly these.
+        self._batched: set[str] = set()
+        self._dirty: set[str] = set()
 
         self._load_beam(spec, num_particles, coordinates, energy_ev)
 
@@ -244,8 +254,12 @@ class Line:
             if name not in self.knobs:
                 raise KeyError(f"{name} is not a knob of {self.spec.name}")
             self._setpoints[name] = float(value)
+            self._dirty.add(name)
 
     def reset(self) -> None:
+        # Everything written goes back to the lattice file, so everything
+        # written is stale until it has been.
+        self._dirty |= set(self._setpoints) | self._written
         self._setpoints.clear()
 
     def _write(self, name: str, value) -> None:
@@ -261,6 +275,12 @@ class Line:
         if knob.low is not None and knob.high is not None:
             value = value.clamp(min=float(knob.low), max=float(knob.high))
         self._written.add(name)
+        # A batched write leaves a column behind that the next track must not
+        # inherit, so it stays on the rewrite list until it is written scalar.
+        if value.ndim:
+            self._batched.add(name)
+        else:
+            self._batched.discard(name)
         for element, sign in zip(knob.elements, knob.signs):
             target = self._elements[element]
             setattr(target, knob.prop, sign * value)
@@ -269,25 +289,33 @@ class Line:
             _forget_maps(target)
 
     def _apply(self, overrides: Mapping[str, torch.Tensor] | None) -> None:
-        """Every knob to its set point, then the caller's overrides on top.
+        """Every knob that could be stale to its set point, then the overrides.
 
-        Everything ever written is rewritten, not just what has a set point: an
-        override may have left a whole batch of candidate values on an element, and
-        the next track must not inherit it.
+        The thing that must not happen is inheriting a previous call's batch: an
+        override leaves a column of candidate values on an element, and the next
+        track would read it as this track's setting. So every knob last written
+        with a batch is rewritten, along with any whose set point has moved since
+        it was last written.
+
+        Rewriting *everything* ever written also works and is what this did, but
+        it costs a tensor, a finiteness reduction, a clamp and a cache clear per
+        knob per track — 1.2 ms a track with the 47 knobs a precompute holds, to
+        put back values that were already there.
         """
-        for name in self._written | set(self._setpoints):
+        overrides = overrides or {}
+        stale = self._batched | self._dirty | set(overrides)
+        for name in stale - set(overrides):
             self._write(name, self.value(name))
-        for name, value in (overrides or {}).items():
+        for name, value in overrides.items():
             self._write(name, value)
+        self._dirty = set()
 
     # ---------- waypoints ----------
 
     def _first_element(self, names: Iterable[str]) -> int:
         """Index of the most upstream element any of these knobs drives."""
-        return min(
-            self.segment.element_index(element)
-            for name in names for element in self.knobs[name].elements
-        )
+        return min(self._at[element]
+                   for name in names for element in self.knobs[name].elements)
 
     def waypoint(self, downstream_of: Sequence[str]) -> Waypoint:
         """The beam at the last stop before anything these knobs can touch.
@@ -296,7 +324,7 @@ class Line:
         once here and reused for every setting of them afterwards.
         """
         first = self._first_element(downstream_of)
-        before = [n for n in self.stops if self.segment.element_index(n) < first]
+        before = [n for n in self.stops if self._at[n] < first]
         if not before:
             raise ValueError(
                 f"nothing upstream of {list(downstream_of)} to stop at: these knobs "
@@ -317,11 +345,12 @@ class Line:
         # An override on an upstream knob is always a disagreement: it is a column
         # of values and the waypoint was taken at one.
         upstream = [n for n in (overrides or ()) if upstream_of_waypoint(n)]
+        # Only knobs that have actually moved need checking, not all 109.
         upstream += [
-            name for name in self.knobs
+            name for name in (self._written | set(self._setpoints))
             if name not in (overrides or ())
             and upstream_of_waypoint(name)
-            and abs(self.value(name) - resume.setpoints[name]) > 0.0
+            and self.value(name) != resume.setpoints[name]
         ]
         if upstream:
             raise ValueError(
@@ -350,7 +379,7 @@ class Line:
         """
         self._apply(overrides)
         last = upto or self.spec.readout or self.stops[-1]
-        stop_index = self.stops.index(last)
+        stop_index = self._stop_row[last]
 
         minimum = self.spec.min_fraction * self.num_particles
         radius = self.spec.pipe_radius
@@ -421,7 +450,7 @@ class Line:
             if name == capture:
                 return Waypoint(
                     stop=name, stop_index=self.stops.index(name),
-                    element_index=self.segment.element_index(name),
+                    element_index=self._at[name],
                     beam=travelling, alive=alive, margin=margin,
                     outside=list(outside), rows=dict(rows),
                     setpoints={n: self.value(n) for n in self.knobs},

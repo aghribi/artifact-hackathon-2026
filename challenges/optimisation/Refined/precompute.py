@@ -118,10 +118,7 @@ def _repair(matcher: Matcher, targets: np.ndarray, result: MatchResult,
         start = result.k1[good[distance.argmin(axis=1)]]
         patched = matcher.match(targets[stuck], start=start)
         better = patched.relative_error < result.relative_error[stuck]
-        rows = stuck[better]
-        for field in ("k1", "achieved", "transmission", "relative_error",
-                      "clipped", "converged"):
-            getattr(result, field)[rows] = getattr(patched, field)[better]
+        _assign(result, stuck[better], patched, np.flatnonzero(better))
         say(f"      repair {round_}: {len(stuck)} stalled, "
             f"{int(patched.converged[better].sum())} rescued")
     return result
@@ -215,10 +212,19 @@ def solve_coarse(matcher: Matcher, spec: MachineSpec, n: int,
     return _cohere(matcher, targets, whole, n, say=say)
 
 
-def _assign(result: MatchResult, rows, patch: MatchResult, mask=None) -> None:
-    """Copy a sub-solve back into the grid, for the nodes `mask` selects."""
-    take = slice(None) if mask is None else mask
-    rows = rows if mask is None else np.asarray(rows)[mask]
+def _assign(result: MatchResult, rows, patch: MatchResult, take) -> None:
+    """Copy `patch[take]` into `result[rows]`, field by field.
+
+    `rows` and `take` are parallel: node `rows[i]` of the grid takes solve
+    `take[i]` of the patch. They are separate because the callers need them to
+    be — `_grow` writes one node from whichever of its several attempts won,
+    where `_rescue` and `_cohere` write a selection of nodes from the matching
+    entries of a same-shaped solve.
+
+    One place that knows which fields a `MatchResult` carries. This was written
+    out three times, and adding a field meant finding all three or watching the
+    grid quietly fill with a mix of patched and unpatched values.
+    """
     for field in ("k1", "achieved", "transmission", "relative_error",
                   "clipped", "converged"):
         getattr(result, field)[rows] = getattr(patch, field)[take]
@@ -245,7 +251,8 @@ def _rescue(matcher: Matcher, targets: np.ndarray, result: MatchResult,
         return result
     patch = matcher.match(targets[stuck], start=matcher.seed(targets[stuck],
                                                              samples=samples))
-    _assign(result, stuck, patch, patch.converged)
+    _assign(result, stuck[patch.converged], patch,
+            np.flatnonzero(patch.converged))
     say(f"      sobol rescue: {int(patch.converged.sum())} of {len(stuck)} reached")
     return result
 
@@ -286,17 +293,19 @@ def _grow(matcher: Matcher, targets: np.ndarray, result: MatchResult, n: int,
         if not nodes:
             break
         patch = matcher.match(targets[np.array(nodes)], start=np.array(starts))
-        # Each node keeps the best of the attempts that converged.
+        # Each node keeps the best of the attempts that converged. The attempts
+        # are indexed as they are built rather than re-scanned per node, which
+        # was an O(nodes x attempts) array rebuild inside the loop.
+        attempts: dict[int, list[int]] = {}
+        for position, flat in enumerate(owners):
+            attempts.setdefault(flat, []).append(position)
         gained = 0
-        for flat in set(nodes):
-            tries = np.flatnonzero(np.array(owners) == flat)
+        for flat, tries in attempts.items():
             won = [t for t in tries if patch.converged[t]]
             if not won:
                 continue
             pick = min(won, key=lambda t: patch.relative_error[t])
-            for field in ("k1", "achieved", "transmission", "relative_error",
-                          "clipped", "converged"):
-                getattr(result, field)[flat] = getattr(patch, field)[pick]
+            _assign(result, [flat], patch, [pick])
             gained += 1
         say(f"      grow {round_}: {gained} node(s) reached from a neighbour")
         if not gained:
@@ -328,7 +337,8 @@ def _cohere(matcher: Matcher, targets: np.ndarray, result: MatchResult, n: int,
         better = patch.converged & (after < before)
         if not better.any():
             break
-        _assign(result, np.arange(len(targets)), patch, better)
+        _assign(result, np.flatnonzero(better), patch,
+                np.flatnonzero(better))
         say(f"      cohere {round_}: {int(better.sum())} nodes pulled onto "
             f"the local branch")
     return result
@@ -476,7 +486,6 @@ def responses(line: Line, k1: dict[str, float], correctors: list[str]) -> dict:
     makes the same point and reads the same two things.
     """
     line.set(k1)
-    base = line.track()
     population = np.repeat(
         np.array([[line.value(c) for c in correctors]]), 2 * len(correctors) + 1,
         axis=0,
@@ -487,14 +496,17 @@ def responses(line: Line, k1: dict[str, float], correctors: list[str]) -> dict:
     batched = line.track(
         overrides=line.columns(correctors, population), batch=len(population)
     )
+    # Row 0 of the population is the unkicked point, so the orbit comes off the
+    # same batched track rather than a second unbatched one: that duplicate cost
+    # a full 127 ms line track at each of the 245 response nodes, 25 s a run.
     centroids = batched.centroids.detach().cpu().numpy().astype(float)  # (B, n_diag, 2)
     plus, minus = centroids[1::2], centroids[2::2]
     # Rows are every diagnostic's x then its y, to match `MFopt.responses`.
     response = ((plus - minus) / (2 * KICK)).transpose(1, 2, 0).reshape(-1, len(correctors))
     return {
-        "orbit": base.centroids.detach().cpu().numpy().astype(float).ravel(),
+        "orbit": centroids[0].ravel(),
         "R": np.nan_to_num(response),
-        "valid": base.valid.detach().cpu().numpy().astype(float),
+        "valid": batched.valid.detach().cpu().numpy().astype(float)[0],
     }
 
 
