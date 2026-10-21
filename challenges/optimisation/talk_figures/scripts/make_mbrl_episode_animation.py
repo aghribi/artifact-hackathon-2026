@@ -110,6 +110,7 @@ def record(seed: int, config) -> tuple[list[dict], object]:
                 "score": float(info["benchmark_score"]),
                 "mismatch": float(info["scored_mismatch"]),
                 "stage": stage["name"],
+                "screen": info.get("screen"),
             }
         )
 
@@ -273,7 +274,9 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
         )
         sizes = f"$\\sigma$  {sigma_x * 1e6:.0f} × {sigma_y * 1e6:.0f} µm"
         if elsewhere:
-            sizes += f"      on {elsewhere}, not the readout"
+            # The title names the screen; this says why there is no request
+            # drawn against the spot.
+            sizes += "      the request belongs to the readout, not here"
         else:
             sizes += (f"      asked {target[2] * 1e6:.0f}"
                       f" × {target[3] * 1e6:.0f} µm")
@@ -304,12 +307,18 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     for text in legend.get_texts():
         text.set_color(INK)
 
-    _inset(camera, frame, extent, centre, window)
+    _inset(camera, frame, extent, centre, window, elsewhere)
     _trace(trace, frames, frame)
 
 
-def _inset(camera, frame, extent, centre, window) -> None:
-    """The whole 22 mm chip, with a box where the main view is looking."""
+def _inset(camera, frame, extent, centre, window, elsewhere=None) -> None:
+    """The whole chip, with a box where the main view is looking.
+
+    Titled with the screen it belongs to, on every frame. The inset *is* this
+    camera's whole chip, so it is the honest place to name it — and naming it
+    always, not only when it changes, means a reader who lands on one frame can
+    see what they are looking at without scanning back for the switch.
+    """
     inset = camera.inset_axes([0.735, 0.715, 0.25, 0.25])
     inset.imshow(
         frame["image"], origin="lower",
@@ -326,7 +335,11 @@ def _inset(camera, frame, extent, centre, window) -> None:
     )
     inset.set_xticks([])
     inset.set_yticks([])
-    inset.set_title("whole chip", color=MUTED, fontsize=7, pad=3)
+    inset.set_title(
+        frame.get("screen") or "whole chip",
+        color=INK if elsewhere else MUTED, fontsize=7, pad=3,
+        fontweight="bold" if elsewhere else "normal",
+    )
     for spine in inset.spines.values():
         spine.set_color(GRID)
 

@@ -101,6 +101,7 @@ def record(seed: int, method: str, budget: int, particles: int,
         screen = info["screen"]
         elsewhere = None if screen == env.scored_screen else screen
         frames.append({
+            "screen": screen,
             "elsewhere": elsewhere,
             "extent": env.screen_extent(screen),
             "image": np.asarray(observation["screen_image"], dtype=float),
