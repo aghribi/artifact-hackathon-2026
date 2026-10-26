@@ -37,7 +37,11 @@ import numpy as np
 
 from rl_framework.config import RLConfig
 from rl_framework.envs import hardware as _hardware
-from rl_framework.envs.base_env import BaseAcceleratorEnv, Transport
+from rl_framework.envs.base_env import (
+    PROPERTY_SUFFIX,
+    BaseAcceleratorEnv,
+    Transport,
+)
 
 # `screen.measure` turns a camera frame into (mu_x, mu_y, sigma_x, sigma_y) in
 # metres, using the measure written for real CLARA captures. Imported lazily, in
@@ -58,18 +62,35 @@ class HardwareTransport(Transport):
 
     def __init__(self, hardware=_hardware):
         self._hw = hardware
-        self._cache: dict[tuple[str, str], float] = {}
+        self._cache: dict[str, float] = {}
         self._pending: list[str] = []
+
+    @staticmethod
+    def _supply(element: str, prop: str) -> str:
+        """The name of the thing that is actually powered.
+
+        A model's `cla_s02_mag_hvcor_01` is one element with a horizontal and a
+        vertical angle on it; the machine has two separate magnets, HCOR and
+        VCOR, on two separate supplies. So the plane has to travel with the
+        name or the hardware layer cannot tell which one is being set — and it
+        would quietly drive one plane with the other's demand.
+
+        The suffix convention is the spec's own: this is exactly the knob name
+        that `base_env` builds, `cla_s02_mag_hvcor_01_h`.
+        """
+        if prop not in PROPERTY_SUFFIX:
+            raise KeyError(f"{element}: not a settable property: {prop}")
+        return element + PROPERTY_SUFFIX[prop]
 
     def invalidate(self) -> None:
         """Forget the readbacks. Called once per acquisition."""
         self._cache.clear()
 
     def read(self, element: str, prop: str) -> float:
-        key = (element, prop)
-        if key not in self._cache:
-            self._cache[key] = float(self._hw.GET_REAL_MAGNET_POWER(element))
-        return self._cache[key]
+        supply = self._supply(element, prop)
+        if supply not in self._cache:
+            self._cache[supply] = float(self._hw.GET_REAL_MAGNET_POWER(supply))
+        return self._cache[supply]
 
     def write(self, element: str, prop: str, value: float,
               follow: Sequence[str] = ()) -> None:
@@ -80,9 +101,10 @@ class HardwareTransport(Transport):
         does it, so there is nothing to send — the face is not independently
         powered. Writing it would mean inventing a supply that does not exist.
         """
-        self._hw.SET_REAL_MAGNET_POWER(element, float(value))
-        self._cache[(element, prop)] = float(value)
-        self._pending.append(element)
+        supply = self._supply(element, prop)
+        self._hw.SET_REAL_MAGNET_POWER(supply, float(value))
+        self._cache[supply] = float(value)
+        self._pending.append(supply)
 
     def settle(self) -> None:
         """Block until everything written since the last shot has got there."""

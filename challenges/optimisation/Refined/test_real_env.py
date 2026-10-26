@@ -215,6 +215,92 @@ def test_coupled_knob() -> None:
           "the iron turns the faces, not a power supply")
 
 
+def test_corrector_planes_are_separate_supplies() -> None:
+    print("\n3b. the two planes of a corrector are two magnets")
+    spec, fake, env = build()
+    # One element in the model, two magnets on the machine. If the plane does
+    # not travel with the name, the hardware layer cannot tell them apart and
+    # drives one plane with the other's demand — silently, and in a way that
+    # looks like a steering error no corrector can fix.
+    knob = next(k for k in spec.knobs if k.name.endswith("_h")
+                and "hvcor" in k.elements[0])
+    element = knob.elements[0]
+    fake.log.clear()
+    env.set_magnets({knob.name: 1e-5, knob.name[:-2] + "_v": -2e-5})
+    written = [name for what, name in fake.log if what == "set"]
+    check("each plane is its own supply name",
+          written == [f"{element}_h", f"{element}_v"], f"{written}")
+    check("and they hold different values",
+          fake.strengths[f"{element}_h"] != fake.strengths[f"{element}_v"],
+          f"h={fake.strengths[f'{element}_h']:.1e}, "
+          f"v={fake.strengths[f'{element}_v']:.1e}")
+
+    # And the CLARA driver turns those into the two real magnets.
+    from rl_framework.envs import hardware_CLARA as clara
+    check("the CLARA driver maps them to HCOR and VCOR",
+          (clara._catap_name(f"{element}_h").endswith("HCOR-01")
+           and clara._catap_name(f"{element}_v").endswith("VCOR-01")),
+          f"{clara._catap_name(f'{element}_h')} / "
+          f"{clara._catap_name(f'{element}_v')}")
+
+
+def test_clara_driver_offline() -> None:
+    """The CLARA driver, as far as it can be checked with no control system."""
+    print("\n8. the CLARA driver maps every supply it will be asked for")
+    from rl_framework.envs import hardware_CLARA as clara
+    from rl_framework.envs.base_env import PROPERTY_SUFFIX
+
+    sys.path.insert(0, str(ROOT / "data" / "clara" / "lattice_data"))
+    import utils
+
+    check("importing it connects to nothing", not clara._factories,
+          "factories are built on first use, not at import")
+    check("the safety switch is on", clara.USE_VIRTUAL is True,
+          "USE_VIRTUAL=True — it cannot move a magnet on CLARA")
+
+    cal = {"corrector": utils.CORRECTOR_CAL, "quadrupole": utils.QUAD_CAL,
+           "dipole": utils.DIPOLE_CAL, "sextupole": utils.SEXTUPOLE_CAL}
+    spec = MachineSpec.load(HERE / "machines" / "clara_febe.json")
+    supplies = {e + PROPERTY_SUFFIX[k.prop] for k in spec.knobs for e in k.elements}
+    missing, cavities = [], []
+    for supply in sorted(supplies):
+        kind = clara._kind(supply)
+        if kind == "cavity":
+            cavities.append(supply)
+        elif clara._catap_name(supply) not in cal[kind]:
+            missing.append(supply)
+    check("every magnet it can be asked to set has a calibration", not missing,
+          f"{len(supplies) - len(cavities)} magnets"
+          if not missing else f"no calibration for {missing[:4]}")
+    check("cavity phases are refused rather than mis-set", bool(cavities),
+          f"{len(cavities)} cavity phase(s) raise NotImplementedError")
+    for supply in cavities[:1]:
+        try:
+            clara.SET_REAL_MAGNET_POWER(supply, 0.0)
+            check("  and the refusal is explicit", False, "it was accepted")
+        except NotImplementedError as error:
+            check("  and the refusal is explicit", "cavity" in str(error))
+
+    # The conversions have to be each other's inverse, or every readback is
+    # wrong by however much they disagree.
+    worst = 0.0
+    for name, forward, inverse, values in (
+        ("cla_s02_mag_quad_01", utils.quadrupole_current_from_k,
+         utils.quadrupole_k_from_current, (0.5, -2.0, 5.0)),
+        ("cla_s02_mag_hvcor_01_h", utils.corrector_current_from_angle,
+         utils.corrector_angle_from_current, (1e-5, -2e-4)),
+        ("cla_vbc_mag_dip_01", utils.dipole_current_from_angle,
+         utils.dipole_angle_from_current, (0.1, -0.1)),
+    ):
+        catap = clara._catap_name(name)
+        for value in values:
+            back = inverse(catap, forward(catap, value, clara.BEAM_MOMENTUM_MEVC),
+                           clara.BEAM_MOMENTUM_MEVC)
+            worst = max(worst, abs(back - value) / abs(value))
+    check("strength -> current -> strength round-trips", worst < 1e-9,
+          f"worst relative error {worst:.1e}")
+
+
 def test_screen_switching() -> None:
     print("\n4. a screen switch moves one mechanism, and only when it must")
     spec, fake, env = build()
@@ -301,8 +387,10 @@ def test_unpopulated_fails_loudly() -> None:
 def main() -> None:
     print("RealEnv, against a fake control system. CLARA is not touched.")
     for test in (test_builds, test_reset_is_read_only, test_coupled_knob,
+                 test_corrector_planes_are_separate_supplies,
                  test_screen_switching, test_whole_episode,
-                 test_bpms_when_they_work, test_unpopulated_fails_loudly):
+                 test_bpms_when_they_work, test_unpopulated_fails_loudly,
+                 test_clara_driver_offline):
         test()
     print(f"\n{PASSED} passed, {FAILED} failed")
     sys.exit(1 if FAILED else 0)
