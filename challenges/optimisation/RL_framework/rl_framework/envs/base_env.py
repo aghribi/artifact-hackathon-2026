@@ -240,20 +240,14 @@ class BaseAcceleratorEnv(gym.Env, ABC):
         self.transport = self._make_transport()
 
         self._shape = tuple(int(n) for n in config.screen_shape)
-        # How many metres of chip each screen image covers. A simulation reads it
-        # off the model; a real camera has to be told, because the model's idea of
-        # a field of view is not a calibration.
-        self._extents = {
-            name: tuple(float(v) for v in self._extent_of(name))
-            for name in self._diagnostics
-        }
-        self._bin_edges = {
-            name: (
-                np.linspace(*extent[2:], self._shape[0] + 1),  # rows: y
-                np.linspace(*extent[:2], self._shape[1] + 1),  # columns: x
-            )
-            for name, extent in self._extents.items()
-        }
+        # How many metres of chip each screen image covers, and the grid an
+        # image is binned onto. Both are worked out the first time a diagnostic
+        # is actually read, not here: a simulation can answer for all of them
+        # instantly, but a real camera has to be asked, and asking all
+        # twenty-two at construction means talking to twenty-two cameras to use
+        # one of them.
+        self._extents: dict[str, tuple[float, float, float, float]] = {}
+        self._bin_edges: dict[str, tuple[np.ndarray, np.ndarray]] = {}
 
         self._knobs = self._build_knobs(self.segment)
         self.magnet_names = list(self._controllable)
@@ -522,8 +516,26 @@ class BaseAcceleratorEnv(gym.Env, ABC):
         self._target_screen = screen
 
     def screen_extent(self, screen: str | None = None) -> tuple[float, float, float, float]:
-        """(x_min, x_max, y_min, y_max) in metres that a screen image spans."""
-        return self._extents[screen or self._target_screen]
+        """(x_min, x_max, y_min, y_max) in metres that a screen image spans.
+
+        Asked of the machine once per diagnostic and then remembered — a chip
+        does not change size, but on a real camera finding out costs a round
+        trip to the control system.
+        """
+        name = screen or self._target_screen
+        if name not in self._extents:
+            self._extents[name] = tuple(float(v) for v in self._extent_of(name))
+        return self._extents[name]
+
+    def _bins(self, screen: str) -> tuple[np.ndarray, np.ndarray]:
+        """(row edges, column edges) an image of this screen is binned onto."""
+        if screen not in self._bin_edges:
+            extent = self.screen_extent(screen)
+            self._bin_edges[screen] = (
+                np.linspace(*extent[2:], self._shape[0] + 1),  # rows: y
+                np.linspace(*extent[:2], self._shape[1] + 1),  # columns: x
+            )
+        return self._bin_edges[screen]
 
     # ---------- gym API ----------
 

@@ -434,7 +434,7 @@ class SimEnv(BaseAcceleratorEnv):
         on_chip = (np.abs(x) <= screen.extent[1]) & (np.abs(y) <= screen.extent[3])
         x, y = x[on_chip], y[on_chip]
 
-        rows, columns = self._bin_edges[screen.name]
+        rows, columns = self._bins(screen.name)
         image, _, _ = np.histogram2d(y, x, bins=(rows, columns))
         if self.config.normalise_image and image.max() > 0:
             image = image / image.max()

@@ -64,12 +64,19 @@ class FakeMachine:
         self.strengths: dict[str, float] = {}
         self.inserted: str | None = None
         self.log: list[tuple[str, str]] = []
+        # A write does not show up in the readback until it has been waited
+        # for. This is not invented: a caput to the real CLARA takes about half
+        # a second to come back round through EPICS, and reading in that window
+        # returns the *previous* setting. `Refined` takes its next step from
+        # the settings it read back, so anything that reads before settling
+        # steps from the wrong place — modelled here so it cannot regress.
+        self._in_flight: dict[str, float] = {}
 
     # -- magnets
 
     def SET_REAL_MAGNET_POWER(self, magnet_name: str, value: float) -> None:
         self.calls["SET_REAL_MAGNET_POWER"] += 1
-        self.strengths[magnet_name] = float(value)
+        self._in_flight[magnet_name] = float(value)
         self.log.append(("set", magnet_name))
 
     def GET_REAL_MAGNET_POWER(self, magnet_name: str) -> float:
@@ -78,6 +85,15 @@ class FakeMachine:
 
     def WAIT_FOR_MAGNETS_SETTLED(self, magnet_names) -> None:
         self.calls["WAIT_FOR_MAGNETS_SETTLED"] += 1
+        for name in magnet_names:
+            if name in self._in_flight:
+                self.strengths[name] = self._in_flight.pop(name)
+
+    def demanded(self, magnet_name: str) -> float:
+        """What was last asked of a magnet, whether or not it has landed."""
+        if magnet_name in self._in_flight:
+            return self._in_flight[magnet_name]
+        return self.strengths[magnet_name]
 
     # -- screens
 
@@ -178,6 +194,18 @@ def test_builds() -> None:
           abs(info["transmission"] - 0.95) < 1e-9,
           f"T {info['transmission']:.2f}")
 
+    # Calibrations are fetched for the screens actually read, not for all 22.
+    # On a real machine each one is a round trip to a camera, and asking about
+    # a screen nobody looks at is a conversation with hardware for nothing.
+    asked = fake.calls["GET_REAL_SCREEN_EXTENT"]
+    check("only the screens actually read are calibrated",
+          0 < asked <= 2 < len(env.screen_names),
+          f"{asked} of {len(env.screen_names)} screens asked")
+    env.screen_extent(env.scored_screen)
+    check("and a chip is not re-measured once known",
+          fake.calls["GET_REAL_SCREEN_EXTENT"] == asked,
+          "the extent is cached after the first read")
+
 
 def test_reset_is_read_only() -> None:
     print("\n2. reset() does not move the machine")
@@ -206,10 +234,10 @@ def test_coupled_knob() -> None:
     written = [name for what, name in fake.log if what == "set"]
     check("every dipole of the group is written",
           written == knob.elements, f"{len(written)} of {len(knob.elements)}")
-    signs = [np.sign(fake.strengths[n]) for n in knob.elements]
+    signs = [np.sign(fake.demanded(n)) for n in knob.elements]
     check("with the spec's alternating signs",
           signs == [np.sign(s) for s in knob.signs],
-          f"{[round(fake.strengths[n], 4) for n in knob.elements]}")
+          f"{[round(fake.demanded(n), 4) for n in knob.elements]}")
     check("a pole face is not written as if it had its own supply",
           all("_e1" not in n and "_e2" not in n for n in written),
           "the iron turns the faces, not a power supply")
@@ -231,9 +259,9 @@ def test_corrector_planes_are_separate_supplies() -> None:
     check("each plane is its own supply name",
           written == [f"{element}_h", f"{element}_v"], f"{written}")
     check("and they hold different values",
-          fake.strengths[f"{element}_h"] != fake.strengths[f"{element}_v"],
-          f"h={fake.strengths[f'{element}_h']:.1e}, "
-          f"v={fake.strengths[f'{element}_v']:.1e}")
+          fake.demanded(f"{element}_h") != fake.demanded(f"{element}_v"),
+          f"h={fake.demanded(f'{element}_h'):.1e}, "
+          f"v={fake.demanded(f'{element}_v'):.1e}")
 
     # And the CLARA driver turns those into the two real magnets.
     from rl_framework.envs import hardware_CLARA as clara
@@ -242,6 +270,26 @@ def test_corrector_planes_are_separate_supplies() -> None:
            and clara._catap_name(f"{element}_v").endswith("VCOR-01")),
           f"{clara._catap_name(f'{element}_h')} / "
           f"{clara._catap_name(f'{element}_v')}")
+
+
+def test_settles_before_reading_back() -> None:
+    print("\n3c. a setting is never read back before it has landed")
+    spec, fake, env = build()
+    knob = next(k for k in spec.knobs if k.prop == "k1")
+    demanded = 1.75
+    env.step({"magnets": {knob.name: demanded}})
+    # The fake only makes a write visible once it has been waited for, as the
+    # control system does. If the step read before settling, the reported
+    # setting would be the one before this.
+    reported = env._get_info()["magnets"][knob.name]
+    check("the reported setting is the one just applied",
+          abs(reported - demanded) < 1e-9,
+          f"asked {demanded}, machine says {reported}")
+    check("and the wait actually happened",
+          fake.calls["WAIT_FOR_MAGNETS_SETTLED"] > 0,
+          f"{fake.calls['WAIT_FOR_MAGNETS_SETTLED']} wait(s)")
+    check("nothing is left in flight",
+          not fake._in_flight, f"{len(fake._in_flight)} unlanded write(s)")
 
 
 def test_clara_driver_offline() -> None:
@@ -388,6 +436,7 @@ def main() -> None:
     print("RealEnv, against a fake control system. CLARA is not touched.")
     for test in (test_builds, test_reset_is_read_only, test_coupled_knob,
                  test_corrector_planes_are_separate_supplies,
+                 test_settles_before_reading_back,
                  test_screen_switching, test_whole_episode,
                  test_bpms_when_they_work, test_unpopulated_fails_loudly,
                  test_clara_driver_offline):

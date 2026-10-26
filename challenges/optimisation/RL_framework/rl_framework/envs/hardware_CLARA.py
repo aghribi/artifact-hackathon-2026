@@ -43,7 +43,7 @@ import numpy as np
 USE_VIRTUAL = True
 
 if USE_VIRTUAL:
-    os.environ["EPICS_CA_ADDR_LIST"] = "172.18.0.6"
+    os.environ["EPICS_CA_ADDR_LIST"] = "172.18.0.8"
     os.environ["EPICS_CA_SERVER_PORT"] = "6090"
     os.environ["EPICS_CA_AUTO_ADDR_LIST"] = "NO"
     os.environ["EPICS_CA_MAX_ARRAY_BYTES"] = "1000000"
@@ -86,10 +86,28 @@ POLL_SECONDS = 0.5
 # How close a readback has to be to its demand to count as arrived, in amps.
 CURRENT_TOLERANCE_A = 0.05
 
+# Charge either end of the modelled stretch, for transmission. Both must be
+# *non-intercepting*: a Faraday cup stops the beam, so using one as the
+# denominator of a transmission measured during tuning would end the run.
+#
+# `CLA-S01-DIA-WCM-01` is the wall-current monitor at the start, and reads.
+# `CLA-FEH-DIA-ICT-01` is the FEBE-hutch ICT, which is in the lattice but **not
+# in CATAP's charge factory** at the time of writing, so transmission currently
+# falls back to 1.0 — see GET_REAL_TRANSMISSION.
+UPSTREAM_CHARGE_MONITOR = "CLA-S01-DIA-WCM-01"
+READOUT_CHARGE_MONITOR = "CLA-FEH-DIA-ICT-01"
+# Below this the upstream monitor is reporting no beam, and a ratio against it
+# is a division by noise rather than a transmission.
+MIN_CHARGE = 1e-3
+
 
 # ---------------------------------------------------------------- plumbing
 
 _factories: dict[str, object] = {}
+# Current last commanded to each magnet, by CATAP name. See the note in
+# `SET_REAL_MAGNET_POWER`: a write takes a moment to come back through EPICS,
+# and this is what tells us whether it has.
+_commanded: dict[str, float] = {}
 
 
 def _factory(kind: str):
@@ -114,6 +132,14 @@ def _factory(kind: str):
             from CATAP.diagnostics.camera import CameraFactory
 
             _factories[kind] = CameraFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "charge":
+            from CATAP.diagnostics.charge import ChargeFactory
+
+            _factories[kind] = ChargeFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "bpm":
+            from CATAP.diagnostics.bpm import BPMFactory
+
+            _factories[kind] = BPMFactory(is_virtual=USE_VIRTUAL)
         else:
             raise KeyError(kind)
     return _factories[kind]
@@ -122,12 +148,20 @@ def _factory(kind: str):
 def _catap_name(lattice_name: str) -> str:
     """`cla_s02_mag_hvcor_01_h` -> `CLA-S02-MAG-HCOR-01`.
 
+    CATAP wants upper case with hyphens, always, for every kind of device —
+    magnets, screens, cameras, charge monitors alike. Everything that crosses
+    into CATAP goes through here.
+
     Two things happen. The style changes, lower-underscore to upper-hyphen. And
     a corrector's plane, which arrives as a suffix because the model has one
     element where the machine has two magnets, is folded into the name: the
     combined `HVCOR` becomes `HCOR` or `VCOR` and the suffix comes off. An
     element that is already single-plane (`cla_vbc_mag_vcor_01_v`) keeps the
     name it has, rather than becoming `VVCOR`.
+
+    Idempotent, so a name already written the CATAP way passes through
+    unchanged — which is what lets the charge monitors above be spelled the way
+    an operator would spell them.
     """
     name, plane = lattice_name, ""
     if name.endswith(("_h", "_v")):
@@ -231,6 +265,11 @@ def SET_REAL_MAGNET_POWER(magnet_name: str, value: float) -> None:
             f"conversion has gone out of range rather than the magnet."
         )
     magnet.seti = float(current)
+    # Remembered so `WAIT_FOR_MAGNETS_SETTLED` knows what it is waiting *for*.
+    # A caput takes about half a second to come back round through EPICS, and
+    # until it does `seti` still reads the previous value — so without this the
+    # readback after a write is the setting before it.
+    _commanded[_catap_name(magnet_name)] = float(current)
 
 
 def GET_REAL_MAGNET_POWER(magnet_name: str) -> float:
@@ -275,12 +314,36 @@ def WAIT_FOR_MAGNETS_SETTLED(magnet_names: list[str]) -> None:
     Returning early is the expensive failure mode here: the shot that follows
     reads a machine mid-ramp and the optimiser books it as the response to a
     setting that was never applied.
-    """
-    if USE_VIRTUAL:
-        return  # the virtual accelerator applies a demand immediately
 
+    Two separate things have to happen, and the first one bites even on the
+    virtual accelerator, where nothing physically ramps. A caput takes roughly
+    half a second to come back round through EPICS, so for that long `seti`
+    still reports the *previous* demand. `Refined` takes its next step from the
+    settings it read back, so a stale one is not a cosmetic error: it steps
+    from the wrong place. So wait for the demand to land first, and then — on
+    the real machine, where there is iron to move — for the current to reach
+    it.
+    """
     magnets = {name: _magnet(name) for name in magnet_names
                if _kind(name) != "cavity"}
+    if not magnets:
+        return
+
+    def landed() -> bool:
+        """The control system is reporting back the demand we sent."""
+        for name, magnet in magnets.items():
+            wanted = _commanded.get(_catap_name(name))
+            if wanted is None:
+                continue                 # never written, nothing to wait for
+            echo = magnet.seti
+            if echo is None or abs(float(echo) - wanted) > CURRENT_TOLERANCE_A:
+                return False
+        return True
+
+    _wait_until(landed, MAGNET_SETTLE_TIMEOUT,
+                f"{len(magnets)} magnet demand(s) to register")
+    if USE_VIRTUAL:
+        return  # no iron, so once the demand has landed it is there
 
     def arrived() -> bool:
         for magnet in magnets.values():
@@ -415,12 +478,18 @@ def GET_REAL_SCREEN_EXTENT(screen_name: str) -> tuple[float, float, float, float
     quantity from different sources, so a disagreement means one of them is
     wrong and it matters which.
 
-    Note this asks the camera for its dimensions rather than grabbing a frame —
-    `RealEnv` calls this for every screen of the line when it starts, and
-    grabbing frames would mean starting acquisition on all twenty-two.
+    Asks the camera for its dimensions rather than grabbing a frame where it
+    can, and falls back to a frame where it cannot — `image_width` and
+    `image_height` come back as None on a camera whose PVs are not served, and
+    on the virtual accelerator that is all of them. `RealEnv` only asks about a
+    screen it is actually going to read, so a fallback frame here costs one
+    acquisition on one camera rather than twenty-two.
     """
     _, camera = _screen_and_camera(screen_name)
-    height, width = int(camera.image_height), int(camera.image_width)
+    width, height = camera.image_width, camera.image_height
+    if not width or not height:
+        height, width = GET_REAL_SCREEN_IMAGE(screen_name).shape
+    width, height = int(width), int(height)
     if not height or not width:
         raise ValueError(
             f"{screen_name}: the camera reports a {width} x {height} frame."
@@ -472,15 +541,48 @@ def GET_REAL_BPM_READING(bpm_name: str) -> tuple[float, float, bool]:
     is never called and the optimiser steers on screens instead. Populate it when
     they come back and the BPM path lights up again with no other change.
 
-    Until then this reports *invalid* rather than zero. A BPM claiming a
-    confident 0.0 is a BPM saying the beam is perfectly on axis, and `steer`
-    would correct a real orbit towards that fiction; `valid=False` makes it skip
-    the BPM entirely, which is the truth.
+    Reports *invalid* rather than zero whenever the reading cannot be believed.
+    A BPM claiming a confident 0.0 is a BPM saying the beam is perfectly on
+    axis, and `steer` would correct a real orbit towards that fiction;
+    `valid=False` makes it skip that BPM entirely, which is the truth.
+
+    **Caveat for when they come back.** CATAP's `BPM` offers `x` and `y` but no
+    charge or data-quality flag, so a *stale* reading — a BPM still publishing
+    the last position it saw after the beam went away — is indistinguishable
+    from a live one here. If that turns out to happen, the electrode sums
+    (`north`/`south`/`east`/`west`) are the thing to threshold on.
     """
-    return 0.0, 0.0, False
+    bpm = _factory("bpm").get_bpm(_catap_name(bpm_name))
+    if bpm is None:
+        return 0.0, 0.0, False
+    x, y = bpm.x, bpm.y
+    if x is None or y is None:
+        return 0.0, 0.0, False          # not connected
+    x, y = float(x), float(y)
+    if not (np.isfinite(x) and np.isfinite(y)):
+        return 0.0, 0.0, False
+    # CATAP reports BPM position in mm; everything above this line is metres.
+    return x / 1000.0, y / 1000.0, True
 
 
 # ---------------------------------------------------------------- charge
+
+
+_charge_warning_given = False
+
+
+def _charge(monitor: str) -> float | None:
+    """Charge at one monitor, or None if it cannot be read."""
+    try:
+        device = _factory("charge").get_charge_diagnostic(_catap_name(monitor))
+    except Exception:
+        return None                      # CATAP does not have this one
+    if device is None:
+        return None
+    value = getattr(device, "q", None)
+    if value is None or not np.isfinite(float(value)):
+        return None
+    return float(value)
 
 
 def GET_REAL_TRANSMISSION() -> float:
@@ -490,10 +592,35 @@ def GET_REAL_TRANSMISSION() -> float:
     decoration: a tune that delivers a beautiful spot with a third of the charge
     scores worse than a mediocre spot with all of it.
 
-    TODO: the intended measure is the ratio of `CLA-ICT-FEH-01:Q` at the end to
-    `CLA-SP1-DIA-FCUP-01:Q` at the start. It is not wired up, so this returns 1.0
-    and the score loses its transmission term — which means a tune that throws
-    charge away is scored as though it did not. Everything else works without
-    it; this is the one number still missing.
+    The ratio of charge at `READOUT_CHARGE_MONITOR` to charge at
+    `UPSTREAM_CHARGE_MONITOR`. Units cancel, so it does not matter whether CATAP
+    reports pC or nC, as long as both monitors agree — which they should, being
+    the same kind of measurement.
+
+    **This currently falls back to 1.0, and the reason is worth knowing.**
+    `CLA-FEH-DIA-ICT-01` is in the lattice but is not in CATAP's charge factory,
+    so there is nothing to read at the FEBE end. Returning 1.0 means the score
+    loses its transmission term: a tune that throws charge away is scored as
+    though it did not, and will look better than it is. Everything else works
+    without it. The warning is printed once per session rather than per shot.
     """
-    return 1.0
+    global _charge_warning_given
+
+    launched = _charge(UPSTREAM_CHARGE_MONITOR)
+    arrived = _charge(READOUT_CHARGE_MONITOR)
+
+    if launched is None or arrived is None or launched <= MIN_CHARGE:
+        if not _charge_warning_given:
+            _charge_warning_given = True
+            missing = [name for name, value in
+                       ((UPSTREAM_CHARGE_MONITOR, launched),
+                        (READOUT_CHARGE_MONITOR, arrived)) if value is None]
+            reason = (f"{', '.join(missing)} cannot be read" if missing
+                      else f"{UPSTREAM_CHARGE_MONITOR} reports no beam "
+                           f"({launched})")
+            print(f"  WARNING: transmission is not being measured — {reason}. "
+                  f"Reporting 1.0, so the score will not charge for lost "
+                  f"charge and every tune will look better than it is.")
+        return 1.0
+
+    return float(np.clip(arrived / launched, 0.0, 1.0))
