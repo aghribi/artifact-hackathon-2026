@@ -9,7 +9,9 @@ class RLConfig:
     # own machine is one line away as `RLConfig.clara()`.
     spec: Any = None
 
-    # Path to the cheetah lattice JSON (RealEnv)
+    # Legacy. Both environments take their lattice, beam and magnet ranges from
+    # the `MachineSpec` above; these two are still read by `train.py`, which uses
+    # `magnet_config` to pick the magnets a policy is trained on.
     lattice_path: str = "FEBE_full.json"
 
     # Beam factory parameters (Twiss + energy + charge)
@@ -36,9 +38,10 @@ class RLConfig:
     # Episode length before truncation
     max_episode_steps: int = 100
 
-    # ---------------- nominal xsuite model (SimEnv only) ---------------- #
-    # Everything below describes the model in `nominal_model/`, which SimEnv tracks
-    # through. `lattice_path`, `beam` and `magnet_config` above are for RealEnv.
+    # ---------------- the simulation ---------------- #
+    # Everything below from `num_particles` to `power_supply_ripple` describes a
+    # tracked beam and so is `SimEnv` only; the rest — screens, limits, target,
+    # reward — is read by both environments.
 
 
 

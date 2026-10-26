@@ -193,40 +193,56 @@ class Machine:
         return self.shots + self.screen_switches * SCREEN_SWITCH_SECONDS
 
 
-# ---------------------------------------------------------------- SimEnv
+# ------------------------------------------------- SimEnv and the real thing
 
 
-class SimEnvMachine(Machine):
-    """CLARA as `RL_framework` deals it, scored by the benchmark."""
+def _path_setup() -> None:
+    here = Path(__file__).resolve().parent
+    for extra in (here.parent, here.parent / "RL_framework"):
+        if str(extra) not in sys.path:
+            sys.path.insert(0, str(extra))
 
-    def __init__(self, spec: MachineSpec, seed: int = 0, config=None):
+
+def _config_for(spec: MachineSpec, config):
+    """A config that describes *this* spec, or an error saying why it cannot.
+
+    Defaulting to CLARA here meant `optimise.py --spec machines/clear.json`
+    tuned CLARA and said nothing: the caller had to pass the spec a second
+    time, through the config, and the two could disagree without complaint.
+    """
+    from rl_framework.config import RLConfig
+
+    if config is None:
+        return RLConfig(spec=spec)
+    if config.spec is None:
+        return replace(config, spec=spec)
+    if config.spec is not spec and config.machine_spec().name != spec.name:
+        raise ValueError(
+            f"this machine was given the spec {spec.name!r} but a config for "
+            f"{config.machine_spec().name!r}; they must be the same machine"
+        )
+    return config
+
+
+class EnvMachine(Machine):
+    """A `Machine` driven through the `SimEnv`/`RealEnv` interface.
+
+    All of the driving is here, because the two environments present the same
+    actions, observations and `info` — which is the whole point of them sharing
+    `BaseAcceleratorEnv`. A subclass only has to build the environment and take
+    the first reading.
+    """
+
+    def __init__(self, spec: MachineSpec) -> None:
         super().__init__()
-        here = Path(__file__).resolve().parent
-        for extra in (here.parent, here.parent / "RL_framework"):
-            if str(extra) not in sys.path:
-                sys.path.insert(0, str(extra))
-        from rl_framework.config import RLConfig
-        from rl_framework.envs.sim_env import SimEnv
-
         self.spec = spec
-        # The environment simulates *this* spec. Defaulting to CLARA here meant
-        # `optimise.py --spec machines/clear.json` tuned CLARA and said nothing:
-        # the caller had to pass the spec a second time, through the config, and
-        # the two could disagree without complaint.
-        if config is None:
-            config = RLConfig(spec=spec)
-        elif config.spec is None:
-            config = replace(config, spec=spec)
-        elif config.spec is not spec and config.machine_spec().name != spec.name:
-            raise ValueError(
-                f"this machine was given the spec {spec.name!r} but a config for "
-                f"{config.machine_spec().name!r}; they must be the same machine"
-            )
-        self.env = SimEnv(config)
-        observation, info = self.env.reset(seed=seed)
+
+    def _adopt(self, env, observation, info) -> None:
+        """Take up an environment that has been reset and is ready to read."""
+        self.env = env
         self.target = np.asarray(observation["target"], dtype=float)
         self.diagnostics = list(self.env.bpm_names)
-        self.knob_names = _knob_names(spec, self.env)
+        self.knob_names = _knob_names(self.spec, self.env)
         self.limits = {n: tuple(self.env.magnet_limits[n]) for n in self.knob_names}
         self._settings = {
             n: float(self.env._knobs[n].value) for n in self.knob_names
@@ -289,6 +305,61 @@ class SimEnvMachine(Machine):
         )
         self.history.append(reading)
         return reading
+
+
+class SimEnvMachine(EnvMachine):
+    """CLARA as `RL_framework` deals it, scored by the benchmark."""
+
+    def __init__(self, spec: MachineSpec, seed: int = 0, config=None):
+        super().__init__(spec)
+        _path_setup()
+        from rl_framework.envs.sim_env import SimEnv
+
+        env = SimEnv(_config_for(spec, config))
+        # `reset` returns a full info dictionary, so the starting reading is a
+        # real one and costs no shot.
+        self._adopt(env, *env.reset(seed=seed))
+
+
+class RealMachine(EnvMachine):
+    """The actual accelerator, through `RealEnv`.
+
+        machine = RealMachine(spec, target=(0.0, 0.0, 266e-6, 150e-6))
+
+    Identical to `SimEnvMachine` from a tuning method's point of view, which is
+    the point: `steer` and the rest cannot tell them apart, so what they do on
+    the machine is what they were measured doing in simulation.
+
+    There is no seed. `RealEnv.reset()` draws nothing and moves nothing — it
+    reads the machine as found — so an episode is not reproducible and should
+    not pretend to be. `target` is required, because a real machine is being
+    asked for something specific.
+    """
+
+    def __init__(self, spec: MachineSpec, target=None, config=None,
+                 hardware=None):
+        super().__init__(spec)
+        _path_setup()
+        from rl_framework.envs.real_env import RealEnv
+
+        config = _config_for(spec, config)
+        if target is not None:
+            config = replace(config, target=tuple(float(v) for v in target))
+        if config.target is None:
+            raise ValueError(
+                "RealMachine needs a target: (mu_x, mu_y, sigma_x, sigma_y) in "
+                "metres off the readout's centre. Pass `target=` or set it on "
+                "the config."
+            )
+        env = (RealEnv(config) if hardware is None
+               else RealEnv(config, hardware=hardware))
+        self._adopt(env, *env.reset())
+
+    @property
+    def machine_seconds(self) -> float:
+        """What this episode cost, with the machine's own switch time."""
+        return (self.shots
+                + self.screen_switches * self.env.screen_switch_seconds)
 
 
 def _knob_names(spec: MachineSpec, env) -> list[str]:

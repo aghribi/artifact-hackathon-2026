@@ -1,8 +1,13 @@
 import os
 import csv
-import h5py
 import numpy as np
 import torch
+
+# h5py is imported where it is used, in the capture-file walk below. Computing
+# image moments does not need an HDF5 library, and importing one at module level
+# meant `image_center_and_deviation` could not be called at all on a machine
+# without h5py installed — which is every machine that only wants to measure a
+# spot, including the offline tests of RealEnv.
 
 # base_folder = "test_folder"
 base_folder = "/lustre/work/pdl18409/shared/data/optimisation/raw/var/lib/docker/volumes/shared-data/_data/claraserv3/2026/3/30"
@@ -167,6 +172,8 @@ def main():
                     # file_found = True
                     # Extract data
                     try:
+                        import h5py
+
                         with h5py.File(os.path.join(current_dir, file), "r") as f:
                             for key in f.keys():
                                 centers, deviation = treat_file(f[key][:], camera_conversions[camera_conversion])

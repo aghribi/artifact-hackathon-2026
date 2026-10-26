@@ -38,14 +38,24 @@ from machines import SimEnvMachine  # noqa: E402
 from methods import METHODS, OutOfShots, Session  # noqa: E402
 
 
-def build_machine(spec: MachineSpec, seed: int):
-    return SimEnvMachine(spec, seed=seed)
+def build_machine(spec: MachineSpec, seed: int, target=None):
+    """The simulation, or CLARA itself when a request is named.
+
+    `target` is what makes it real: a simulated episode draws its own request
+    every reset, and a real one is being asked for something specific. There is
+    no seed on the machine — nothing about it is ours to draw.
+    """
+    if target is None:
+        return SimEnvMachine(spec, seed=seed)
+    from machines import RealMachine
+
+    return RealMachine(spec, target=target)
 
 
 def run(spec: MachineSpec, family: Family, method: str, seed: int,
-        budget: int, say=print) -> dict:
+        budget: int, say=print, target=None) -> dict:
     began = time.perf_counter()
-    machine = build_machine(spec, seed)
+    machine = build_machine(spec, seed, target)
     session = Session(machine, family, spec, budget=budget)
     start = machine.last
 
@@ -106,7 +116,23 @@ def main() -> None:
                         help="shots the method may take")
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--json", type=Path, default=None)
+    parser.add_argument(
+        "--real", action="store_true",
+        help="tune the actual machine through RealEnv instead of simulating it; "
+             "requires --target, and moves real magnets",
+    )
+    parser.add_argument(
+        "--target", type=float, nargs=4, default=None,
+        metavar=("MU_X", "MU_Y", "SIGMA_X", "SIGMA_Y"),
+        help="what to ask the beam for, in metres off the readout's centre",
+    )
     args = parser.parse_args()
+
+    if args.real and args.target is None:
+        parser.error(
+            "--real needs --target: a real machine is being asked for something "
+            "specific, and there is no distribution to draw a request from."
+        )
 
     torch.set_num_threads(args.threads)
     spec = MachineSpec.load(args.spec)
@@ -117,7 +143,18 @@ def main() -> None:
         print(f"  warning: this family was built for "
               f"{family.provenance.get('spec')!r}, not {spec.name!r}")
 
-    result = run(spec, family, args.method, args.seed, args.budget)
+    if args.real:
+        # Said out loud, because the next thing that happens is a power supply
+        # moving. The optics stage writes every knob of the family on shot one.
+        mu_x, mu_y, sigma_x, sigma_y = args.target
+        print(f"\n  THE REAL MACHINE: {spec.name}, readout {spec.readout}")
+        print(f"  asking for {sigma_x * 1e6:.0f} x {sigma_y * 1e6:.0f} um at "
+              f"({mu_x * 1e3:+.2f}, {mu_y * 1e3:+.2f}) mm")
+        print(f"  {args.method} may take up to {args.budget} shots and will "
+              f"set magnets from the first one.")
+
+    result = run(spec, family, args.method, args.seed, args.budget,
+                 target=args.target if args.real else None)
     if args.json:
         import json
 

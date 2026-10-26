@@ -3,15 +3,19 @@ from stable_baselines3 import PPO
 
 from rl_framework.config import RLConfig
 from rl_framework.envs.real_env import RealEnv
+from rl_framework.wrappers import SB3Wrapper
 
 
 def deploy(
     config: RLConfig,
     model_path: str,
     episodes: int = 5,
-    virtual: bool = False,
 ):
-    env = RealEnv(config, virtual=virtual)
+    # The same wrapper `train.py` trains through. Without it the policy is handed
+    # a dictionary observation it was never trained on — `RealEnv` and `SimEnv`
+    # present the same interface now, and a policy trained on one has to meet the
+    # other through the same view of it.
+    env = SB3Wrapper(RealEnv(config))
     model = PPO.load(model_path)
 
     for ep in range(episodes):
@@ -34,5 +38,7 @@ def deploy(
 
 
 if __name__ == "__main__":
-    cfg = RLConfig.clara()
-    deploy(cfg, model_path="models/ppo_accelerator_final.zip", virtual=True)
+    # `RealEnv` needs to be told what the beam is being asked for: it does not
+    # draw a request, because a real machine is not being asked for a random one.
+    cfg = RLConfig.clara(target=(0.0, 0.0, 266e-6, 150e-6))
+    deploy(cfg, model_path="models/ppo_accelerator_final.zip")

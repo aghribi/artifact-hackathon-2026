@@ -1,90 +1,252 @@
+"""CLARA itself, behind the same interface as the simulation.
+
+    env = RealEnv(RLConfig(spec="machines/clara_febe_no_bpms.json",
+                           target=(0.0, 0.0, 266e-6, 150e-6)))
+
+Same actions, same observations, same `info`, same score as `SimEnv` — so the
+tuners in `Refined/` drive this without knowing which one they have, and the
+numbers they report are comparable with the simulated ones rather than merely
+similar. Everything shared lives in `base_env.py`; what is here is the four
+things a real machine does differently:
+
+- magnets are set and read through the control system, not a tracker;
+- a screen is a mechanism that takes half a minute to move, not an index;
+- a camera frame has to be turned into four numbers, as `screen.measure` does;
+- there is no new machine to draw at `reset()`, so it does not draw one.
+
+**Every point where a real value is written or read is a placeholder** in
+`hardware.py`, raising `NotImplementedError` until populated. Nothing here
+imports CATAP or EPICS, so this module is importable and testable with no
+control network present — pass `hardware=` a substitute to exercise it.
+
+**`reset()` never moves a magnet.** It takes one reading and leaves the tune
+exactly as it found it: the machine you walk up to is the starting point, which
+is both the safe behaviour and the honest one, since the survey error and the
+beam a simulation would redraw are not ours to choose. The consequence is that
+`config.target` must say what the beam is being asked for — there is no
+distribution to sample a request from on a real machine.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Any, Sequence
+
 import numpy as np
-import requests
-import time
-from CATAP.magnet import MagnetFactory, Magnet
-from CATAP.diagnostics.screen import ScreenFactory, Screen
-from CATAP.diagnostics.camera import CameraFactory, Camera
- 
+
 from rl_framework.config import RLConfig
-from rl_framework.envs.base_env import BaseAcceleratorEnv
- 
-import os
- 
-def _convert_value_to_current(magnet_name: str, value: float, momentum: float = 250.0) -> float:
+from rl_framework.envs import hardware as _hardware
+from rl_framework.envs.base_env import BaseAcceleratorEnv, Transport
+
+# `screen.measure` turns a camera frame into (mu_x, mu_y, sigma_x, sigma_y) in
+# metres, using the measure written for real CLARA captures. Imported lazily, in
+# `_measure_frame`, because it pulls in `image_processing` and h5py: a machine
+# without those should still be able to import `RealEnv` and read this file.
+_CHALLENGE = Path(__file__).resolve().parents[3]
+
+
+class HardwareTransport(Transport):
+    """Magnets as the control system has them, in native lattice units.
+
+    Readbacks are cached for the duration of a shot. Without that, one `info`
+    dictionary costs a control-system read per magnet — 109 of them on CLARA,
+    every shot, to answer a question the optimiser asks once.
     """
-    Convert a native magnet value (k1 for quads, angle for correctors) to
-    a current via the REST API at dsastvx10.dl.ac.uk:8001.
-    """
-    resp = requests.post(
-        url="http://dsastvx10.dl.ac.uk:8001/magnet/convert",
-        json={"current": value, "magnet_name": magnet_name, "momentum": momentum},
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    return float(data["K"])
- 
- 
+
+    name = "hardware"
+
+    def __init__(self, hardware=_hardware):
+        self._hw = hardware
+        self._cache: dict[tuple[str, str], float] = {}
+        self._pending: list[str] = []
+
+    def invalidate(self) -> None:
+        """Forget the readbacks. Called once per acquisition."""
+        self._cache.clear()
+
+    def read(self, element: str, prop: str) -> float:
+        key = (element, prop)
+        if key not in self._cache:
+            self._cache[key] = float(self._hw.GET_REAL_MAGNET_POWER(element))
+        return self._cache[key]
+
+    def write(self, element: str, prop: str, value: float,
+              follow: Sequence[str] = ()) -> None:
+        """Set a magnet in native units.
+
+        `follow` is a pole face that turns with a chicane's body angle. On a
+        model those are separate attributes to write; on the machine the iron
+        does it, so there is nothing to send — the face is not independently
+        powered. Writing it would mean inventing a supply that does not exist.
+        """
+        self._hw.SET_REAL_MAGNET_POWER(element, float(value))
+        self._cache[(element, prop)] = float(value)
+        self._pending.append(element)
+
+    def settle(self) -> None:
+        """Block until everything written since the last shot has got there."""
+        if self._pending:
+            self._hw.WAIT_FOR_MAGNETS_SETTLED(list(dict.fromkeys(self._pending)))
+            self._pending.clear()
+            # What was asked for is not what the supplies ended up at.
+            self._cache.clear()
+
+
 class RealEnv(BaseAcceleratorEnv):
-    """
-    Real-machine environment using CATAP for hardware magnets and screens.
-    """
- 
-    def __init__(self, config: RLConfig, virtual: bool = False):
+    """The machine, scored exactly as the simulation is."""
+
+    def __init__(self, config: RLConfig, hardware=_hardware):
+        # Checked before anything else, so a missing request fails on the way in
+        # rather than after the construction has read half the control system.
+        if config.target is None:
+            raise ValueError(
+                "RealEnv needs `config.target`: (mu_x, mu_y, sigma_x, sigma_y) in "
+                "metres off the readout's centre. A simulation draws a request "
+                "every episode from `score.sample_target`; a real machine is being "
+                "asked for something specific, and nothing here should guess what."
+            )
+        self._hw = hardware
+        # Which screen is physically in the beam. None until we have put one
+        # there: we cannot know what an operator left inserted, so the first
+        # acquisition inserts the readout explicitly rather than assuming.
+        self._inserted: str | None = None
         super().__init__(config)
-        if virtual:
-            os.environ["EPICS_CA_ADDR_LIST"] = "192.168.83.246"
-            os.environ["EPICS_CA_SERVER_PORT"] = "6040"
-            os.environ["EPICS_CA_AUTO_ADDR_LIST"] = "NO"
-            os.environ["EPICS_CA_MAX_ARRAY_BYTES"] = "1000000"
-        self._virtual = virtual
-        self._magnet_factory = MagnetFactory(is_virtual=virtual)
-        self._screen_factory = ScreenFactory(is_virtual=virtual)
-        self._cam_factory = CameraFactory(is_virtual=virtual)
-        print(virtual)
-        # Build lookup: magnet name -> CATAP Magnet object
-        self._catap_magnets: dict[str, Magnet] = {}
-        for name in self._magnet_names:
-            "cla_s04_mag_hvcor_01_h"
-            claraname = name.replace("_","-").upper()
-            if claraname[-2:] == "-H":
-                claraname = claraname.replace("HVCOR","HCOR")[:-2]
-            elif claraname[-2:] == "-V":
-                claraname = claraname.replace("HVCOR","VCOR")[:-2]
-            self._catap_magnets[name] = self._magnet_factory.get_magnet(claraname)
- 
-        # Build lookup: screen name -> CATAP Screen object
-        self._catap_screens: dict[str, Screen] = {}
-        self._catap_cams: dict[str, Camera] = {}
-        scr_name = config.target_screen
-        claraname = scr_name.replace("_","-").upper()
-        self._catap_screens[scr_name] = self._screen_factory.get_screen(claraname)
-        self._catap_cams[scr_name] = self._cam_factory.get_camera(self._catap_screens[scr_name].camera_name.replace("SCR","CAM"))
- 
-    def _hard_reset(self) -> np.ndarray:
-        # Reset all magnets to zero current
-        for name, magnet in self._catap_magnets.items():
-            magnet.seti = (0.0)
+
+        self._acquire()
+        self._scored = self._readings["stats"]
+        self._scored_transmission = self._readings["transmission"]
+
+    # ---------- what the base class asks for ----------
+
+    def _make_transport(self) -> HardwareTransport:
+        return HardwareTransport(self._hw)
+
+    def _extent_of(self, name: str) -> tuple[float, float, float, float]:
+        """What the camera actually sees, in metres. Required, not inferred.
+
+        Asked for every diagnostic including the BPMs, which have no chip; they
+        answer with the model's zeros and nothing reads it.
+        """
+        if name not in self.screen_names:
+            return self._diagnostics[name].extent
+        extent = self._hw.GET_REAL_SCREEN_EXTENT(name)
+        if extent is None or len(tuple(extent)) != 4:
+            raise ValueError(
+                f"GET_REAL_SCREEN_EXTENT({name!r}) must return "
+                f"(x_min, x_max, y_min, y_max) in metres, got {extent!r}"
+            )
+        return tuple(float(v) for v in extent)
+
+    def _hard_reset(self) -> dict[str, Any]:
+        """Start an episode without touching the machine.
+
+        No magnet is written and nothing is restored: the tune in force is the
+        starting point. The only state reset is the shot counter, which the base
+        class has already done, and the request, which comes from the config.
+        """
+        self.target = self._draw_target()  # `config.target`, required above
+        self.target_screen = self.scored_screen
+        self._acquire()
+        self._scored = self._readings["stats"]
+        self._scored_transmission = self._readings["transmission"]
         return self._get_obs()
- 
-    def _apply_action(self, native_values: np.ndarray):
-        #TODO: handle splitting combined corrector values into horizontal and vertical components
-        for i, name in enumerate(self._magnet_names):
-            native_val = float(native_values[i])
-            magnet = self._catap_magnets[name]
-            current = _convert_value_to_current(name, native_val)
-            magnet.seti = (current)
- 
-    def _get_screen_statistics(self, screen_name: str) -> tuple[float, float, float, float, bool]:
-        screen:Screen = self._catap_screens[screen_name]
-        if(not self._virtual and not screen.is_screen_in):
-            screen.insert_yag()
-            time.sleep(5)
-            while screen.moving:
-                print("waiting for screen to stop moving...")
-                time.sleep(1) 
-        cam:Camera = self._catap_cams[screen_name]
-        if(not cam.is_acquiring):
-            cam.start_acquiring()
-        reading = cam.get_array_data()  # expected shape matches cheetah convention
-        # TODO: look at getting stats with camera analysis? there's a bunch of catap functions for that
-        return self._read_screen_stats(reading)
+
+    def _acquire(self) -> None:
+        """One shot: settle the magnets, put the right screen in, and read."""
+        self.transport.settle()
+        self.transport.invalidate()
+        self._select_screen(self._target_screen)
+
+        image = np.asarray(self._hw.GET_REAL_SCREEN_IMAGE(self._target_screen),
+                           dtype=float)
+        extent = self.screen_extent()
+        stats, fraction = self._measure_frame(image, extent)
+        transmission = float(np.clip(self._hw.GET_REAL_TRANSMISSION(), 0.0, 1.0))
+
+        count = len(self.bpm_names)
+        bpm_x, bpm_y = np.zeros(count), np.zeros(count)
+        bpm_valid = np.zeros(count, dtype=np.int8)
+        for slot, name in enumerate(self.bpm_names):
+            x, y, valid = self._hw.GET_REAL_BPM_READING(name)
+            bpm_x[slot], bpm_y[slot], bpm_valid[slot] = float(x), float(y), bool(valid)
+
+        self._readings = {
+            "bpm_x": bpm_x,
+            "bpm_y": bpm_y,
+            "bpm_valid": bpm_valid,
+            "image": self._rebin(image),
+            "on_screen_fraction": fraction,
+            "stats": stats,
+            "transmission": transmission,
+        }
+
+    # ---------- the parts that are mechanical ----------
+
+    def _select_screen(self, screen: str) -> None:
+        """Put `screen` in the beam, taking out whatever was there.
+
+        Only one may be in at a time. Doing nothing when it is already in is the
+        whole reason `Refined` can steer on screens affordably — the common case
+        is that the beam is already on the readout and no mechanism moves.
+        """
+        if self._inserted == screen:
+            return
+        if self._inserted is not None:
+            self._hw.RETRACT_REAL_SCREEN(self._inserted)
+            self._hw.WAIT_FOR_SCREEN_SETTLED(self._inserted)
+        self._hw.INSERT_REAL_SCREEN(screen)
+        self._hw.WAIT_FOR_SCREEN_SETTLED(screen)
+        self._inserted = screen
+
+    def _measure_frame(self, image: np.ndarray, extent):
+        """A camera frame as (mu_x, mu_y, sigma_x, sigma_y, on_screen), in metres.
+
+        `MBRL_opt/screen.py` already does this, with the measure written for real
+        CLARA captures and the corrections it needs — the half-pixel corner bias
+        and a background floor, without which the dark half of the chip drags the
+        spot wider than it is. Using it here is the point: the agent is driven by
+        the same quantity on the machine as in simulation.
+        """
+        if str(_CHALLENGE / "MBRL_opt") not in sys.path:
+            sys.path.insert(0, str(_CHALLENGE / "MBRL_opt"))
+        from screen import measure  # noqa: PLC0415 — see the module docstring
+
+        reading = measure(image, extent)
+        if not reading.ok:
+            return (0.0, 0.0, 0.0, 0.0, False), 0.0
+        # How much of the frame's light is inside the chip is not a thing a
+        # camera can answer — what fell off the edge was never recorded. The
+        # charge that failed to arrive is `GET_REAL_TRANSMISSION`'s business, and
+        # it is what the score charges for; this stays 1.0 so the two are not
+        # counted twice.
+        return (*reading.moments, True), 1.0
+
+    def _rebin(self, image: np.ndarray) -> np.ndarray:
+        """The camera frame on the observation's fixed grid.
+
+        `config.screen_shape` is part of the observation space, and a real camera
+        is whatever resolution it is, so the frame is summed into that grid the
+        way `SimEnv` histograms its particles into it. The moments are taken from
+        the *full* frame above, not from this, so nothing is lost to the binning.
+        """
+        rows, columns = self._shape
+        if image.shape == (rows, columns):
+            binned = image.astype(float)
+        else:
+            source_rows, source_columns = image.shape
+            row_edges = (np.arange(rows + 1) * source_rows) // rows
+            column_edges = (np.arange(columns + 1) * source_columns) // columns
+            binned = np.add.reduceat(
+                np.add.reduceat(image.astype(float), row_edges[:-1], axis=0),
+                column_edges[:-1], axis=1,
+            )
+        if self.config.normalise_image and binned.max() > 0:
+            binned = binned / binned.max()
+        return binned
+
+    # ---------- what a simulation has and a machine does not ----------
+
+    @property
+    def screen_switch_seconds(self) -> float:
+        return _hardware.SCREEN_SWITCH_SECONDS
