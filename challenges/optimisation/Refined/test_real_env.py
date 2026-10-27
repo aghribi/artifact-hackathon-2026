@@ -340,13 +340,31 @@ def test_clara_driver_offline() -> None:
         ("cla_vbc_mag_dip_01", utils.dipole_current_from_angle,
          utils.dipole_angle_from_current, (0.1, -0.1)),
     ):
-        catap = clara._catap_name(name)
+        catap, p = clara._catap_name(name), clara._momentum(name)
         for value in values:
-            back = inverse(catap, forward(catap, value, clara.BEAM_MOMENTUM_MEVC),
-                           clara.BEAM_MOMENTUM_MEVC)
+            back = inverse(catap, forward(catap, value, p), p)
             worst = max(worst, abs(back - value) / abs(value))
     check("strength -> current -> strength round-trips", worst < 1e-9,
           f"worst relative error {worst:.1e}")
+
+    # Momentum is per section, not one number: the linacs accelerate, so S02 is
+    # 32.8 MeV/c and FEBE is 250. Using a single value would have set every S02
+    # magnet about seven times too strong, with no symptom but a mistuned
+    # machine.
+    unknown = [s for s in supplies
+               if clara._kind(s) != "cavity" and s[4:7] not in utils.beam_energy]
+    check("every magnet has a reference momentum", not unknown,
+          f"sections {sorted({s[4:7] for s in supplies if clara._kind(s) != 'cavity'})}"
+          if not unknown else f"no energy for {sorted({s[4:7] for s in unknown})}")
+    low = clara._momentum("cla_s02_mag_quad_01")
+    high = clara._momentum("cla_feh_mag_quad_01")
+    check("and it varies along the machine, as it must",
+          high > 5 * low, f"S02 {low} MeV/c against FEH {high} MeV/c")
+    # The same table the Cheetah model converts with. If these two ever part
+    # company, the tuner plans in one set of units and applies in another.
+    check("it is the table the model itself uses",
+          clara._momentum("cla_s04_mag_quad_01") == utils.beam_energy["s04"],
+          "shared with utils.update_cheetah_element")
 
 
 def test_screen_switching() -> None:

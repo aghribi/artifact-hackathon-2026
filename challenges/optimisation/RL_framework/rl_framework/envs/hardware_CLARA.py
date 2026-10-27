@@ -53,6 +53,7 @@ _LATTICE_DATA = Path(__file__).resolve().parents[3] / "data" / "clara" / "lattic
 if str(_LATTICE_DATA) not in sys.path:
     sys.path.insert(0, str(_LATTICE_DATA))
 from utils import (  # noqa: E402
+    beam_energy,
     corrector_angle_from_current,
     corrector_current_from_angle,
     dipole_angle_from_current,
@@ -68,14 +69,35 @@ from utils import (  # noqa: E402
 # why `Refined` counts switches separately from shots.
 SCREEN_SWITCH_SECONDS = 30.0
 
-# Beam momentum, MeV/c. Every current conversion needs it, and getting it wrong
-# scales every magnet by the same factor — which looks like a perfectly healthy
-# machine that is simply mistuned, so it is worth being sure of.
-#
-# TODO: confirm this and, better, read it. 250 MeV/c is CLARA FEBE's design
-# value and what `RLConfig.beam["energy"]` carries, but the machine is not
-# always at its design energy and nothing here would notice.
-BEAM_MOMENTUM_MEVC = 250.0
+def _momentum(name: str) -> float:
+    """Reference momentum at a magnet, MeV/c.
+
+    **Not one number for the machine.** The linacs accelerate, so the beam is
+    32.8 MeV/c at S02 and 250 at FEBE — a factor of seven. A single constant
+    would have set every S02 magnet about seven times too strong, and the
+    symptom is a machine that looks healthy and is simply mistuned.
+
+    `utils.beam_energy` is the per-section table the Cheetah model is built
+    from, keyed by the section code in the element name, and
+    `utils.update_cheetah_element` keys it exactly this way. Using the same
+    table is the point rather than a convenience: the tuner plans against the
+    model and applies through here, so if the two disagreed about the momentum
+    at a magnet the difference would appear as model error that no amount of
+    tuning could remove.
+
+    Cross-checked against the virtual accelerator's tracked momentum, which it
+    reports per element: the table agrees to within 8 % everywhere. It is a
+    *reference* energy, so that is about what one would expect; it is not a
+    measurement of today's machine.
+    """
+    section = name[4:7]
+    try:
+        return float(beam_energy[section])
+    except KeyError:
+        raise KeyError(
+            f"no reference energy for section {section!r} (from {name!r}). "
+            f"`utils.beam_energy` has {sorted(beam_energy)}."
+        ) from None
 
 # How long to wait for mechanisms before giving up, in seconds. A bare
 # `while thing.moving:` is an infinite loop the first time a status PV sticks,
@@ -258,7 +280,8 @@ def SET_REAL_MAGNET_POWER(magnet_name: str, value: float) -> None:
     }[kind]
     # The calibration tables are keyed by CATAP's name, and normalise case and
     # separators themselves — so the plane-resolved name is what they want.
-    current = convert(_catap_name(magnet_name), float(value), BEAM_MOMENTUM_MEVC)
+    current = convert(_catap_name(magnet_name), float(value),
+                      _momentum(magnet_name))
     if not np.isfinite(current):
         raise ValueError(
             f"{magnet_name}: {value} gives a current of {current}. The "
@@ -305,7 +328,7 @@ def GET_REAL_MAGNET_POWER(magnet_name: str) -> float:
         "sextupole": sextupole_k2_from_current,
     }[kind]
     return float(convert(_catap_name(magnet_name), float(current),
-                         BEAM_MOMENTUM_MEVC))
+                         _momentum(magnet_name)))
 
 
 def WAIT_FOR_MAGNETS_SETTLED(magnet_names: list[str]) -> None:
