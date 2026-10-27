@@ -38,7 +38,7 @@ from machines import SimEnvMachine  # noqa: E402
 from methods import METHODS, OutOfShots, Session  # noqa: E402
 
 
-def build_machine(spec: MachineSpec, seed: int, target=None):
+def build_machine(spec: MachineSpec, seed: int, target=None, hardware=None):
     """The simulation, or CLARA itself when a request is named.
 
     `target` is what makes it real: a simulated episode draws its own request
@@ -49,13 +49,13 @@ def build_machine(spec: MachineSpec, seed: int, target=None):
         return SimEnvMachine(spec, seed=seed)
     from machines import RealMachine
 
-    return RealMachine(spec, target=target)
+    return RealMachine(spec, target=target, hardware=hardware)
 
 
 def run(spec: MachineSpec, family: Family, method: str, seed: int,
-        budget: int, say=print, target=None) -> dict:
+        budget: int, say=print, target=None, hardware=None) -> dict:
     began = time.perf_counter()
-    machine = build_machine(spec, seed, target)
+    machine = build_machine(spec, seed, target, hardware)
     session = Session(machine, family, spec, budget=budget)
     start = machine.last
 
@@ -126,6 +126,12 @@ def main() -> None:
         metavar=("MU_X", "MU_Y", "SIGMA_X", "SIGMA_Y"),
         help="what to ask the beam for, in metres off the readout's centre",
     )
+    parser.add_argument(
+        "--hardware", default="hardware_CLARA",
+        help="which control-system module --real drives through. The default "
+             "is CATAP; 'hardware' is the bare placeholder module, which "
+             "raises on the first shot and touches nothing.",
+    )
     args = parser.parse_args()
 
     if args.real and args.target is None:
@@ -152,9 +158,23 @@ def main() -> None:
               f"({mu_x * 1e3:+.2f}, {mu_y * 1e3:+.2f}) mm")
         print(f"  {args.method} may take up to {args.budget} shots and will "
               f"set magnets from the first one.")
+        print(f"  through {args.hardware}")
 
-    result = run(spec, family, args.method, args.seed, args.budget,
-                 target=args.target if args.real else None)
+    try:
+        result = run(spec, family, args.method, args.seed, args.budget,
+                     target=args.target if args.real else None,
+                     hardware=args.hardware if args.real else None)
+    except (RuntimeError, NotImplementedError, KeyError, ValueError) as stop:
+        if not args.real:
+            raise
+        # The person running this against a machine is an operator, not the
+        # author of the control-system driver, and a traceback tells them
+        # nothing they can act on. The message does: every one of these is
+        # raised deliberately, by name, from the hardware layer.
+        print(f"\n  stopped: {stop}")
+        print(f"  nothing further was set. The tune in force is whatever the "
+              f"last completed shot left.")
+        raise SystemExit(1)
     if args.json:
         import json
 

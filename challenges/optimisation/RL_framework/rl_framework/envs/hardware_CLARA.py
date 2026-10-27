@@ -43,8 +43,8 @@ import numpy as np
 USE_VIRTUAL = True
 
 if USE_VIRTUAL:
-    os.environ["EPICS_CA_ADDR_LIST"] = "172.18.0.8"
-    os.environ["EPICS_CA_SERVER_PORT"] = "6090"
+    os.environ["EPICS_CA_ADDR_LIST"] = "192.168.83.246"
+    os.environ["EPICS_CA_SERVER_PORT"] = "6040"
     os.environ["EPICS_CA_AUTO_ADDR_LIST"] = "NO"
     os.environ["EPICS_CA_MAX_ARRAY_BYTES"] = "1000000"
 
@@ -459,7 +459,22 @@ def GET_REAL_SCREEN_IMAGE(screen_name: str) -> np.ndarray:
         camera.start_acquiring()
         time.sleep(1.0)  # let a frame arrive before asking for one
 
-    frame = np.asarray(camera.get_array_data(), dtype=float)
+    try:
+        raw = camera.get_array_data()
+    except Exception as error:
+        # CATAP raises a bare "not acquiring" from inside the getter, naming the
+        # camera but not the screen, and giving no hint that the request is
+        # unanswerable rather than merely slow. Both of those matter when this
+        # happens on shot one of an episode.
+        raise RuntimeError(
+            f"no image from {screen_name} (camera {camera.name}): {error}. "
+            f"`start_acquiring()` was called and did not take, which on a "
+            f"virtual accelerator usually means the camera PVs are not served; "
+            f"on the real machine, check the camera is on and not in use "
+            f"elsewhere."
+        ) from error
+
+    frame = np.asarray(raw, dtype=float)
     if frame.size == 0:
         raise ValueError(
             f"{screen_name}: the camera returned an empty frame. Not passed on "
@@ -583,6 +598,15 @@ def GET_REAL_BPM_READING(bpm_name: str) -> tuple[float, float, bool]:
         return 0.0, 0.0, False          # not connected
     x, y = float(x), float(y)
     if not (np.isfinite(x) and np.isfinite(y)):
+        return 0.0, 0.0, False
+    if x == 0.0 and y == 0.0:
+        # Both planes exactly zero is a PV sitting at its default, not a beam.
+        # A real BPM with beam on it has micron-level noise and never reports a
+        # clean 0.0 twice over; a connected BPM with *no* beam reports exactly
+        # this, and CATAP offers no quality flag to tell the two apart. Seen on
+        # the virtual accelerator, where every BPM reads (0.0, 0.0) and would
+        # otherwise have been believed — `steer` would then have corrected a
+        # real orbit towards a fictional perfect one.
         return 0.0, 0.0, False
     # CATAP reports BPM position in mm; everything above this line is metres.
     return x / 1000.0, y / 1000.0, True

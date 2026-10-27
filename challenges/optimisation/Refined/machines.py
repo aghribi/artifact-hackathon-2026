@@ -338,10 +338,20 @@ class RealMachine(EnvMachine):
 
     def __init__(self, spec: MachineSpec, target=None, config=None,
                  hardware=None):
+        """`hardware` is the control-system module, or its name.
+
+        Defaults to `rl_framework.envs.hardware`, whose placeholders raise —
+        so forgetting to name a driver stops the episode on the first shot
+        instead of doing something. `"hardware_CLARA"` is the CATAP one.
+        """
         super().__init__(spec)
         _path_setup()
         from rl_framework.envs.real_env import RealEnv
 
+        if isinstance(hardware, str):
+            from importlib import import_module
+
+            hardware = import_module(f"rl_framework.envs.{hardware}")
         config = _config_for(spec, config)
         if target is not None:
             config = replace(config, target=tuple(float(v) for v in target))
