@@ -82,10 +82,10 @@ from utils import (  # noqa: E402
     sextupole_k2_from_current,
 )
 
-# How long a screen takes to move, in seconds. Only one screen may be in the
-# beam, and swapping is mechanical: this is what makes a switch expensive and
-# why `Refined` counts switches separately from shots.
-SCREEN_SWITCH_SECONDS = 30.0
+# How long a screen takes to move, in seconds. A driver that measures something
+# different for its own machine should say so here; the default is the spec's,
+# so there is one number rather than one per module.
+from machine_spec import SCREEN_SWITCH_SECONDS  # noqa: F401
 
 def _momentum(name: str) -> float:
     """Reference momentum at a magnet, MeV/c.

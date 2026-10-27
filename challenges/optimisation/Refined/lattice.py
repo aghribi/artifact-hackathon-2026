@@ -29,9 +29,7 @@ left is the part that was hard to get right and is worth keeping exactly as it i
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
 import cheetah
@@ -232,7 +230,6 @@ class Line:
         coordinates = np.asarray(coordinates)[:num_particles]
         self.reference = torch.tensor(np.ascontiguousarray(coordinates), dtype=DTYPE,
                                       device=self.device)
-        self.centre = self.reference.mean(dim=0)
         self.energy_ev = float(energy_ev)
         self._energy = torch.tensor(self.energy_ev, dtype=DTYPE, device=self.device)
         self.num_particles = len(coordinates)

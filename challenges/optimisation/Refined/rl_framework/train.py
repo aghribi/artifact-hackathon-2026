@@ -4,7 +4,6 @@ import numpy as np
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback, CheckpointCallback
-from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.monitor import Monitor
 
 from rl_framework.config import RLConfig
@@ -51,7 +50,6 @@ def train(config: RLConfig, total_timesteps: int = 100, model_dir: str = "models
     env = gym.wrappers.NormalizeReward(env)
     env = Monitor(env, filename=os.path.join(model_dir, "monitor.csv"))
 
-    # Checkpoint every 5000 steps
     checkpoint_cb = CheckpointCallback(
         save_freq=10,
         save_path=model_dir,
@@ -74,10 +72,9 @@ def train(config: RLConfig, total_timesteps: int = 100, model_dir: str = "models
 
 
 if __name__ == "__main__":
-    cfg = RLConfig.clara()
-    # Train on the magnets RealEnv drives, over the ranges it denormalises with, so an
-    # action means the same thing here and in `deploy.py`. Left alone, SimEnv offers
-    # every magnet of the line over its archiver range instead.
-    cfg.controllable_magnets = [magnet[0] for magnet in cfg.magnet_config]
-    cfg.magnet_limits = {magnet[0]: magnet[1:] for magnet in cfg.magnet_config}
-    train(cfg)
+    # Every knob the spec declares, over the spec's own ranges — which is what
+    # `RealEnv` drives too, so an action means the same thing here and in
+    # `deploy.py`. This used to narrow the set from `config.magnet_config`, a
+    # list that defaulted to empty and was never filled in, so it trained a
+    # policy on no magnets at all.
+    train(RLConfig.clara())

@@ -41,7 +41,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lattice import Line  # noqa: E402
-from machine import KICK, MachineSpec  # noqa: E402
+from machine import KICK, STEERING_PROPERTIES, MachineSpec  # noqa: E402
 from match import SEED_SAMPLES, MatchResult, Matcher  # noqa: E402
 
 # Spot-grid sizes the solve steps through. Each level is one batched solve warm
@@ -521,7 +521,7 @@ def run(spec: MachineSpec, out: Path, particles: int, samples: int,
     quads = matcher.knobs
     correctors = [
         k.name for k in spec.knobs
-        if k.prop in ("horizontal_angle", "vertical_angle")
+        if k.prop in STEERING_PROPERTIES
     ]
     final = points or spec.spot_points
     axis_values = [a.values() for a in spec.axes]

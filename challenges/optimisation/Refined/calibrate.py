@@ -124,12 +124,13 @@ def main() -> None:
     spec = MachineSpec.load(args.spec)
     family = Family.load(args.artifact)
     seeds = range(args.seeds[0], args.seeds[1])
+    n_seeds = len(seeds)
     print(f"  {spec.name}: {len(spec.bpms)} BPM(s), {len(spec.screens)} screens, "
           f"readout {spec.readout}")
     if spec.bpms:
         print("  this machine can read its orbit every shot, so the screen stage "
               "never engages; expect a flat sweep.")
-    print(f"  {len(list(seeds))} seeds per budget\n")
+    print(f"  {n_seeds} seeds per budget\n")
     print("  budget    score   median   shots  switches  mach.s  sigma_y")
     rows = sweep(spec, family, args.budgets, seeds)
 
@@ -149,7 +150,7 @@ def main() -> None:
         raw["screen_budget"] = int(pick)
         raw.setdefault("notes", []).append(
             f"screen_budget {pick} measured by calibrate.py over "
-            f"{len(list(seeds))} seeds: "
+            f"{n_seeds} seeds: "
             + ", ".join(f"{r['budget']}->{r['score']:.3f}" for r in rows)
         )
         args.spec.write_text(json.dumps(raw, indent=1))

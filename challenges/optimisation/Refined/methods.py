@@ -216,7 +216,7 @@ def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
       thing to guess. `SCREEN_BUDGET` is the fallback where nobody has measured.
     """
     if screen_budget is None:
-        declared = getattr(session.spec, "screen_budget", None)
+        declared = session.spec.screen_budget
         screen_budget = SCREEN_BUDGET if declared is None else declared
     optics(session)
     tune = session.tune
@@ -252,15 +252,9 @@ def steer(session: Session, orbit_shots: int = 4, spot_shots: int = 2,
         if not keep:
             session.say("steer: no BPM is reading; the beam is not getting there")
             break
-        matrix = tune.R[keep][:, upstream]
-        kicks = -_pseudo_inverse(matrix, rcond) @ error
-        now = reading.settings
-        action = {
-            name: session.machine.clip(name, now.get(name, 0.0) + float(dk))
-            for name, dk in zip([session.family.correctors[i] for i in upstream],
-                                kicks)
-        }
-        after = session.set(action)
+        after = _correct(session, tune.R[keep][:, upstream], error,
+                         [session.family.correctors[i] for i in upstream],
+                         reading.settings, rcond)
         if after.score < best.score:
             best = after
         else:
@@ -299,22 +293,23 @@ def _place(session: Session, tune: Tune, final: list[int], shots: int = 2,
     session.stage = "final" if twin is not None else "place"
     names = [session.family.correctors[i] for i in final]
     best = session.machine.last
+    # Once, not per iteration. Nothing in the loop moves the twin — only the
+    # machine is set — so recomputing this was tracking a batch to get the same
+    # matrix back. (It does mean the response is the one at the settings `_place`
+    # was *entered* with, not the ones it goes on to apply. Re-syncing the twin
+    # each pass would be the stronger version and a different method; this is
+    # what the code has always actually done.)
+    matrix = (_placement_response(twin, names) if twin is not None
+              else _family_response(session, tune, final))
     for _ in range(min(shots, max(0, session.left - 1))):
         reading = session.machine.last
         if not reading.on_screen:
             break
-        matrix = (_placement_response(twin, names) if twin is not None
-                  else _family_response(session, tune, final))
         error = np.array([reading.mu_x, reading.mu_y]) - session.target[:2]
         # The same truncated inverse the orbit solve uses: it drops singular
         # values that would ask for an enormous kick in a direction the magnets
         # barely move, and guards the NaNs a lost beam leaves in the response.
-        kicks = -_pseudo_inverse(matrix, RCOND) @ error
-        now = reading.settings
-        after = session.set({
-            name: session.machine.clip(name, now.get(name, 0.0) + float(dk))
-            for name, dk in zip(names, kicks)
-        })
+        after = _correct(session, matrix, error, names, reading.settings)
         if after.score >= best.score:
             break
         best = after
@@ -392,7 +387,7 @@ def mpc(session: Session, shots: int = 10) -> None:
                   if reading.on_screen else np.zeros(2))
 
         span = trust * (high - low)
-        candidate, cost = _cem(
+        candidate, _ = _cem(
             twin, knobs, values, session.target, anchor,
             np.maximum(low, values - span), np.minimum(high, values + span), rng,
         )
@@ -613,12 +608,9 @@ def _find_beam(session: Session, tune: Tune, upstream: list[int]) -> None:
               if abs(tune.R[2 * row, j]) + abs(tune.R[2 * row + 1, j]) > USELESS]
     if usable and session.left > 2:
         error = _screen_error(session, reading, tune, row)
-        kicks = -_pseudo_inverse(tune.R[[2 * row, 2 * row + 1]][:, usable], RCOND) @ error
-        now = reading.settings
-        session.set({
-            n: machine.clip(n, now.get(n, 0.0) + float(dk))
-            for n, dk in zip([session.family.correctors[j] for j in usable], kicks)
-        })
+        _correct(session, tune.R[[2 * row, 2 * row + 1]][:, usable], error,
+                 [session.family.correctors[j] for j in usable],
+                 reading.settings)
     session.stage = "return"
     machine.look_at(machine.readout)
 
@@ -668,12 +660,9 @@ def _steer_on_screens(session: Session, tune: Tune, upstream: list[int],
         error += list(_screen_error(session, reading, tune, row))
         keep += [2 * row, 2 * row + 1]
     if keep and session.left > 2:
-        kicks = -_pseudo_inverse(tune.R[keep][:, upstream], RCOND) @ np.array(error)
-        now = machine.last.settings
-        session.set({
-            n: machine.clip(n, now.get(n, 0.0) + float(dk))
-            for n, dk in zip([session.family.correctors[j] for j in upstream], kicks)
-        })
+        _correct(session, tune.R[keep][:, upstream], np.array(error),
+                 [session.family.correctors[j] for j in upstream],
+                 machine.last.settings)
         session.say(f"orbit corrected from {len(keep) // 2} screen(s), "
                     f"{machine.screen_switches} switch(es) so far")
     # Always back to the readout: it is the only place the score is read. Its
@@ -753,6 +742,23 @@ def _pseudo_inverse(matrix: np.ndarray, cutoff: float) -> np.ndarray:
     inverse = np.zeros_like(s)
     inverse[keep] = 1.0 / s[keep]
     return vt.T @ np.diag(inverse) @ u.T
+
+
+def _correct(session: Session, matrix: np.ndarray, error: np.ndarray,
+             names: list[str], settings: dict[str, float],
+             rcond: float = RCOND):
+    """Solve for the kicks and apply them as a delta on the settings in force.
+
+    The four places that steer — the BPM loop, the placement solve, the lost-beam
+    recovery and the screen orbit stage — all did this identically: invert, add
+    to what is set now, clip to the magnet's range. The *inputs* differ, which is
+    the interesting part; the arithmetic between them does not.
+    """
+    kicks = -_pseudo_inverse(matrix, rcond) @ np.asarray(error)
+    return session.set({
+        name: session.machine.clip(name, settings.get(name, 0.0) + float(dk))
+        for name, dk in zip(names, kicks)
+    })
 
 
 def _tweak_knobs(session: Session) -> list[str]:

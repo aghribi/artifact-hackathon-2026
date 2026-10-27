@@ -59,8 +59,7 @@ class SB3Wrapper(gym.Wrapper):
         self._image_as_uint8 = image_as_uint8
         # Position and size of the request, each against the half-width of the chip
         # it is asked for on.
-        half = np.abs(sim.screen_extent())[[1, 3, 1, 3]]
-        self._target_scale = half
+        self._target_scale = np.abs(sim.screen_extent())[[1, 3, 1, 3]]
         bpms = len(sim.bpm_names)
         image = sim.observation_space["screen_image"].shape
         self.observation_space = spaces.Dict(
@@ -84,9 +83,13 @@ class SB3Wrapper(gym.Wrapper):
 
     def observation(self, observation: dict) -> dict:
         image = np.asarray(observation["screen_image"], dtype=np.float64)
-        peak = image.max()
-        if peak > 0:
-            image = image / peak
+        if not self.env.unwrapped.config.normalise_image:
+            # Only when the environment has not already done it. With the
+            # default it has, and this was a 16,384-element divide per step
+            # whose result was its own input.
+            peak = image.max()
+            if peak > 0:
+                image = image / peak
         return {
             "bpm_x": (observation["bpm_x"] / self._scale).astype(np.float32),
             "bpm_y": (observation["bpm_y"] / self._scale).astype(np.float32),

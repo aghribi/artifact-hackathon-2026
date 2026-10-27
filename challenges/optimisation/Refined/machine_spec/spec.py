@@ -69,9 +69,21 @@ HEALTHY = 0.5
 # What a beam that never arrives costs, against the error in the spot that did.
 # `score.TRANSMISSION_WEIGHT`, which the benchmark charges.
 TRANSMISSION_WEIGHT = 2.0
+# What a case books when the beam is lost, and the most any one reading can cost,
+# in units of the spot that was asked for. `score.FAILURE_SCORE`. Both halves of
+# the pipeline compare against this — the environment when it scores a shot, the
+# tuner when it decides whether a reading was worth keeping — so it is one number
+# here rather than one in each.
+FAILURE_SCORE = 10.0
 # Finite-difference kick for measuring a corrector's response, in rad. Small
 # enough to still be a derivative on a 50 mrad corrector.
 KICK = 2e-5
+# How long it takes to move a screen into or out of the beam, in seconds. Only one
+# screen may be in at a time, so this is what makes looking somewhere else
+# expensive, and why switches are counted apart from shots. A machine fact, and a
+# default rather than a measurement: `calibrate.py` is what measures whether
+# paying it is worth anything.
+SCREEN_SWITCH_SECONDS = 30.0
 
 
 @dataclass

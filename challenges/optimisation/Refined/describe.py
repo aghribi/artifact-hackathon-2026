@@ -36,6 +36,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from interview import Interview  # noqa: E402
@@ -371,7 +373,7 @@ def ask_groups(ask: Interview, knobs: list[Knob], groups: list[dict]) -> list[Kn
              f"grouped in the interview: {pattern} signs on one supply")
 
     while ask.confirm(
-        f"group.extra.{len([k for k in by_name])}.add",
+        f"group.extra.{len(by_name)}.add",
         "Add another group by hand?", default=False,
         help="For supplies the proposals missed. Give the element names.",
     ):
@@ -421,8 +423,6 @@ def _grouped_limits(env, knobs: list[Knob]) -> dict[str, tuple[float, float]]:
         if found is None:
             continue
         name, signs = found
-        import numpy as np
-
         theirs = np.array([signs[e] for e in knob.elements])
         flip = float(np.sign(np.dot(theirs, np.array(knob.signs))) or 1.0)
         low, high = env.magnet_limits[name]
@@ -452,11 +452,6 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
         table = json.loads(Path(path).read_text())
     elif source == "simenv":
         try:
-            # `rl_framework` is a sibling package in `Refined/`; this only has
-            # to be here because `describe.py` can be run in isolated mode.
-            here = Path(__file__).resolve().parent
-            if str(here) not in sys.path:
-                sys.path.insert(0, str(here))
             from rl_framework.config import RLConfig
             from rl_framework.envs.sim_env import SimEnv
 

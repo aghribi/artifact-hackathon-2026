@@ -19,7 +19,6 @@ interview is the interface; the answer file is the artifact.
 from __future__ import annotations
 
 import json
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Sequence

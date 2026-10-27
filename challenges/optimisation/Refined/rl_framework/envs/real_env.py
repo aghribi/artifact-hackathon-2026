@@ -171,9 +171,7 @@ class RealEnv(BaseAcceleratorEnv):
         self._inserted: str | None = None
         super().__init__(config)
 
-        self._acquire()
-        self._scored = self._readings["stats"]
-        self._scored_transmission = self._readings["transmission"]
+        self._acquire_and_score()
 
     # ---------- what the base class asks for ----------
 
@@ -205,9 +203,7 @@ class RealEnv(BaseAcceleratorEnv):
         """
         self.target = self._draw_target()  # `config.target`, required above
         self.target_screen = self.scored_screen
-        self._acquire()
-        self._scored = self._readings["stats"]
-        self._scored_transmission = self._readings["transmission"]
+        self._acquire_and_score()
         return self._get_obs()
 
     def _acquire(self) -> None:
@@ -307,4 +303,12 @@ class RealEnv(BaseAcceleratorEnv):
 
     @property
     def screen_switch_seconds(self) -> float:
-        return _hardware.SCREEN_SWITCH_SECONDS
+        """What *this* driver says a screen move costs.
+
+        Read off the injected hardware module, not the default one — the point
+        of injecting a driver is that it may know something the default does
+        not, and a test substitute or a machine with faster mechanics was
+        silently ignored before.
+        """
+        return float(getattr(self._hw, "SCREEN_SWITCH_SECONDS",
+                             super().screen_switch_seconds))

@@ -21,10 +21,8 @@ in full.
 
 from __future__ import annotations
 
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Iterator, Mapping, Sequence
 
 import cheetah
@@ -36,31 +34,32 @@ from rl_framework.config import RLConfig
 
 # The shared machine description. A sibling package inside `Refined/`, so this
 # is an ordinary import — it used to need the path adjusting because the two
-# lived in different trees.
-from machine_spec import lattice_io  # noqa: F401
+# lived in different trees. The thresholds come from there too: an environment
+# and a tuner that price a lost beam differently are worse than either being
+# wrong, and they were separate literals until they were not.
+from machine_spec import (
+    FAILURE_SCORE,
+    PLANE_SUFFIX,
+    SCREEN_SWITCH_SECONDS,
+    SETTABLE,
+    TRANSMISSION_WEIGHT,
+    lattice_io,
+)
 
 # `Refined/`, which holds `machine_spec/`, `machines/`, `artifacts/` and the
-# tuning modules. Data the specs point at lives above it and is found by
-# `MachineSpec.load`, which walks up from the spec.
-REFINED_DIR = Path(__file__).resolve().parents[2]
+# Every settable property, with the suffix its knob name carries — derived from
+# the spec's own tables rather than restated, because this is the other half of
+# a bijection `machine_spec` already owns: `PLANE_SUFFIX` decides what the two
+# planes of a combined corrector are *called*, and this resolves those names
+# back to a property. Written out by hand it also silently omitted `k3` and `k`,
+# so an Octupole or Solenoid knob validated, built, and then failed the first
+# time anyone set it.
+PROPERTY_SUFFIX = {
+    prop: PLANE_SUFFIX.get(prop, "")
+    for properties in SETTABLE.values()
+    for prop in properties
+}
 
-DTYPE = "float32"  # what the Cheetah lattice file is parsed into; see sim_env
-
-# What one knob of each magnet type is called, and the suffix its knob name carries.
-PROPERTY_SUFFIX = {"k1": "", "k2": "", "horizontal_angle": "_h", "vertical_angle": "_v",
-                   "angle": "", "phase": ""}
-
-# What the beam is asked for, as `score.sample_target` asks for it: a spot size
-# log-uniform between these, and a position uniform within this of the screen centre.
-REQUESTED_SPOT = (80e-6, 400e-6)  # m
-REQUESTED_OFFSET = 2e-3  # m
-# What a case books when the beam is lost, and the most any one reading can cost,
-# in units of the spot that was asked for. `score.FAILURE_SCORE`.
-FAILURE_SCORE = 10.0
-# What beam that never arrives costs, as `score.TRANSMISSION_WEIGHT` charges it:
-# delivering half the bunch is worth a spot size.
-TRANSMISSION_WEIGHT = 2.0
-TARGET_LABELS = ("mu_x", "mu_y", "sigma_x", "sigma_y")
 # What shots cost, as `score.Report.calc_score` prices them: EVAL_WEIGHT for every
 # doubling of EVAL_BUDGET, because beam time costs orders of magnitude rather than
 # increments — 40 shots to 80 is priced like 2000 to 4000.
@@ -76,6 +75,42 @@ MAX_MISMATCH = 100.0
 def evaluation_cost(shots: int) -> float:
     """What `shots` shots have cost so far, in requested spot sizes."""
     return EVAL_WEIGHT * float(np.log2(1 + shots / EVAL_BUDGET))
+
+
+def mismatch(spot, target, transmission: float, on_screen: bool,
+             cap: float = FAILURE_SCORE) -> float:
+    """How far a reading is from the request, in requested spot sizes.
+
+    `score.per_case_scores` exactly: each component's error against the spot size
+    asked for, position and size weighted equally, plus what the beam that never
+    arrived costs, clipped at `cap` — which is also what a lost beam books, so
+    losing the beam is never cheaper than delivering a bad one. The benchmark's
+    cap is `FAILURE_SCORE`; the reward looks further, out to `MAX_MISMATCH`.
+
+    A free function because this is the number the whole repo is quoted against,
+    and it had been written out twice — here and in `machines.py` — with nothing
+    keeping the two in step. The environment scores its own shots with it and the
+    tuner scores readings it is holding in memory; same arithmetic, one copy.
+    """
+    if not on_screen:
+        return cap
+    target = np.asarray(target, dtype=float)
+    error = np.abs(np.asarray(spot, dtype=float) - target) / float(target[2:].mean())
+    return float(min(
+        (error[0] + error[1]) / 2 + (error[2] + error[3]) / 2
+        + TRANSMISSION_WEIGHT * (1.0 - transmission),
+        cap,
+    ))
+
+
+def relative_error(spot, target, on_screen: bool) -> float:
+    """`score.CaseResult.relative_error`: the mean component error in requested
+    spot sizes, which is what the benchmark's hit rates are thresholded on."""
+    if not on_screen:
+        return FAILURE_SCORE
+    target = np.asarray(target, dtype=float)
+    return float(np.abs(np.asarray(spot, dtype=float) - target).mean()
+                 / target[2:].mean())
 
 
 def _is_diagnostic(element) -> bool:
@@ -340,6 +375,17 @@ class BaseAcceleratorEnv(gym.Env, ABC):
         `stats` and `transmission`, which is what `_get_obs` and `_get_info` read.
         """
 
+    def _acquire_and_score(self) -> None:
+        """One shot, booked as the reading the benchmark scores.
+
+        What every episode starts with, and what `step` does when the screen in
+        the beam is the scored one. Separate from `_acquire` because looking at
+        an upstream screen takes a shot that must *not* re-book the score.
+        """
+        self._acquire()
+        self._scored = self._readings["stats"]
+        self._scored_transmission = self._readings["transmission"]
+
     @abstractmethod
     def _hard_reset(self) -> dict[str, Any]:
         """Begin an episode, and return the first observation."""
@@ -515,6 +561,15 @@ class BaseAcceleratorEnv(gym.Env, ABC):
             )
         self._target_screen = screen
 
+    @property
+    def screen_switch_seconds(self) -> float:
+        """Seconds to move a screen into or out of the beam.
+
+        A machine fact, so it comes from the spec. `RealEnv` overrides it with
+        whatever its control-system driver measures.
+        """
+        return SCREEN_SWITCH_SECONDS
+
     def screen_extent(self, screen: str | None = None) -> tuple[float, float, float, float]:
         """(x_min, x_max, y_min, y_max) in metres that a screen image spans.
 
@@ -642,34 +697,14 @@ class BaseAcceleratorEnv(gym.Env, ABC):
 
     def _mismatch(self, stats, transmission: float,
                   cap: float = FAILURE_SCORE) -> float:
-        """How far a reading is from the request, in requested spot sizes.
-
-        `score.per_case_scores` exactly: each component's error against the spot size
-        asked for, position and size weighted equally, plus what the beam that never
-        arrived costs, clipped at `cap` — which is also what a lost beam books, so
-        losing the beam is never cheaper than delivering a bad one. The benchmark's
-        cap is `FAILURE_SCORE`; the reward looks further, out to `MAX_MISMATCH`.
-        """
-        mu_x, mu_y, sigma_x, sigma_y, on_screen = stats
-        if not on_screen:
-            return cap
-        error = np.abs(
-            np.array([mu_x, mu_y, sigma_x, sigma_y]) - self.target
-        ) / float(self.target[2:].mean())
-        return float(min(
-            (error[0] + error[1]) / 2 + (error[2] + error[3]) / 2
-            + TRANSMISSION_WEIGHT * (1.0 - transmission),
-            cap,
-        ))
+        """This episode's request, through the shared `mismatch`."""
+        *spot, on_screen = stats
+        return mismatch(spot, self.target, transmission, on_screen, cap)
 
     def _relative_error(self, stats) -> float:
-        """`score.CaseResult.relative_error`: the mean component error in requested
-        spot sizes, which is what the benchmark's hit rates are thresholded on."""
-        mu_x, mu_y, sigma_x, sigma_y, on_screen = stats
-        if not on_screen:
-            return FAILURE_SCORE
-        achieved = np.array([mu_x, mu_y, sigma_x, sigma_y])
-        return float(np.abs(achieved - self.target).mean() / self.target[2:].mean())
+        """This episode's request, through the shared `relative_error`."""
+        *spot, on_screen = stats
+        return relative_error(spot, self.target, on_screen)
 
     def _compute_reward(self, mu_x, mu_y, sigma_x, sigma_y, on_screen) -> float:
         """How far the beam is from what was asked for, negated.

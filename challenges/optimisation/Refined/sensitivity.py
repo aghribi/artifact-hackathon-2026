@@ -207,27 +207,31 @@ def measure(line: Line, candidates: list[str], points: int = SWEEP_POINTS) -> li
         good = (transmission >= HEALTHY) & np.all(sizes > 0, axis=-1)
         span = _usable_span(good, values, line.value(name))
         knob = line.knobs[name]
+        # One `Effect(...)`, built from whichever branch applies. Written as two
+        # constructions these drifted into two styles — one positional, one by
+        # keyword — which is how an argument ends up in the wrong slot.
         if span is None:
-            effects.append(Effect(
-                name, knob.prop, knob.nonlinear, low, high,
-                float("nan"), float("nan"), float("nan"),
-                float(transmission.min()), usable=False,
-                note="no span around the present setting holds the beam",
-            ))
-            continue
-        lo, hi = span
-        inside = slice(lo, hi + 1)
-        shift = np.abs(np.log(sizes[inside] / reference))
-        narrowed = not good.all()
+            bounds = (low, high)
+            changes = (float("nan"),) * 3
+            arrived = float(transmission.min())
+            usable, narrowed = False, False
+            note = "no span around the present setting holds the beam"
+        else:
+            lo, hi = span
+            inside = slice(lo, hi + 1)
+            shift = np.abs(np.log(sizes[inside] / reference))
+            bounds = (float(values[lo]), float(values[hi]))
+            changes = (float(shift.max()),
+                       float(shift[:, 0].max()), float(shift[:, 1].max()))
+            arrived = float(transmission[inside].min())
+            usable, narrowed = True, not good.all()
+            note = (f"range narrowed from [{low:g}, {high:g}]: the rest loses the beam"
+                    if narrowed else "")
         effects.append(Effect(
             knob=name, prop=knob.prop, nonlinear=knob.nonlinear,
-            low=float(values[lo]), high=float(values[hi]),
-            size_change=float(shift.max()),
-            change_x=float(shift[:, 0].max()), change_y=float(shift[:, 1].max()),
-            transmission=float(transmission[inside].min()),
-            usable=True, narrowed=narrowed,
-            note=(f"range narrowed from [{low:g}, {high:g}]: the rest loses the beam"
-                  if narrowed else ""),
+            low=bounds[0], high=bounds[1],
+            size_change=changes[0], change_x=changes[1], change_y=changes[2],
+            transmission=arrived, usable=usable, narrowed=narrowed, note=note,
         ))
     return effects
 

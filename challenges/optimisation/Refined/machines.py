@@ -29,14 +29,11 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from machine import TRANSMISSION_WEIGHT, MachineSpec  # noqa: E402
-
-# What the benchmark books for a beam that never arrived, `score.FAILURE_SCORE`.
-FAILURE_SCORE = 10.0
-# What moving the beam-intercepting screen costs on CLARA: only one may be in the
-# beam and swapping takes about half a minute of mechanics, far longer than the
-# shot itself, so it is counted separately from the shot budget.
-SCREEN_SWITCH_SECONDS = 30.0
+# The thresholds come from the spec, not from literals here. What the benchmark
+# books for a lost beam, and what a screen move costs, have to be the same number
+# in the environment that scores a shot and in the tuner that reads the score —
+# and they were two literals apiece until they were not.
+from machine import FAILURE_SCORE, SCREEN_SWITCH_SECONDS, MachineSpec  # noqa: E402
 
 
 @dataclass
@@ -67,38 +64,17 @@ class Reading:
         return np.array([self.mu_x, self.mu_y, self.sigma_x, self.sigma_y])
 
 
-def evaluation_cost(shots: int) -> float:
-    """What shots have cost so far, in requested spot sizes.
-
-    The benchmark's own function, imported rather than restated — this was a
-    local copy with `weight=0.1, budget=10.0` against `score.EVAL_WEIGHT = 0.5`
-    and `EVAL_BUDGET = 50.0`, so it priced a shot five times too cheaply and the
-    BO stopping rule read "worth another shot" long after it was not.
-    """
-    from rl_framework.envs.sim_env import evaluation_cost as _cost
-
-    return float(_cost(shots))
-
-
-def mismatch(spot: np.ndarray, target: np.ndarray, transmission: float,
-             on_screen: bool, cap: float = FAILURE_SCORE) -> float:
-    """`score.per_case_scores`, as `SimEnv._mismatch` computes it.
-
-    Errors in units of the requested spot size, position and size weighted
-    equally, plus what the beam that never arrived costs, clipped at `cap` —
-    which is also what a lost beam books, so losing the beam is never cheaper
-    than delivering a bad one.
-    """
-    if not on_screen:
-        return cap
-    error = np.abs(np.asarray(spot) - np.asarray(target)) / float(
-        np.mean(target[2:])
-    )
-    return float(min(
-        (error[0] + error[1]) / 2 + (error[2] + error[3]) / 2
-        + TRANSMISSION_WEIGHT * (1.0 - transmission),
-        cap,
-    ))
+# The benchmark's own arithmetic, imported rather than restated. Every one of
+# these was once a local copy: `evaluation_cost` priced a shot five times too
+# cheaply (`weight=0.1, budget=10.0` against `score.EVAL_WEIGHT = 0.5` and
+# `EVAL_BUDGET = 50.0`), so the BO stopping rule read "worth another shot" long
+# after it was not, and `mismatch` was the scoring formula written out a second
+# time beside the import that existed to avoid exactly that.
+from rl_framework.envs.base_env import (  # noqa: E402,F401
+    evaluation_cost,   # re-exported: `bayes.py` imports it from here
+    mismatch,
+    relative_error,
+)
 
 
 class Machine:
@@ -180,32 +156,32 @@ class Machine:
 
     @property
     def relative_error(self) -> float:
-        """`score.CaseResult.relative_error`, what hit rates are thresholded on."""
+        """`score.CaseResult.relative_error`, what hit rates are thresholded on.
+
+        The *best* reading of the episode, not the last — which is why this is
+        computed here rather than read from `info["scored_relative_error"]`.
+        The environment reports the reading the benchmark books; this reports
+        the best the tuner ever saw, and the gap between them is a method
+        failing to go back to it.
+        """
         best = min(self.history, key=self.mismatch_of, default=None)
-        if best is None or not best.on_screen:
+        if best is None:
             return FAILURE_SCORE
-        return float(np.abs(best.spot - self.target).mean()
-                     / float(np.mean(self.target[2:])))
+        return relative_error(best.spot, self.target, best.on_screen)
+
+    @property
+    def screen_switch_seconds(self) -> float:
+        """What one screen move costs. The machine's own number if it has one."""
+        env = getattr(self, "env", None)
+        return SCREEN_SWITCH_SECONDS if env is None else env.screen_switch_seconds
 
     @property
     def machine_seconds(self) -> float:
         """What this episode would have cost on the real machine."""
-        return self.shots + self.screen_switches * SCREEN_SWITCH_SECONDS
+        return self.shots + self.screen_switches * self.screen_switch_seconds
 
 
 # ------------------------------------------------- SimEnv and the real thing
-
-
-def _path_setup() -> None:
-    """Make `rl_framework` importable when this is run as a bare script.
-
-    It is a sibling package in `Refined/`, so this only has to put `Refined/`
-    itself on the path — which the import at the top of this module has
-    already done. Kept as one named place in case that changes.
-    """
-    here = Path(__file__).resolve().parent
-    if str(here) not in sys.path:
-        sys.path.insert(0, str(here))
 
 
 def _config_for(spec: MachineSpec, config):
@@ -317,7 +293,6 @@ class SimEnvMachine(EnvMachine):
 
     def __init__(self, spec: MachineSpec, seed: int = 0, config=None):
         super().__init__(spec)
-        _path_setup()
         from rl_framework.envs.sim_env import SimEnv
 
         env = SimEnv(_config_for(spec, config))
@@ -350,7 +325,6 @@ class RealMachine(EnvMachine):
         instead of doing something. `"hardware_CLARA"` is the CATAP one.
         """
         super().__init__(spec)
-        _path_setup()
         from rl_framework.envs.real_env import RealEnv
 
         if isinstance(hardware, str):
@@ -369,12 +343,6 @@ class RealMachine(EnvMachine):
         env = (RealEnv(config) if hardware is None
                else RealEnv(config, hardware=hardware))
         self._adopt(env, *env.reset())
-
-    @property
-    def machine_seconds(self) -> float:
-        """What this episode cost, with the machine's own switch time."""
-        return (self.shots
-                + self.screen_switches * self.env.screen_switch_seconds)
 
 
 def _knob_names(spec: MachineSpec, env) -> list[str]:

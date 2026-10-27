@@ -30,7 +30,7 @@ ROOT = HERE.parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-from machine import MachineSpec  # noqa: E402
+from machine import SCREEN_SWITCH_SECONDS, MachineSpec  # noqa: E402
 
 PASSED, FAILED = 0, 0
 
@@ -447,7 +447,7 @@ def test_whole_episode() -> None:
           f"{machine.screen_switches} switch(es)")
     check("the machine-time accounting uses the real switch cost",
           machine.machine_seconds
-          == machine.shots + machine.screen_switches * 30.0,
+          == machine.shots + machine.screen_switches * SCREEN_SWITCH_SECONDS,
           f"{machine.machine_seconds:.0f} s")
     missed = [name for name in PLACEHOLDERS if not fake.calls[name]]
     # The BPM reader is the exception: this spec has no working BPMs, which is

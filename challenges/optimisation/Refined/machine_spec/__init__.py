@@ -15,10 +15,12 @@ the running.
 """
 
 from .spec import (  # noqa: F401
+    FAILURE_SCORE,
     HEALTHY,
     KICK,
     NONLINEAR_PROPERTIES,
     PLANE_SUFFIX,
+    SCREEN_SWITCH_SECONDS,
     SETTABLE,
     STEERING_PROPERTIES,
     TRANSMISSION_WEIGHT,

@@ -9,18 +9,11 @@ class RLConfig:
     # own machine is one line away as `RLConfig.clara()`.
     spec: Any = None
 
-    # Legacy. Both environments take their lattice, beam and magnet ranges from
-    # the `MachineSpec` above; these two are still read by `train.py`, which uses
-    # `magnet_config` to pick the magnets a policy is trained on.
-    lattice_path: str = "FEBE_full.json"
-
-    # Beam factory parameters (Twiss + energy + charge)
-    beam: dict[str, Any] = field(default_factory=lambda: {
-        "num_particles": 10000,
-        "alpha_x": -0.949, "beta_x": 14.236, "emittance_x": 3.29e-9,
-        "alpha_y": 72.003, "beta_y": 925.297, "emittance_y": 4.20e-9,
-        "sigma_p": 0.01, "energy": 250e6, "total_charge": 10e-12,
-    })
+    # `lattice_path`, `beam`, `magnet_config` and the three `nominal_*` fields
+    # used to live here. They were the lattice file, a Twiss beam and CLARA's
+    # magnet ranges — machine facts, in the configuration, which is what
+    # `machines/*.json` exists to abolish. Nothing read them: both environments
+    # take all of it from the spec.
 
     # The screen the request is for: where every episode starts with the screen in
     # the beam, and the only screen an episode is scored on. The agent may move the
@@ -30,27 +23,13 @@ class RLConfig:
     # None takes the spec's `readout`.
     target_screen: str | None = None
 
-    # Magnets the RL agent can control.
-    # Each entry: [name, min_native_value, max_native_value]
-    # Native units: k1 (1/m²) for quadrupoles, angle (mrad) for correctors.
-    magnet_config: list[list] = field(default_factory=list)
-
     # Episode length before truncation
     max_episode_steps: int = 100
 
     # ---------------- the simulation ---------------- #
-    # Everything below from `num_particles` to `power_supply_ripple` describes a
-    # tracked beam and so is `SimEnv` only; the rest — screens, limits, target,
-    # reward — is read by both environments.
-
-
-
-    # Where `xsuite_model.py` lives, and what it is given. None takes the defaults
-    # of the nominal model: the challenge lattice file and its starting beam.
-    nominal_model_dir: str | None = None
-    nominal_lattice_json: str | None = None
-    distribution_path: str | None = None
-
+    # `num_particles` through `power_supply_ripple` describe a tracked beam and
+    # are `SimEnv` only; the rest — screens, limits, target, reward — is read by
+    # both environments.
 
     # Particles tracked per step, taken from the front of the 200,000 in the
     # distribution file. None uses all of them (slow).

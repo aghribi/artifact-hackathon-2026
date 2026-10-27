@@ -200,7 +200,7 @@ def load_beam(spec, num_particles: int | None = None,
     """The spec's beam: its distribution file, or Twiss where there is none."""
     if spec.beam:
         particles, energy_ev, metadata = load_distribution(spec.beam)
-    elif getattr(spec, "beam_twiss", None):
+    elif spec.beam_twiss:
         particles, energy_ev, metadata = beam_from_twiss(
             spec.beam_twiss, num_particles or 10_000, seed
         )

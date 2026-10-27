@@ -75,7 +75,7 @@ readings, which is what reading a screen on a real machine is like.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 
 import cheetah
 import numpy as np
@@ -88,11 +88,6 @@ from rl_framework.envs.base_env import (
     TrackingTransport,
     lattice_io,
 )
-
-# Re-exported, not used here: `Refined/machines.py` takes the benchmark's shot
-# pricing from this module by name, and it is the environment's to give even now
-# that it is defined one layer down.
-from rl_framework.envs.base_env import evaluation_cost  # noqa: F401
 
 DTYPE = torch.float32  # what the Cheetah lattice file is parsed into
 
@@ -127,7 +122,6 @@ class CheetahTransport(TrackingTransport):
     name = "cheetah"
 
     def __init__(self, segment: cheetah.Segment, energy_ev: float, stops: list[str]):
-        self._segment = segment
         self._elements = {element.name: element for element in segment.elements}
         self._energy = torch.tensor(float(energy_ev), dtype=DTYPE)
         for element in segment.elements:
@@ -242,9 +236,7 @@ class SimEnv(BaseAcceleratorEnv):
             name for name, knob in self._knobs.items() if knob.prop != "phase"
         ]
 
-        self._simulate()
-        self._scored = self._readings["stats"]
-        self._scored_transmission = self._readings["transmission"]
+        self._acquire_and_score()
 
     # ---------- the model doing the tracking ----------
 
@@ -267,8 +259,6 @@ class SimEnv(BaseAcceleratorEnv):
         """What the model says the chip spans. A simulated camera is the model."""
         return self._diagnostics[name].extent
 
-    def _acquire(self) -> None:
-        self._simulate()
     # ---------- the machine this episode was dealt ----------
 
     def _perturb_beam(self, coordinates, variation: float):
@@ -365,7 +355,7 @@ class SimEnv(BaseAcceleratorEnv):
         return self.misalignments
     # ---------- tracking ----------
 
-    def _simulate(self) -> None:
+    def _acquire(self) -> None:
         """One shot: the episode's beam jittered again, through magnets sitting
         where their power supplies actually have them, and read."""
         commanded = self._apply_ripple()
@@ -458,37 +448,9 @@ class SimEnv(BaseAcceleratorEnv):
         screen. With every variation at 0 this is the nominal model exactly."""
         self.target = self._draw_target()
         self._coordinates = self._draw_beam()
-        self._scored, self._scored_transmission = (0.0, 0.0, 0.0, 0.0, False), 0.0
         self._restore_nominal()
         self._draw_misalignments()
 
         self.target_screen = self.scored_screen
-        self._simulate()
-        self._scored = self._readings["stats"]
-        self._scored_transmission = self._readings["transmission"]
+        self._acquire_and_score()
         return self._get_obs()
-
-    def _apply_action(self, native_values: np.ndarray):
-        """Set every magnet, in `magnet_names` order and in native units."""
-        values = np.asarray(native_values, dtype=np.float64).reshape(-1)
-        if len(values) != len(self._controllable):
-            raise ValueError(
-                f"expected one value per settable magnet "
-                f"({len(self._controllable)}), got {len(values)}"
-            )
-        self.set_magnets(dict(zip(self.magnet_names, values)))
-        self._simulate()
-
-    def _get_screen_statistics(self, screen_name: str) -> tuple[float, float, float, float, bool]:
-        """(mu_x, mu_y, sigma_x, sigma_y, on_screen) in metres, off the screen centre.
-
-        Only the screen in the beam has a reading: the others are out, and anything
-        downstream of this one is in its shadow.
-        """
-        if screen_name != self._target_screen:
-            raise ValueError(
-                f"{screen_name} is not in the beam — only one screen may be, and it is "
-                f"{self._target_screen}. Set `env.target_screen` or pass a `screen` "
-                f"entry in the action to move it."
-            )
-        return self._readings["stats"]
