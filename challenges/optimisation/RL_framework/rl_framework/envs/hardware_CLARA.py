@@ -122,6 +122,25 @@ READOUT_CHARGE_MONITOR = "CLA-FEH-DIA-ICT-01"
 # is a division by noise rather than a transmission.
 MIN_CHARGE = 1e-3
 
+# ---- the VBC translation stage ----
+#
+# The chicane's bend is set by the dipole currents, but the magnets themselves
+# sit on a translation stage, and the two have to agree: the dipoles bend the
+# beam off axis and the stage is what puts the middle of the chicane where the
+# beam now goes. Setting one without the other is not a mistuned chicane, it is
+# a chicane the beam does not thread.
+VBC_STAGE_TARGET_PV = "CLA-VBC-MAG-TRANS-01:TGTPOS"   # mm
+VBC_STAGE_MOVING_PV = "CLA-VBC-MAG-TRANS-01:MOVING"
+# Where the stage reads when the chicane is straight, and how far it may travel
+# from there. Offset from the axis is `VBC_STAGE_ZERO_MM - TGTPOS`, so a larger
+# offset is a *smaller* TGTPOS, and 330 is the floor.
+VBC_STAGE_ZERO_MM = 372.98
+VBC_STAGE_FLOOR_MM = 330.0
+VBC_STAGE_MAX_OFFSET_MM = VBC_STAGE_ZERO_MM - VBC_STAGE_FLOOR_MM   # 42.98
+VBC_STAGE_TIMEOUT = 120.0
+# Lever arm from dipole 1 to dipole 2, mm, read off the lattice (`vbc_drift_1`).
+VBC_LEVER_MM = 1506.7474
+
 
 # ---------------------------------------------------------------- plumbing
 
@@ -246,6 +265,89 @@ def _wait_until(predicate, timeout: float, what: str) -> None:
           f"the next reading may not be of a settled machine.")
 
 
+# ------------------------------------------------- the VBC translation stage
+
+
+def _raw_pv(pv: str):
+    """Read a PV CATAP does not model. Virtual PVs carry a `VM-` prefix."""
+    import epics
+
+    return epics.caget(("VM-" if USE_VIRTUAL else "") + pv, timeout=5)
+
+
+def GET_REAL_VBC_STAGE() -> float | None:
+    """Where the VBC stage is, in mm, or None if the PV is not there."""
+    return _raw_pv(VBC_STAGE_TARGET_PV)
+
+
+def VBC_STAGE_IS_MOVING() -> bool:
+    return bool(_raw_pv(VBC_STAGE_MOVING_PV))
+
+
+def SET_REAL_VBC_STAGE(position_mm: float) -> None:
+    """Move the stage, in mm, refusing anything outside its safe travel.
+
+    The floor is a hard limit and is checked here rather than trusted to the
+    caller: this is the one actuator in the system whose range is bounded by
+    something mechanical rather than by an optics choice.
+    """
+    position = float(position_mm)
+    if not (VBC_STAGE_FLOOR_MM <= position <= VBC_STAGE_ZERO_MM):
+        raise ValueError(
+            f"VBC stage target {position:.2f} mm is outside the safe travel "
+            f"[{VBC_STAGE_FLOOR_MM}, {VBC_STAGE_ZERO_MM}] mm "
+            f"({VBC_STAGE_MAX_OFFSET_MM:.2f} mm of offset). Refused."
+        )
+    import epics
+
+    epics.caput(("VM-" if USE_VIRTUAL else "") + VBC_STAGE_TARGET_PV, position)
+
+
+def WAIT_FOR_VBC_STAGE() -> None:
+    """Block until the stage has stopped."""
+    time.sleep(1.0)  # `MOVING` lags the command
+    _wait_until(lambda: not VBC_STAGE_IS_MOVING(), VBC_STAGE_TIMEOUT,
+                "the VBC stage to stop")
+
+
+def VBC_STAGE_POSITION(angle_rad: float) -> float:
+    """TGTPOS, in mm, for a chicane bend of `angle_rad`. **Not resolved.**
+
+    The geometry says the middle of the chicane has to sit `L sin(theta)` off
+    the axis, with `L = 1506.7 mm` from the lattice, giving `TGTPOS = 372.98 -
+    1506.7 sin(theta)`. That cannot be right, and the arithmetic says so
+    plainly:
+
+        angle 0.1215 rad (family minimum) -> 182.6 mm offset -> TGTPOS 190.4
+        angle 0.1317 rad (lattice maximum) -> 197.9 mm offset -> TGTPOS 175.1
+
+    against a floor of 330. Every tune in the shipped family would drive the
+    stage about 150 mm past its limit, and the safe travel of 42.98 mm
+    corresponds to a bend of only 0.0285 rad — a factor of 4.3 short of the
+    range the optics use.
+
+    So one of three things is wrong, and guessing between them is not worth a
+    chicane the beam does not thread:
+
+    - the stage does not carry the full `L sin(theta)` beam offset (most
+      likely: it may move the dipoles longitudinally, or carry only part of the
+      geometry);
+    - the lattice's angle is not the quantity the stage tracks;
+    - the zero or the floor is not what we think.
+
+    Until it is settled, the chicane is not set on a real machine at all; see
+    `SET_REAL_MAGNET_POWER`.
+    """
+    offset = VBC_LEVER_MM * np.sin(abs(float(angle_rad)))
+    raise NotImplementedError(
+        f"the chicane angle -> VBC stage mapping is not established. "
+        f"{angle_rad:+.5f} rad needs {offset:.1f} mm of offset by the lattice "
+        f"geometry, against {VBC_STAGE_MAX_OFFSET_MM:.2f} mm of safe travel — "
+        f"off by {offset / VBC_STAGE_MAX_OFFSET_MM:.1f}x, so the geometry is "
+        f"not what the stage does. See VBC_STAGE_POSITION in hardware_CLARA.py."
+    )
+
+
 # ---------------------------------------------------------------- magnets
 
 
@@ -270,6 +372,12 @@ def SET_REAL_MAGNET_POWER(magnet_name: str, value: float) -> None:
             f"not wired up. Either implement it here or keep cavities out of "
             f"`config.controllable_magnets`."
         )
+    if kind == "dipole" and "vbc" in magnet_name:
+        # The chicane bend and the translation stage are one setting in two
+        # places, and only one of them is wired. Bending without moving the
+        # stage is not an approximation of the right chicane, it is a chicane
+        # the beam misses — so it is refused rather than half-applied.
+        VBC_STAGE_POSITION(value)  # raises, and explains why
 
     magnet = _magnet(magnet_name)
     convert = {
