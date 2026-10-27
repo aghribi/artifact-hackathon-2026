@@ -367,6 +367,46 @@ def test_clara_driver_offline() -> None:
           "shared with utils.update_cheetah_element")
 
 
+def test_rf_is_out_of_reach() -> None:
+    print("\n3d. RF phases are not the agent's to set")
+    spec, fake, env = build()
+    phases = [k.name for k in spec.knobs if k.prop == "phase"]
+    check("the spec does declare cavity phases", bool(phases),
+          f"{len(phases)}: {phases}")
+    check("but the environment does not offer them",
+          not [p for p in phases if p in env.magnet_names],
+          f"{len(env.magnet_names)} knobs, none of them RF")
+
+    # The real exposure was `restore_best`, which re-sets every knob from a
+    # snapshot — so a whole episode is the test, not a single call.
+    from artifact import Family
+    from machines import RealMachine
+    from methods import Session, steer
+
+    fake2 = FakeMachine()
+    machine = RealMachine(spec, target=TARGET, hardware=fake2)
+    steer(Session(machine, Family.load(HERE / "artifacts" / "clara_febe.npz"),
+                  spec, budget=25))
+    touched = sorted({n for what, n in fake2.log
+                      if what == "set" and "cav" in n})
+    check("and a whole episode never writes one", not touched,
+          f"{len([1 for w, _ in fake2.log if w == 'set'])} magnet writes, "
+          f"0 RF" if not touched else f"wrote {touched}")
+
+    # Asking for one anyway is refused, not quietly dropped.
+    from dataclasses import replace as _replace
+
+    from rl_framework.config import RLConfig
+    from rl_framework.envs.real_env import RealEnv
+    try:
+        RealEnv(_replace(RLConfig(spec=spec, target=TARGET),
+                         controllable_magnets=[phases[0]]),
+                hardware=FakeMachine())
+        check("asking for RF explicitly is refused", False, "it was accepted")
+    except ValueError as error:
+        check("asking for RF explicitly is refused", "RF phases" in str(error))
+
+
 def test_screen_switching() -> None:
     print("\n4. a screen switch moves one mechanism, and only when it must")
     spec, fake, env = build()
@@ -454,7 +494,7 @@ def main() -> None:
     print("RealEnv, against a fake control system. CLARA is not touched.")
     for test in (test_builds, test_reset_is_read_only, test_coupled_knob,
                  test_corrector_planes_are_separate_supplies,
-                 test_settles_before_reading_back,
+                 test_settles_before_reading_back, test_rf_is_out_of_reach,
                  test_screen_switching, test_whole_episode,
                  test_bpms_when_they_work, test_unpopulated_fails_loudly,
                  test_clara_driver_offline):

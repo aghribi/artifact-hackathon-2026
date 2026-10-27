@@ -30,6 +30,7 @@ distribution to sample a request from on a real machine.
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -115,6 +116,40 @@ class HardwareTransport(Transport):
             self._cache.clear()
 
 
+def _without_rf(config: RLConfig) -> RLConfig:
+    """The same configuration, with the RF phases taken out of the agent's hands.
+
+    Nothing in the pipeline tunes RF: the optics family is quadrupoles and
+    correctors, and no method ever chooses a phase. The cavities were reachable
+    anyway, because `controllable_magnets` defaults to every knob the spec
+    declares and CLARA's spec declares three — and `restore_best` re-sets
+    *every* knob from a snapshot, so the last shot of every episode wrote three
+    RF phases back. Writing back what was read is nominally a no-op, but it is
+    still a caput to a linac on the strength of a readback nobody checked, in
+    exchange for nothing at all.
+
+    So on a real machine they are not offered. The spec is unchanged, the
+    simulation is unchanged, and `hardware.py`'s cavity branches stay as a
+    backstop for anything that reaches them another way.
+    """
+    spec = config.machine_spec()
+    phases = {knob.name for knob in spec.knobs if knob.prop == "phase"}
+    if not phases:
+        return config
+    if config.controllable_magnets is None:
+        drivable = [knob.name for knob in spec.knobs if knob.name not in phases]
+        return replace(config, controllable_magnets=drivable)
+    asked = sorted(phases.intersection(config.controllable_magnets))
+    if asked:
+        raise ValueError(
+            f"{asked} are RF phases, and this environment does not set RF. "
+            f"Nothing in the pipeline tunes them, so they are excluded by "
+            f"default; asking for them explicitly is refused rather than "
+            f"quietly dropped. Implement them in the hardware module first."
+        )
+    return config
+
+
 class RealEnv(BaseAcceleratorEnv):
     """The machine, scored exactly as the simulation is."""
 
@@ -128,6 +163,7 @@ class RealEnv(BaseAcceleratorEnv):
                 "every episode from `score.sample_target`; a real machine is being "
                 "asked for something specific, and nothing here should guess what."
             )
+        config = _without_rf(config)
         self._hw = hardware
         # Which screen is physically in the beam. None until we have put one
         # there: we cannot know what an operator left inserted, so the first
