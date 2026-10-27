@@ -21,18 +21,12 @@ drops the pixels that are plausibly background before the moments are taken.
 
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 import torch
 
-CHALLENGE_DIR = Path(__file__).resolve().parents[1]
-if str(CHALLENGE_DIR / "image_processing") not in sys.path:
-    sys.path.insert(0, str(CHALLENGE_DIR / "image_processing"))
-
-from image_processing import image_center_and_deviation  # noqa: E402
+from image_processing import image_center_and_deviation
 
 # Pixels dimmer than this fraction of the brightest are treated as background. The
 # rms of an image is dominated by its tails, so a floor matters more than it looks:

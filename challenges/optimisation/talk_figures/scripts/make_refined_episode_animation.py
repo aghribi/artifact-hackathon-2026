@@ -37,7 +37,9 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 CHALLENGE = HERE.parents[1]
-for path in (CHALLENGE, CHALLENGE / "RL_framework", CHALLENGE / "Refined"):
+# `Refined/` is self-contained now: `rl_framework` and `machine_spec` are
+# packages inside it, so putting it on the path is the whole of the setup.
+for path in (CHALLENGE, CHALLENGE / "Refined"):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 

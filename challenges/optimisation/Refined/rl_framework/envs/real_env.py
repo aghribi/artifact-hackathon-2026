@@ -45,10 +45,10 @@ from rl_framework.envs.base_env import (
 )
 
 # `screen.measure` turns a camera frame into (mu_x, mu_y, sigma_x, sigma_y) in
-# metres, using the measure written for real CLARA captures. Imported lazily, in
-# `_measure_frame`, because it pulls in `image_processing` and h5py: a machine
-# without those should still be able to import `RealEnv` and read this file.
-_CHALLENGE = Path(__file__).resolve().parents[3]
+# metres, using the measure written for real CLARA captures. It sits beside the
+# tuning modules in `Refined/`, and is imported where it is used so that a
+# machine lacking its dependencies can still import and read `RealEnv`.
+_REFINED = Path(__file__).resolve().parents[2]
 
 
 class HardwareTransport(Transport):
@@ -260,14 +260,14 @@ class RealEnv(BaseAcceleratorEnv):
     def _measure_frame(self, image: np.ndarray, extent):
         """A camera frame as (mu_x, mu_y, sigma_x, sigma_y, on_screen), in metres.
 
-        `MBRL_opt/screen.py` already does this, with the measure written for real
+        `screen.py` already does this, with the measure written for real
         CLARA captures and the corrections it needs — the half-pixel corner bias
         and a background floor, without which the dark half of the chip drags the
         spot wider than it is. Using it here is the point: the agent is driven by
         the same quantity on the machine as in simulation.
         """
-        if str(_CHALLENGE / "MBRL_opt") not in sys.path:
-            sys.path.insert(0, str(_CHALLENGE / "MBRL_opt"))
+        if str(_REFINED) not in sys.path:
+            sys.path.insert(0, str(_REFINED))
         from screen import measure  # noqa: PLC0415 — see the module docstring
 
         reading = measure(image, extent)

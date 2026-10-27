@@ -151,7 +151,7 @@ class RLConfig:
         """
         from pathlib import Path as _Path
 
-        here = _Path(__file__).resolve().parents[2]
+        here = _Path(__file__).resolve().parents[1]  # Refined/
         # An explicit `spec` in the overrides wins, so callers that rebuild a
         # config from an existing one's `__dict__` do not collide with this.
         return cls(**{"spec": str(here / "machines" / "clara_febe.json"),

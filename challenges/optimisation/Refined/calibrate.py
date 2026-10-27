@@ -41,9 +41,10 @@ import torch
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-for path in (HERE, ROOT, ROOT / "RL_framework"):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+# Everything this needs is in `Refined/`: the tuning modules, `machine_spec`
+# and `rl_framework` are all siblings here now.
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
 from artifact import Family  # noqa: E402
 from machine import MachineSpec  # noqa: E402

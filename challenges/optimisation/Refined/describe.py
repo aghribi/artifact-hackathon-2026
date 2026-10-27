@@ -441,7 +441,7 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
         "limits.source", "Where should the limits come from?",
         ["none", "file", "simenv"], default="none",
         help="file:   a JSON of {knob: [low, high]}\n"
-             "simenv: this challenge's RL_framework table (CLARA only)\n"
+             "simenv: the bundled rl_framework table (CLARA only)\n"
              "none:   leave unbounded and decide later",
     )
     unresolved: list[str] = []
@@ -452,12 +452,11 @@ def ask_limits(ask: Interview, knobs: list[Knob]) -> list[str]:
         table = json.loads(Path(path).read_text())
     elif source == "simenv":
         try:
-            # This challenge's environment lives two directories up and is not on
-            # the path when `describe.py` is run in isolated mode.
+            # `rl_framework` is a sibling package in `Refined/`; this only has
+            # to be here because `describe.py` can be run in isolated mode.
             here = Path(__file__).resolve().parent
-            for extra in (here.parent, here.parent / "RL_framework"):
-                if str(extra) not in sys.path:
-                    sys.path.insert(0, str(extra))
+            if str(here) not in sys.path:
+                sys.path.insert(0, str(here))
             from rl_framework.config import RLConfig
             from rl_framework.envs.sim_env import SimEnv
 

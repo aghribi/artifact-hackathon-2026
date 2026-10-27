@@ -40,6 +40,25 @@ Everything downstream of it is per-request and cheap enough to do live.
 | `calibrate.py` | measure what a machine needs that only a family can reveal |
 | `optimise.py` | stage 2: artifact + a request → a tuned machine |
 
+and three packages it carries with it:
+
+| | |
+|---|---|
+| `machine_spec/` | the `MachineSpec` itself, and the lattice/beam/aperture readers |
+| `rl_framework/` | `SimEnv` and `RealEnv` behind one interface, and the CLARA control-system driver |
+| `screen.py` + `image_processing.py` | a camera frame → four numbers, the measure the real screens are read with |
+
+**This directory is self-contained.** Everything the pipeline imports is in
+here, so it can be copied out as a unit and the only path setup any module
+needs is `Refined/` itself. There is exactly one deliberate exception:
+`data/clara/lattice_data/utils.py`, which holds CLARA's magnet calibrations and
+reference energies, is left where it is and found by walking up. It is shared
+with `score.py` — the benchmark this pipeline is graded against — and two
+copies of a calibration that could drift apart is the precise failure
+`hardware_CLARA.py` exists to prevent. The lattice, beam and aperture files the
+specs point at are likewise data, and `MachineSpec.load` already finds them by
+walking up from the spec.
+
 ```bash
 python -I describe.py lattice.json --out machines/mine.json   # once per machine
 python -I sensitivity.py machines/mine.json                   # what to scan over
@@ -230,3 +249,53 @@ about CLEAR.
 Working end to end on two machines. `describe.py` → `sensitivity.py` →
 `precompute.py` → `optimise.py`, with `optics`, `steer`, `mpc` and `bo` against
 `SimEnv`.
+
+## Open: the VBC stage, and the angle the family scans
+
+**This blocks tuning the real CLARA, and it may cost a `precompute.py` re-run.**
+
+The chicane's bend comes from the dipole currents; its *geometry* comes from a
+translation stage on `CLA-VBC-MAG-TRANS-01:TGTPOS`, with `:MOVING` to say when
+it has stopped. The two are one setting in two places and only the first was
+wired. `cla_vbc_chicane` is the optics family's only scan axis and `optics`
+sets it on shot one, so this is on the critical path rather than off to one
+side.
+
+The numbers do not currently reconcile. TGTPOS is in mm, reads 372.98 at zero
+offset and has a floor at 330, so there is 42.98 mm of safe travel. The lattice
+says the middle of the chicane has to sit `L sin(theta)` off axis with
+`L = 1506.7 mm` from `vbc_drift_1`:
+
+| chicane angle | offset needed | TGTPOS | against the 330 floor |
+|---|---|---|---|
+| 0.1215 rad (family minimum) | 182.6 mm | 190.4 | −140 |
+| 0.1317 rad (lattice maximum) | 197.9 mm | 175.1 | −155 |
+
+Every tune in the shipped family would drive the stage about 150 mm past its
+limit. Equivalently, 42.98 mm of travel is a bend of 0.0285 rad against the
+0.1215–0.1317 the optics use — short by a factor of 4.3.
+
+One of three things is wrong, and the useful next step is to find out which:
+
+1. **the stage does not carry the full `L sin(theta)` beam offset** — most
+   likely; it may move the dipoles longitudinally, or carry only part of the
+   geometry;
+2. the lattice's angle is not the quantity the stage tracks;
+3. the zero or the floor is not what we think.
+
+Until then `VBC_STAGE_POSITION` in `hardware_CLARA.py` raises and explains
+itself, and a write to any VBC dipole is refused rather than half-applied. The
+stage is otherwise wired: readable, movable, waitable, with the floor enforced
+in `SET_REAL_VBC_STAGE`. The PVs are not on the virtual accelerator, so none of
+it has been exercised against hardware.
+
+Two consequences worth holding on to:
+
+- **If the reachable bend really is ~0.0285 rad, the family is unusable on the
+  real machine as built.** It was scanned over 0.1215–0.1317 and would need
+  rebuilding over a range the stage can reach — a `precompute.py` re-run, which
+  took 2792 s for the shipped artifact. Settle the mapping first.
+- **The model does not represent the stage either.** `vbc_drift_1` is fixed at
+  1.506747 m while the angle varies, so the path length should shrink about
+  2 mm across the family's band and does not. Small, but the artifact rests on
+  a slightly wrong geometry whatever the hardware turns out to do.

@@ -197,10 +197,15 @@ class Machine:
 
 
 def _path_setup() -> None:
+    """Make `rl_framework` importable when this is run as a bare script.
+
+    It is a sibling package in `Refined/`, so this only has to put `Refined/`
+    itself on the path — which the import at the top of this module has
+    already done. Kept as one named place in case that changes.
+    """
     here = Path(__file__).resolve().parent
-    for extra in (here.parent, here.parent / "RL_framework"):
-        if str(extra) not in sys.path:
-            sys.path.insert(0, str(extra))
+    if str(here) not in sys.path:
+        sys.path.insert(0, str(here))
 
 
 def _config_for(spec: MachineSpec, config):
@@ -308,7 +313,7 @@ class EnvMachine(Machine):
 
 
 class SimEnvMachine(EnvMachine):
-    """CLARA as `RL_framework` deals it, scored by the benchmark."""
+    """CLARA as `rl_framework` deals it, scored by the benchmark."""
 
     def __init__(self, spec: MachineSpec, seed: int = 0, config=None):
         super().__init__(spec)

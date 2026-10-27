@@ -49,7 +49,25 @@ if USE_VIRTUAL:
     os.environ["EPICS_CA_MAX_ARRAY_BYTES"] = "1000000"
 
 # The lattice's own magnet calibrations, so the machine and the model agree.
-_LATTICE_DATA = Path(__file__).resolve().parents[3] / "data" / "clara" / "lattice_data"
+#
+# The one thing `Refined/` still reaches outside itself for, deliberately:
+# `data/clara/lattice_data/utils.py` is shared calibration data that `score.py`
+# — the benchmark this pipeline is graded against — also imports. Copying it in
+# would give the model and the scorer two tables that could drift apart, which
+# is the exact failure this module exists to avoid. Found by walking up, as
+# `MachineSpec.load` finds the lattice the specs point at.
+_LATTICE_DATA = next(
+    (parent / "data" / "clara" / "lattice_data"
+     for parent in Path(__file__).resolve().parents
+     if (parent / "data" / "clara" / "lattice_data" / "utils.py").exists()),
+    None,
+)
+if _LATTICE_DATA is None:
+    raise ImportError(
+        "cannot find data/clara/lattice_data/utils.py, which holds CLARA's "
+        "magnet calibrations. It is shared with score.py and is not copied "
+        "into Refined/; this module needs it above the package somewhere."
+    )
 if str(_LATTICE_DATA) not in sys.path:
     sys.path.insert(0, str(_LATTICE_DATA))
 from utils import (  # noqa: E402
@@ -667,9 +685,9 @@ def GET_REAL_SCREEN_EXTENT(screen_name: str) -> tuple[float, float, float, float
 
 def _conversion_table() -> dict[str, list[float]]:
     """The measured metres-per-pixel table, keyed by lattice screen name."""
-    root = Path(__file__).resolve().parents[3] / "image_processing"
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    refined = Path(__file__).resolve().parents[2]
+    if str(refined) not in sys.path:
+        sys.path.insert(0, str(refined))
     from image_processing import camera_conversions
 
     return camera_conversions

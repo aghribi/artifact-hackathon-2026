@@ -1,7 +1,7 @@
 """What a lattice file does not say, and somebody has to.
 
 A machine description, shared by everything that drives a machine: the
-environment that simulates one (`RL_framework`) and the pipeline that tunes one
+environment that simulates one (`rl_framework`) and the pipeline that tunes one
 (`Refined`). It lives here rather than in either of them because both need it and
 neither may depend on the other.
 

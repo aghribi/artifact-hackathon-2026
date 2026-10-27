@@ -42,7 +42,7 @@ SCREEN_SWITCH_SECONDS = 30.0
 def _todo(name: str, returns: str) -> NotImplementedError:
     return NotImplementedError(
         f"{name} is a placeholder and has not been populated yet. It must "
-        f"{returns}. See RL_framework/rl_framework/envs/hardware.py."
+        f"{returns}. See rl_framework/envs/hardware.py."
     )
 
 

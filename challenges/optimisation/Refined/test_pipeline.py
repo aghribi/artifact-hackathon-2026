@@ -31,9 +31,10 @@ import torch
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-for path in (HERE, ROOT, ROOT / "RL_framework"):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+# Everything this needs is in `Refined/`: the tuning modules, `machine_spec`
+# and `rl_framework` are all siblings here now.
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
 PASSED, FAILED = [], []
 
@@ -127,7 +128,7 @@ def test_sign_agreement() -> None:
 
     from lattice import Line
 
-    spec = MachineSpec.load(ROOT / "machines" / "clara_febe.json")
+    spec = MachineSpec.load(HERE / "machines" / "clara_febe.json")
     env = SimEnv(RLConfig.clara())
     line = Line(spec, num_particles=200)
 
@@ -171,7 +172,7 @@ def test_family(artifact: str = "artifacts/clara_febe.npz") -> None:
         print(f"      skipped: no {artifact}")
         return
     family = Family.load(path)
-    spec = MachineSpec.load(ROOT / "machines" / "clara_febe.json")
+    spec = MachineSpec.load(HERE / "machines" / "clara_febe.json")
 
     check("some of it is feasible", family.feasible.any(),
           f"{family.feasible.mean():.0%} of {family.feasible.size:,}")
@@ -217,7 +218,7 @@ def test_tuning(full: bool) -> None:
     if not path.exists():
         print("      skipped: no artifacts/clara_febe.npz")
         return
-    spec = MachineSpec.load(ROOT / "machines" / "clara_febe.json")
+    spec = MachineSpec.load(HERE / "machines" / "clara_febe.json")
     family = Family.load(path)
 
     # Known-good scores. They are not a target to optimise, they are a tripwire:
@@ -242,7 +243,7 @@ def test_tuning(full: bool) -> None:
 def test_other_machine(full: bool) -> None:
     """The point of all of it: a machine nobody wrote this for."""
     print("\n6. the pipeline runs on a lattice it was not written for")
-    spec_path = ROOT / "machines" / "clear.json"
+    spec_path = HERE / "machines" / "clear.json"
     artifact = HERE / "artifacts" / "clear.npz"
     if not spec_path.exists():
         print("      skipped: no machines/clear.json")
@@ -293,7 +294,7 @@ def test_no_bpms(full: bool) -> None:
     only the score but how many switches it took.
     """
     print("\n7. the pipeline tunes a machine with no working BPMs")
-    spec_path = ROOT / "machines" / "clara_febe_no_bpms.json"
+    spec_path = HERE / "machines" / "clara_febe_no_bpms.json"
     artifact = HERE / "artifacts" / "clara_febe.npz"
     if not spec_path.exists() or not artifact.exists():
         print("      skipped: no no-BPM spec or artifact")

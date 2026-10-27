@@ -34,15 +34,15 @@ from gymnasium import spaces
 
 from rl_framework.config import RLConfig
 
-# The shared machine description, which `Refined/` also reads. Added to the path
-# rather than packaged, matching how the rest of this challenge is laid out.
-_SHARED = Path(__file__).resolve().parents[3]
-if str(_SHARED) not in sys.path:
-    sys.path.insert(0, str(_SHARED))
-from machine_spec import lattice_io  # noqa: E402,F401
+# The shared machine description. A sibling package inside `Refined/`, so this
+# is an ordinary import — it used to need the path adjusting because the two
+# lived in different trees.
+from machine_spec import lattice_io  # noqa: F401
 
-# .../challenges/optimisation, which holds `machine_spec/`, `machines/` and `data/`.
-CHALLENGE_DIR = Path(__file__).resolve().parents[3]
+# `Refined/`, which holds `machine_spec/`, `machines/`, `artifacts/` and the
+# tuning modules. Data the specs point at lives above it and is found by
+# `MachineSpec.load`, which walks up from the spec.
+REFINED_DIR = Path(__file__).resolve().parents[2]
 
 DTYPE = "float32"  # what the Cheetah lattice file is parsed into; see sim_env
 

@@ -2,7 +2,7 @@
 
     python -I test_real_env.py
 
-Every placeholder in `RL_framework/rl_framework/envs/hardware.py` is replaced by
+Every placeholder in `rl_framework/envs/hardware.py` is replaced by
 a stub that makes up a plausible answer and records that it was called. That is
 enough to check the thing the real machine cannot be used to check: that the
 environment and the tuners agree about the interface, that a coupled knob
@@ -25,9 +25,10 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-for path in (HERE, ROOT, ROOT / "RL_framework"):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+# Everything this needs is in `Refined/`: the tuning modules, `machine_spec`
+# and `rl_framework` are all siblings here now.
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
 from machine import MachineSpec  # noqa: E402
 
