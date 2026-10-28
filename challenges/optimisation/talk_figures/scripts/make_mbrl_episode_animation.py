@@ -41,14 +41,11 @@ for path in (CHALLENGE, CHALLENGE / "RL_framework", CHALLENGE / "MBRL_opt"):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-from rl_framework.config import RLConfig  # noqa: E402
-
-from MFopt.optics_env import OpticsEnv  # noqa: E402
-
-from agent import MBRLAgent, _mismatch  # noqa: E402
-from config import MBRLConfig  # noqa: E402
-from screen import measure  # noqa: E402
-from twin import CheetahTwin, tune_threads  # noqa: E402
+# `MBRL_opt` is imported inside the functions that need it rather than here, so
+# that another pipeline can import this module for its drawing code — the camera
+# panel, the window logic, the score trace — without dragging in an agent it does
+# not use. See `make_refined_episode_animation.py`, which renders the `Refined`
+# pipeline into exactly the same frames.
 
 # `score.REQUESTED_COLOUR` and `MEASURED_COLOUR`, so these frames and the
 # benchmark's own plots say the same thing with the same colours.
@@ -80,9 +77,17 @@ FRAME_MS = 900
 HOLD_LAST = 6
 
 
-def record(seed: int, config: MBRLConfig) -> tuple[list[dict], object]:
+def record(seed: int, config) -> tuple[list[dict], object]:
     """Run one episode, keeping the camera frame and the numbers of every shot."""
-    rl = RLConfig()
+    from rl_framework.config import RLConfig
+
+    from MFopt.optics_env import OpticsEnv
+
+    from agent import MBRLAgent
+    from screen import measure
+    from twin import CheetahTwin
+
+    rl = RLConfig.clara()
     rl.screen_shape = config.screen_shape
     env = OpticsEnv(rl)
     agent = MBRLAgent(config, CheetahTwin.for_env(env, config.twin_particles))
@@ -105,6 +110,7 @@ def record(seed: int, config: MBRLConfig) -> tuple[list[dict], object]:
                 "score": float(info["benchmark_score"]),
                 "mismatch": float(info["scored_mismatch"]),
                 "stage": stage["name"],
+                "screen": info.get("screen"),
             }
         )
 
@@ -158,7 +164,10 @@ def windows_for(frames: list[dict]) -> list[float]:
     floor = max(max(target[2], target[3]) * 4, MIN_WINDOW)
     needed = []
     for frame in frames:
-        if frame["moments"] is None:
+        # A frame taken while an upstream screen is in the beam is a different
+        # camera: its centroid says nothing about where the readout is looking,
+        # and letting it into the schedule would pull every earlier frame out.
+        if frame["moments"] is None or frame.get("elsewhere"):
             needed.append(floor)
             continue
         mu_x, mu_y, sigma_x, sigma_y = frame["moments"]
@@ -169,7 +178,24 @@ def windows_for(frames: list[dict]) -> list[float]:
                 1.15 * (abs(mu_y - target[1]) + 2 * sigma_y),
             )
         )
-    return list(np.maximum.accumulate(needed[::-1])[::-1])
+    schedule = list(np.maximum.accumulate(needed[::-1])[::-1])
+
+    # The away frames are a different camera and get their own window: one
+    # constant, centred on that screen's axis, big enough for every one of them.
+    # Constant matters — the whole point of those frames is that the orbit moves
+    # between them, and a view that re-centres each shot hides exactly that.
+    away = [i for i, f in enumerate(frames) if f.get("elsewhere")]
+    if away:
+        span = max(
+            [floor] + [
+                1.15 * max(abs(frames[i]["moments"][0]) + 2 * frames[i]["moments"][2],
+                           abs(frames[i]["moments"][1]) + 2 * frames[i]["moments"][3])
+                for i in away if frames[i]["moments"] is not None
+            ]
+        )
+        for i in away:
+            schedule[i] = span
+    return schedule
 
 
 def _rebinned(image, extent, centre, window):
@@ -198,7 +224,12 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     camera.clear()
     trace.clear()
     target = frame["target"]
-    centre = target[:2]
+    # While an upstream screen intercepts the beam, the picture is that screen's.
+    # The request belongs to the readout, so it is not drawn here and the view
+    # centres on what this camera actually sees.
+    elsewhere = frame.get("elsewhere")
+    extent = frame.get("extent", extent)
+    centre = (0.0, 0.0) if elsewhere else target[:2]
 
     patch, patch_extent = _rebinned(frame["image"], extent, centre, window)
     camera.imshow(
@@ -214,22 +245,23 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     camera.set_xlim((centre[0] - window) * 1e3, (centre[0] + window) * 1e3)
     camera.set_ylim((centre[1] - window) * 1e3, (centre[1] + window) * 1e3)
 
-    # What was asked for: one sigma, dashed, always in the middle of the view.
-    camera.add_patch(
-        Ellipse(
-            (centre[0] * 1e3, centre[1] * 1e3),
-            2 * target[2] * 1e3,
-            2 * target[3] * 1e3,
-            fill=False, edgecolor=REQUESTED, lw=2.0, ls="--", zorder=4,
-            label="requested",
+    if not elsewhere:
+        # What was asked for: one sigma, dashed, always in the middle of the view.
+        camera.add_patch(
+            Ellipse(
+                (centre[0] * 1e3, centre[1] * 1e3),
+                2 * target[2] * 1e3,
+                2 * target[3] * 1e3,
+                fill=False, edgecolor=REQUESTED, lw=2.0, ls="--", zorder=4,
+                label="requested",
+            )
         )
-    )
-    # Early on the request is a few pixels across; the cross says where the beam
-    # has to end up before the ellipse is big enough to see.
-    camera.plot(
-        centre[0] * 1e3, centre[1] * 1e3, "+",
-        color=REQUESTED, ms=11, mew=1.8, zorder=5,
-    )
+        # Early on the request is a few pixels across; the cross says where the
+        # beam has to end up before the ellipse is big enough to see.
+        camera.plot(
+            centre[0] * 1e3, centre[1] * 1e3, "+",
+            color=REQUESTED, ms=11, mew=1.8, zorder=5,
+        )
 
     if frame["moments"] is not None:
         mu_x, mu_y, sigma_x, sigma_y = frame["moments"]
@@ -240,10 +272,14 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
                 label="measured",
             )
         )
-        sizes = (
-            f"$\\sigma$  {sigma_x * 1e6:.0f} × {sigma_y * 1e6:.0f} µm"
-            f"      asked {target[2] * 1e6:.0f} × {target[3] * 1e6:.0f} µm"
-        )
+        sizes = f"$\\sigma$  {sigma_x * 1e6:.0f} × {sigma_y * 1e6:.0f} µm"
+        if elsewhere:
+            # The title names the screen; this says why there is no request
+            # drawn against the spot.
+            sizes += "      the request belongs to the readout, not here"
+        else:
+            sizes += (f"      asked {target[2] * 1e6:.0f}"
+                      f" × {target[3] * 1e6:.0f} µm")
     else:
         sizes = "no beam on the screen"
 
@@ -271,12 +307,18 @@ def draw(frame: dict, frames: list[dict], extent, axes, window: float) -> None:
     for text in legend.get_texts():
         text.set_color(INK)
 
-    _inset(camera, frame, extent, centre, window)
+    _inset(camera, frame, extent, centre, window, elsewhere)
     _trace(trace, frames, frame)
 
 
-def _inset(camera, frame, extent, centre, window) -> None:
-    """The whole 22 mm chip, with a box where the main view is looking."""
+def _inset(camera, frame, extent, centre, window, elsewhere=None) -> None:
+    """The whole chip, with a box where the main view is looking.
+
+    Titled with the screen it belongs to, on every frame. The inset *is* this
+    camera's whole chip, so it is the honest place to name it — and naming it
+    always, not only when it changes, means a reader who lands on one frame can
+    see what they are looking at without scanning back for the switch.
+    """
     inset = camera.inset_axes([0.735, 0.715, 0.25, 0.25])
     inset.imshow(
         frame["image"], origin="lower",
@@ -293,7 +335,11 @@ def _inset(camera, frame, extent, centre, window) -> None:
     )
     inset.set_xticks([])
     inset.set_yticks([])
-    inset.set_title("whole chip", color=MUTED, fontsize=7, pad=3)
+    inset.set_title(
+        frame.get("screen") or "whole chip",
+        color=INK if elsewhere else MUTED, fontsize=7, pad=3,
+        fontweight="bold" if elsewhere else "normal",
+    )
     for spine in inset.spines.values():
         spine.set_color(GRID)
 
@@ -330,8 +376,13 @@ def _trace(trace, frames, frame) -> None:
     trace.tick_params(colors=MUTED, labelsize=8)
 
 
-def render(frames, extent, out: Path, result) -> None:
-    """The GIF, and the same frames as numbered PNGs."""
+def render(frames, extent, out: Path, result, title: str | None = None,
+           name: str = "beam_focusing") -> None:
+    """The GIF, and the same frames as numbered PNGs.
+
+    `title` and `name` are parameters so a second pipeline can render the same
+    way without claiming to be this one.
+    """
     out.mkdir(parents=True, exist_ok=True)
     figure, axes = plt.subplots(
         1, 2, figsize=(11.5, 5.2), gridspec_kw={"width_ratios": [1.35, 1.0]}
@@ -343,15 +394,18 @@ def render(frames, extent, out: Path, result) -> None:
     windows = windows_for(frames)
     sequence = list(zip(frames, windows))
     sequence += [sequence[-1]] * HOLD_LAST
-    gif = out / "beam_focusing.gif"
+    gif = out / f"{name}.gif"
     writer = PillowWriter(fps=1000 / FRAME_MS)
     with writer.saving(figure, str(gif), dpi=110):
         for index, (frame, window) in enumerate(sequence):
             draw(frame, frames, extent, axes, window)
             figure.suptitle(
-                f"CLARA · one episode of the MBRL_opt pipeline"
-                f"        final score {result.benchmark_score:.2f}"
-                f" in {result.shots} shots, {result.screen_switches} screen changes",
+                title or (
+                    f"CLARA · one episode of the MBRL_opt pipeline"
+                    f"        final score {result.benchmark_score:.2f}"
+                    f" in {result.shots} shots, "
+                    f"{result.screen_switches} screen changes"
+                ),
                 color=INK, fontsize=11, x=0.012, ha="left", y=0.985,
             )
             figure.tight_layout(rect=[0, 0.02, 1, 0.94])
@@ -376,6 +430,9 @@ def main() -> None:
         default=Path(__file__).resolve().parents[1] / "mbrl_episode",
     )
     args = parser.parse_args()
+    from config import MBRLConfig
+    from twin import tune_threads
+
     tune_threads()
     config = MBRLConfig()
 
@@ -393,7 +450,11 @@ def main() -> None:
 
     print(f"running seed {args.seed}")
     frames, result = record(args.seed, config)
-    rl = RLConfig()
+    from rl_framework.config import RLConfig
+
+    from MFopt.optics_env import OpticsEnv
+
+    rl = RLConfig.clara()
     rl.screen_shape = config.screen_shape
     extent = OpticsEnv(rl).screen_extent()
     print(

@@ -16,7 +16,8 @@ import numpy as np, torch, cheetah
 ROOT = Path.cwd()
 sys.path[:0] = [str(ROOT / "RL_framework"), str(ROOT)]
 from rl_framework.config import RLConfig
-from rl_framework.envs.sim_env import SimEnv, VBC_CHICANE, DTYPE
+from machine_spec.sources.clara import VBC_CHICANE
+from rl_framework.envs.sim_env import SimEnv, DTYPE
 
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
 linear = "--linear" in sys.argv
@@ -26,7 +27,7 @@ K, quads = grid["k1"], grid["quadrupoles"].tolist()
 n = K.shape[0]
 nodes = range(int(args[2]), int(args[3])) if len(args) > 3 else range(n * n)
 
-cfg = RLConfig(backend="cheetah", num_particles=None, apertures=True,
+cfg = RLConfig.clara(backend="cheetah", num_particles=None, apertures=True,
                beam_variation=0.0, misalignment_variation=0.0, beam_jitter=0.0,
                power_supply_ripple=0.0, target=(0.0, 0.0, 1e-3, 1e-3))
 env = SimEnv(cfg); env.reset(seed=0)

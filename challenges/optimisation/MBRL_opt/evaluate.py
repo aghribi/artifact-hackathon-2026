@@ -48,7 +48,16 @@ HIT_TOLERANCES = (0.50, 0.25, 0.10)  # `score.HIT_TOLERANCES`
 _WORKER: dict = {}
 
 
-def _worker_init(config, particles, variation, misalignment) -> None:
+def _load_policy(path):
+    """The trained warm-start policy, or None."""
+    if path is None:
+        return None
+    from policy import FocusPolicy
+
+    return FocusPolicy.load(path)
+
+
+def _worker_init(config, particles, variation, misalignment, policy_path=None) -> None:
     """Give this process its own environment, twin and agent.
 
     None of the three can cross a process boundary — the twin holds torch tensors
@@ -59,7 +68,8 @@ def _worker_init(config, particles, variation, misalignment) -> None:
     tune_threads()
     env, twin = build(config, particles, variation, misalignment)
     _WORKER.update(
-        config=config, env=env, twin=twin, agent=MBRLAgent(config, twin)
+        config=config, env=env, twin=twin,
+        agent=MBRLAgent(config, twin, policy=_load_policy(policy_path)),
     )
 
 
@@ -93,7 +103,7 @@ def build(config: MBRLConfig, particles: int, variation: float, misalignment: fl
     enough to mismeasure an rms by 70 microns. At 512 the measure tracks the true
     moments to a tenth of a micron.
     """
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = particles
     rl.beam_variation = variation
     rl.misalignment_variation = misalignment
@@ -168,12 +178,21 @@ def main() -> None:
         default=max(1, (os.cpu_count() or 2) - 1),
         help="episodes to run at once; each pins itself to one thread (1 = serial)",
     )
+    parser.add_argument(
+        "--policy", type=Path, default=None,
+        help="a checkpoint from train.py, used to warm-start the focus plan",
+    )
+    parser.add_argument(
+        "--no-svd", action="store_true",
+        help="skip the SVD rankings; match whatever the policy was trained with",
+    )
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
     config = MBRLConfig()
     config.twin_particles = args.twin_particles
     config.fit_misalignments = args.fit_misalignments
+    config.use_svd_ranking = not args.no_svd
     if args.steering_shots is not None:
         config.steering_shots = args.steering_shots
     if args.focus_shots is not None:
@@ -185,7 +204,10 @@ def main() -> None:
     if unknown:
         raise SystemExit(f"{unknown}: not methods. mbrl, {', '.join(BASELINES)}")
 
-    settings = (config, args.particles, args.beam_variation, args.misalignment_variation)
+    settings = (
+        config, args.particles, args.beam_variation, args.misalignment_variation,
+        str(args.policy) if args.policy else None,
+    )
     tasks = [(seed, methods) for seed in seeds]
     collected: dict[str, list] = {name: [] for name in methods}
     start_times = {name: time.time() for name in methods}
@@ -210,8 +232,8 @@ def main() -> None:
                         flush=True,
                     )
     else:
-        env, twin = build(*settings)
-        agent = MBRLAgent(config, twin)
+        env, twin = build(*settings[:4])
+        agent = MBRLAgent(config, twin, policy=_load_policy(settings[4]))
         _WORKER.update(config=config, env=env, twin=twin, agent=agent)
         for seed, names in tasks:
             done += 1
@@ -240,7 +262,9 @@ def main() -> None:
         f"\n{args.episodes} episodes, seeds {seeds[0]}-{seeds[-1]}, "
         f"beam variation {args.beam_variation}, misalignment "
         f"{args.misalignment_variation}, "
-        f"misalignment fit {'on' if config.fit_misalignments else 'off'}."
+        f"misalignment fit {'on' if config.fit_misalignments else 'off'}, "
+        f"SVD ranking {'off' if args.no_svd else 'on'}, "
+        f"policy {args.policy if args.policy else 'none'}."
     )
     if args.out:
         args.out.write_text(json.dumps(rows, indent=1))

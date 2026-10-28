@@ -32,6 +32,31 @@ from .optics_env import BPM_TAG, DTYPE, SCREEN_TAG, VBC_EDGE, OpticsEnv
 CHUNK = 512
 
 
+def _forget_maps(element) -> None:
+    """Drop an element's cached transfer maps after its parameters change.
+
+    Cheetah caches a map on the element and keys the cache on the beam energy and
+    species, not on the strengths the map was built from, so reassigning `k1` does
+    not invalidate it. That is harmless while the batch width never changes, and
+    not harmless here: a batched evaluation leaves behind, say,
+
+        cla_s04_mag_quad_04._cache["second_order_transfer_map"]["result"]
+        shape (4, 7, 7, 7)
+
+    and the next *unbatched* track silently reuses it, returns a beam of shape
+    (4, N) where (1, N) was expected, and `_run` fails on `expand(count, -1)`.
+
+    It showed up as an intermittent fault that depended on the requested spot
+    rather than on anything obvious: different requests clip different final-focus
+    quadrupoles, which changes the batch widths, so some sequences of targets trip
+    it and others never do. Clearing the cache on write costs the recomputation of
+    a map that was about to be wrong anyway.
+    """
+    cache = getattr(element, "_cache", None)
+    if isinstance(cache, dict):
+        cache.clear()
+
+
 class _BatchSegment:
     """A private copy of the twin's segment, cut at the same stops."""
 
@@ -51,12 +76,14 @@ class _BatchSegment:
         if prop == "angle" and element in VBC_EDGE:
             face = "dipole_e2" if VBC_EDGE[element] == "exit" else "dipole_e1"
             setattr(target, face, values)
+        _forget_maps(target)
 
 
 def _segment(env: OpticsEnv) -> _BatchSegment:
     if getattr(env, "_batch_segment", None) is None:
-        if env.twin.config.backend != "cheetah":
-            raise ValueError("probe_batch needs the Cheetah backend")
+        # There is only the Cheetah backend now; the xsuite one left SimEnv with
+        # the rest of the machine-specific code. The guard stays as an assertion
+        # rather than a choice.
         env._batch_segment = _BatchSegment(env.twin)
     return env._batch_segment
 
@@ -93,9 +120,9 @@ def _launch(env: OpticsEnv, coordinates: np.ndarray | None):
 def _run(env: OpticsEnv, chunks, beam, live, count: int):
     """Track `beam` through `chunks`, reading every BPM and screen on the way.
     `live` is updated in place."""
-    radius = env.twin.config.beam_pipe_radius
+    radius = env.twin.beam_pipe_radius
     launched = live.shape[-1]
-    minimum = env.twin.config.min_screen_fraction * launched
+    minimum = env.twin.min_screen_fraction * launched
     names, stats = [], []
     with torch.no_grad():
         for stop, chunk in chunks:

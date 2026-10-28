@@ -56,7 +56,7 @@ def _episode(job: tuple[str, int, float]):
         torch.set_num_threads(1)
         from rl_framework.config import RLConfig
 
-        _env = OpticsEnv(RLConfig(misalignment_variation=misalignment))
+        _env = OpticsEnv(RLConfig.clara(misalignment_variation=misalignment))
     return name, run_episode(_env, POLICIES[name], seed)
 
 

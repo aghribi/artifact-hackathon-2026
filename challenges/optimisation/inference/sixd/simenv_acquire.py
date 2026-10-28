@@ -33,7 +33,7 @@ def make_env(num_particles=20_000, seed=0, lattice=None, **kwargs):
     from rl_framework.envs.sim_env import SimEnv
 
     lattice = str(lattice or full6d.plan_lattice())
-    env = SimEnv(RLConfig(backend="xsuite", num_particles=num_particles, normalise_image=False,
+    env = SimEnv(RLConfig.clara(backend="xsuite", num_particles=num_particles, normalise_image=False,
                           nominal_lattice_json=lattice,
                           screen_shape=SHAPE, max_episode_steps=10**9, **kwargs))
     env.reset(seed=seed)

@@ -45,9 +45,9 @@ def _setup():
     from rl_framework.envs.sim_env import SimEnv
     cfg = dict(backend="cheetah", apertures=True, beam_variation=0.0, misalignment_variation=0.0,
                beam_jitter=0.0, nominal_lattice_json=LATTICE, target=(0.0, 0.0, 1e-3, 1e-3))
-    check = SimEnv(RLConfig(num_particles=CHECK_N, **cfg)); check.reset(seed=0)
-    fit = SimEnv(RLConfig(num_particles=FIT_N, **cfg)); fit.reset(seed=0)
-    from rl_framework.envs.sim_env import VBC_CHICANE
+    check = SimEnv(RLConfig.clara(num_particles=CHECK_N, **cfg)); check.reset(seed=0)
+    fit = SimEnv(RLConfig.clara(num_particles=FIT_N, **cfg)); fit.reset(seed=0)
+    from machine_spec.sources.clara import VBC_CHICANE
     for env in (check, fit):   # knob sign: dipole 01 bends negative in the lattice file
         env._knobs[VBC_CHICANE].set(-VBC_ANGLE, clip=False)
     seg = fit.segment.to(dtype=torch.float64)
