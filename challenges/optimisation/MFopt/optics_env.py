@@ -45,11 +45,9 @@ for path in (CHALLENGE_DIR, CHALLENGE_DIR / "RL_framework"):
 
 from optics_matching import SizeModes  # noqa: E402
 from rl_framework.config import RLConfig  # noqa: E402
+from machine_spec.sources.clara import BPM_TAG, SCREEN_TAG, VBC_EDGE  # noqa: E402
 from rl_framework.envs.sim_env import (  # noqa: E402
-    BPM_TAG,
     DTYPE,
-    SCREEN_TAG,
-    VBC_EDGE,
     SimEnv,
 )
 
@@ -162,7 +160,7 @@ class OpticsEnv(SimEnv):
 
     def __init__(self, config: RLConfig | None = None,
                  twin_particles: int | None = TWIN_PARTICLES):
-        super().__init__(config or RLConfig())
+        super().__init__(config or RLConfig.clara())
         self.twin_particles = twin_particles
         self.nodes = RematchedNodes()
         self._size_modes = SizeModes()
@@ -177,7 +175,7 @@ class OpticsEnv(SimEnv):
         error and no shot jitter, with the same lattice, backend and apertures,
         tracking `twin_particles` particles."""
         if self._twin is None:
-            config = RLConfig(**{**self.config.__dict__,
+            config = RLConfig.clara(**{**self.config.__dict__,
                                  "beam_variation": 0.0,
                                  "misalignment_variation": 0.0,
                                  "power_supply_ripple": 0.0,
@@ -200,8 +198,8 @@ class OpticsEnv(SimEnv):
             twin._knobs[name].set(value, clip=False)
         coordinates = twin._coordinates
         count = len(coordinates)
-        radius = twin.config.beam_pipe_radius
-        minimum = twin.config.min_screen_fraction * count
+        radius = twin.beam_pipe_radius
+        minimum = twin.min_screen_fraction * count
         live = np.ones(count, dtype=bool)
         names, stats = [], []
         for name, x, y, alive in twin.transport.run(
@@ -225,7 +223,7 @@ class OpticsEnv(SimEnv):
         """Which diagnostics the responses use, and the weight of each: every
         screen, with the readout carrying `READOUT_WEIGHT` of the total."""
         screens = np.array([SCREEN_TAG in name for name in names])
-        readout = np.array([name == self.config.target_screen for name in names])
+        readout = np.array([name == self.scored_screen for name in names])
         weights = np.where(readout, READOUT_WEIGHT, 0.0)
         upstream = screens & ~readout
         weights[upstream] = (1 - READOUT_WEIGHT) / upstream.sum()
@@ -251,7 +249,7 @@ class OpticsEnv(SimEnv):
         def residuals(K):
             stats, transmission, stops = stations.track(
                 {n: K[:, i] for i, n in enumerate(names)})
-            final = stats[:, stops.index(self.config.target_screen)]
+            final = stats[:, stops.index(self.scored_screen)]
             with np.errstate(invalid="ignore", divide="ignore"):
                 out = np.column_stack([np.log(final[:, 2] / target[0]),
                                        np.log(final[:, 3] / target[1]),
@@ -348,7 +346,7 @@ class OpticsEnv(SimEnv):
             kicks = self._modes(k1, self.corrector_names, CORRECTOR_STEP,
                                 centroid, fraction)
         final = self._probe(k1)
-        readout = final["stats"][final["names"].index(self.config.target_screen)]
+        readout = final["stats"][final["names"].index(self.scored_screen)]
         result = TargetOptics(
             target=(float(sigma_x), float(sigma_y)), k1=k1,
             quadrupoles=quads, correctors=kicks,

@@ -269,7 +269,7 @@ def run(config,out):
     (out/'config.json').write_text(json.dumps(clean(asdict(config)),indent=2)+'\n')
     models=Models(config.backend,config.target,out);models.save_orbits(models.orbit,'nominal_orbit');beta=models.beta_response()
     size_model=SizeModel(models,min(config.model_particles,config.particles));setup=time.perf_counter()-started
-    cfg=RLConfig(backend=config.backend,nominal_lattice_json=str(lattice),num_particles=config.particles,target=(0.,0.,*config.target),
+    cfg=RLConfig.clara(backend=config.backend,nominal_lattice_json=str(lattice),num_particles=config.particles,target=(0.,0.,*config.target),
         max_episode_steps=config.thread_budget+config.optics_budget+config.center_budget+2,beam_variation=config.beam_variation,
         misalignment_variation=config.misalignment_variation,beam_jitter=config.beam_jitter,power_supply_ripple=config.ripple,bpm_noise=config.bpm_noise,
         include_cavity_phases=False,include_vbc_chicane=False)

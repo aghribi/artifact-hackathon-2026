@@ -1,0 +1,430 @@
+{
+ "lattice": "data/clear/lattice_data/clearline.json",
+ "beam": null,
+ "beam_twiss": {
+  "beta_x": 10.0,
+  "alpha_x": 0.0,
+  "emittance_x": 5e-09,
+  "beta_y": 10.0,
+  "alpha_y": 0.0,
+  "emittance_y": 5e-09,
+  "sigma_tau": 0.0003,
+  "sigma_p": 0.001,
+  "energy": 200000000.0,
+  "total_charge": 1e-12
+ },
+ "apertures": null,
+ "start": null,
+ "end": "CA_BTV0910",
+ "readout": "CA_BTV0910",
+ "bpms": [
+  "CA_BPM0530",
+  "CA_BPM0595",
+  "CA_BPM0690",
+  "CA_BPM0820",
+  "CA_BPM0890"
+ ],
+ "screens": [
+  "CA_BTV0390",
+  "CA_BTV0620",
+  "CA_BTV0730",
+  "CA_BTV0800",
+  "CA_BTV0810",
+  "CA_BTV0910",
+  "CA_BTV_dump"
+ ],
+ "pipe_radius": 0.02,
+ "min_fraction": 0.1,
+ "knobs": [
+  {
+   "name": "CA_QFD0350",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0350"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QDD0355",
+   "prop": "k1",
+   "elements": [
+    "CA_QDD0355"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0360",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0360"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHG0385_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHG0385"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHG0385_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHG0385"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0510",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0510"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QDD0515",
+   "prop": "k1",
+   "elements": [
+    "CA_QDD0515"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0520",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0520"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0540_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHJ0540"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0540_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHJ0540"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0590_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHJ0590"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0590_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHJ0590"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0710_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHJ0710"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0710_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHJ0710"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0760",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0760"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QDD0765",
+   "prop": "k1",
+   "elements": [
+    "CA_QDD0765"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0770",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0770"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0780_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHJ0780"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0780_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHJ0780"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0840_h",
+   "prop": "horizontal_angle",
+   "elements": [
+    "CA_DHJ0840"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_DHJ0840_v",
+   "prop": "vertical_angle",
+   "elements": [
+    "CA_DHJ0840"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -0.001,
+   "high": 0.001,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QDD0870",
+   "prop": "k1",
+   "elements": [
+    "CA_QDD0870"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  },
+  {
+   "name": "CA_QFD0880",
+   "prop": "k1",
+   "elements": [
+    "CA_QFD0880"
+   ],
+   "signs": [
+    1.0
+   ],
+   "follow": {},
+   "low": -10.0,
+   "high": 10.0,
+   "step": null,
+   "nonlinear": false,
+   "note": ""
+  }
+ ],
+ "fixed": [],
+ "disabled": [],
+ "spot_low": 0.0001,
+ "spot_high": 0.001,
+ "spot_points": 25,
+ "matching_quads": [
+  "CA_QDD0765",
+  "CA_QFD0770",
+  "CA_QDD0870",
+  "CA_QFD0880"
+ ],
+ "axes": [],
+ "name": "clear",
+ "notes": [
+  "SYNTHESISED. CLEAR ships as a lattice and not as a machine: every quadrupole k1 and both RBend angles are 0.0, there is no beam distribution, machine_data/ is empty so there is no calibration or chamber, and the screens declare 1024 x 1 mm pixels (a 0.512 m half-chip) which is a converter default. Everything below was invented to give the pipeline a second machine to run on. None of it is a measurement of CLEAR.",
+  "FABRICATED beam: 200 MeV, the energy in the lattice header; beta 10 m, alpha 0, 5 nm emittance in both planes, 1e-3 momentum spread, 1 pC.",
+  "FABRICATED limits: +-10 m^-2 on quadrupoles and +-1 mrad on correctors, by magnet type rather than from any calibration.",
+  "FABRICATED chamber: a 20 mm round pipe, no aperture file.",
+  "Readout is CA_BTV0910, the last BTV before the dump.",
+  "The tune is still to be found: quadrupole strengths are zero in the file, so the optics has to be matched from scratch rather than loaded."
+ ],
+ "unresolved": []
+}

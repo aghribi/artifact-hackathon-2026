@@ -1,5 +1,9 @@
 # Python dependencies for the PALLAS surrogate-models challenge.
 # Install with:  pip install -r requirements.txt
+# or, the team's way, from this folder (Python 3.11):
+#   uv venv --python 3.11 .venv
+#   uv pip install --python .venv/bin/python -r requirements.txt
+#   .venv/bin/python check_setup.py        # imports, Hopsworks and W&B access
 #
 # Pinned to the versions the shipped notebooks were executed with (Python 3.11.11,
 # Linux x86_64). Newer versions are expected to work; these are the ones checked.
@@ -15,8 +19,21 @@ pyarrow==21.0.0
 scikit-learn==1.8.0
 scipy==1.17.1
 matplotlib==3.10.8
+plotly>=5.18,<7
+streamlit>=1.40,<2
 torch==2.10.0
 jupyterlab==4.5.5
 ipykernel==7.2.0
 nbconvert==7.17.0
-wandb
+wandb==0.30.0
+
+# The feature store and model registry (surrogate_pipeline.ipynb). 5.1.1 is the client
+# version checked against aissai26.hops.live; the [python] extra reads the offline store
+# without Spark or Hive.
+hopsworks[python]==5.1.1
+
+# DeepONet models (models/MO_DeepOnet.py), on the PyTorch backend above
+deepxde==1.15.0
+
+# Hyperparameter search (hpo.py)
+optuna==5.0.0

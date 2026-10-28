@@ -39,7 +39,8 @@ QUADRUPOLES = ("cla_fea_mag_quad_14", "cla_fea_mag_quad_15", "cla_fea_mag_quad_1
 CORRECTORS = tuple(f"{name}_{plane}" for plane in ("h", "v") for name in (
     "cla_fea_mag_hvcor_04", "cla_fea_mag_hvcor_05", "cla_fea_mag_hvcor_06",
     "cla_feh_mag_hvcor_01", "cla_feh_mag_hvcor_02"))
-SEXTUPOLES = ("cla_fea_mag_sext_01", "cla_fea_mag_sext_02")
+# One knob, not two: the two FEA sextupoles share a power supply and run alternating, so the machine spec drives them as one knob.
+SEXTUPOLES = ("fea_sextupoles",)
 DOF = QUADRUPOLES + CORRECTORS + SEXTUPOLES
 SEXTUPOLE_STEP = 5.0  # k2, m^-3 (limits are +-50)
 READOUT = ("mu_x", "mu_y", "sigma_x", "sigma_y", "transmission")
@@ -71,11 +72,11 @@ def _centroids(env: OpticsEnv, readings: dict) -> np.ndarray:
     stats = {n: row[:2] - twin._offsets[n][:2]
              for n, row in zip(readings["names"], readings["stats"])}
     bpm = np.array([stats[b] for b in env.bpm_names])
-    return np.concatenate([bpm[:, 0], bpm[:, 1], stats[env.config.target_screen]])
+    return np.concatenate([bpm[:, 0], bpm[:, 1], stats[env.scored_screen]])
 
 
 def _readout(env: OpticsEnv, readings: dict) -> np.ndarray:
-    row = readings["stats"][readings["names"].index(env.config.target_screen)]
+    row = readings["stats"][readings["names"].index(env.scored_screen)]
     return np.append(row, readings["transmission"])
 
 

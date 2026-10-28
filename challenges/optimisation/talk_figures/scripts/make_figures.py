@@ -28,7 +28,7 @@ C = dict(quad="#eb6834", dip="#2a78d6", cav="#eda100", tdc="#6250d6", sext="#008
          cor="#1baf7a", scr="#9a9a9a", ink="#222222", muted="#6b6b6b", red="#e34948")
 
 # ---------------- lattice ----------------
-env = SimEnv(RLConfig(backend="cheetah", num_particles=1000, apertures=True))
+env = SimEnv(RLConfig.clara(backend="cheetah", num_particles=1000, apertures=True))
 els = env.segment.elements
 L = np.array([float(e.length) for e in els]); s1 = np.cumsum(L); s0 = s1 - L
 

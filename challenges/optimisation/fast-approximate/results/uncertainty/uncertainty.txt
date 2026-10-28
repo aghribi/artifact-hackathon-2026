@@ -1,0 +1,50 @@
+next-shot test MAE (nC) and its % reduction against the 9-shot mean and the hybrid, with 95 % circular block bootstrap intervals (50-shot blocks); * = the interval excludes 0
+                run                       forecast  test MAE    vs 9-shot mean: gain %    vs hybrid (z=6: gain %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430                                                    
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156  +8.00 [ +1.11, +16.86] *                          
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3163  +7.79 [ +0.28, +16.30] *    -0.23 [ -2.26,  +1.97]
+2026-10-09_07-46-07               GRU, pooled runs    0.3116  +9.15 [ +2.04, +17.54] *    +1.26 [ -0.04,  +2.66]
+2026-10-09_07-46-07  GRU, pooled runs, charge only    0.3096  +9.76 [ +2.70, +18.71] *  +1.91 [ +0.73,  +3.19] *
+2026-10-09_07-46-07           GRU, other runs only    0.3129  +8.78 [ +1.62, +17.48] *    +0.84 [ -0.53,  +2.36]
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442                                                    
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414  +1.93 [ +0.34,  +3.45] *                          
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1399  +2.99 [ +1.35,  +4.68] *    +1.09 [ -0.23,  +2.31]
+2026-10-08_21-11-47               GRU, pooled runs    0.1399  +2.95 [ +1.40,  +4.55] *    +1.05 [ -0.14,  +2.22]
+2026-10-08_21-11-47  GRU, pooled runs, charge only    0.1407  +2.42 [ +0.85,  +3.97] *    +0.51 [ -0.75,  +1.85]
+2026-10-08_21-11-47           GRU, other runs only    0.1408  +2.33 [ +0.69,  +3.92] *    +0.41 [ -0.99,  +1.84]
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414                                                    
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392  +1.59 [ +0.12,  +3.03] *                          
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1371  +3.03 [ +1.27,  +4.66] *    +1.47 [ -0.03,  +2.95]
+2026-10-08_00-08-19               GRU, pooled runs    0.1359  +3.87 [ +2.32,  +5.48] *  +2.32 [ +0.95,  +3.77] *
+2026-10-08_00-08-19  GRU, pooled runs, charge only    0.1364  +3.54 [ +1.67,  +5.34] *  +1.99 [ +0.43,  +3.62] *
+2026-10-08_00-08-19           GRU, other runs only    0.1370  +3.09 [ +1.40,  +4.66] *    +1.52 [ -0.00,  +3.04]
+2026-10-07_21-43-26         9-shot mean (baseline)    0.0195                                                    
+2026-10-07_21-43-26          hybrid (z=6, wmax=20)    0.0192    +1.73 [ -1.15,  +4.24]                          
+2026-10-07_21-43-26 combined, ridge on pooled runs    0.0183  +5.93 [ +3.39,  +8.51] *  +4.27 [ +2.80,  +5.73] *
+2026-10-07_21-43-26               GRU, pooled runs    0.0186  +4.60 [ +1.76,  +7.00] *  +2.92 [ +1.49,  +4.43] *
+2026-10-07_21-43-26  GRU, pooled runs, charge only    0.0186  +4.54 [ +1.56,  +7.16] *  +2.85 [ +1.31,  +4.47] *
+2026-10-07_21-43-26           GRU, other runs only    0.0186  +4.79 [ +2.04,  +7.13] *  +3.11 [ +1.82,  +4.48] *
+2026-10-08_15-42-27         9-shot mean (baseline)    0.0122                                                    
+2026-10-08_15-42-27          hybrid (z=6, wmax=20)    0.0119  +2.46 [ +1.01,  +3.74] *                          
+2026-10-08_15-42-27 combined, ridge on pooled runs    0.0119  +3.01 [ +1.51,  +4.47] *    +0.56 [ -0.90,  +1.99]
+2026-10-08_15-42-27               GRU, pooled runs    0.0118  +3.27 [ +1.86,  +4.72] *    +0.83 [ -0.22,  +1.87]
+2026-10-08_15-42-27  GRU, pooled runs, charge only    0.0120    +1.59 [ -0.50,  +3.54]    -0.90 [ -2.65,  +0.68]
+2026-10-08_15-42-27           GRU, other runs only    0.0118  +3.55 [ +2.27,  +4.71] *  +1.12 [ +0.18,  +2.09] *
+
+prediction intervals for "combined, ridge on pooled runs", nominal 90 %; forecasts made < 5 shots after a level change use the pooled training quantiles -15.1 / +386.5 % (71 forecasts)
+                run calibration  coverage %  mean width % of level  coverage, stable %  width, stable %  coverage, after change %
+2026-10-09_07-46-07     rolling        90.0                   14.2                90.0             12.3                       NaN
+2026-10-09_07-46-07       fixed        83.6                   12.0                83.6             10.1                       NaN
+2026-10-08_21-11-47     rolling        89.8                   10.1                89.8             10.1                       NaN
+2026-10-08_21-11-47       fixed        91.1                   10.5                91.1             10.5                       NaN
+2026-10-08_00-08-19     rolling        89.4                   12.9                89.5             13.0                       NaN
+2026-10-08_00-08-19       fixed        87.6                   12.2                87.7             12.2                       NaN
+2026-10-07_21-43-26     rolling        87.2                   32.2                87.2             32.2                       NaN
+2026-10-07_21-43-26       fixed        82.6                   28.0                82.6             28.0                       NaN
+2026-10-08_15-42-27     rolling        91.9                   54.2                93.8             55.1                       NaN
+2026-10-08_15-42-27       fixed        83.9                   42.0                84.6             42.0                       NaN
+-> results/uncertainty/interval_2026-10-09_07-46-07.png
+-> results/uncertainty/interval_2026-10-08_21-11-47.png
+-> results/uncertainty/interval_2026-10-08_00-08-19.png
+-> results/uncertainty/interval_2026-10-07_21-43-26.png
+-> results/uncertainty/interval_2026-10-08_15-42-27.png

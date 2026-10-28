@@ -86,7 +86,7 @@ def readings_agree(label, twin_readings, observation, info) -> None:
 
 def test_fidelity() -> None:
     print("\n1. the twin is the same machine as SimEnv (every variation at zero)")
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = PARTICLES
     rl.beam_variation = 0.0
     rl.misalignment_variation = 0.0
@@ -103,15 +103,23 @@ def test_fidelity() -> None:
     # Moved magnets, one of every kind the agent turns.
     moved = {
         "cla_feh_mag_quad_01": 1.7,
-        "cla_fea_mag_sext_01": 12.0,
+        "fea_sextupoles": 12.0,
         "cla_feh_mag_hvcor_01_h": 2.0e-4,
         "cla_l03_lin_cav_01": 12.0,
         "cla_vbc_chicane": 0.01,
     }
     observation, _, _, _, info = env.step({"magnets": moved})
-    twin.set_knobs(
-        {k: v for k, v in moved.items() if not k.endswith(("_h", "_v"))}
-    )
+    # The environment takes knob names and the twin takes element names, which
+    # differ wherever a knob drives more than one magnet: the two FEA sextupoles
+    # are one supply running alternating, so the group expands to both elements
+    # with their signs.
+    expanded = {
+        "cla_fea_mag_sext_01": moved["fea_sextupoles"],
+        "cla_fea_mag_sext_02": -moved["fea_sextupoles"],
+        **{k: v for k, v in moved.items()
+           if k != "fea_sextupoles" and not k.endswith(("_h", "_v"))},
+    }
+    twin.set_knobs(expanded)
     twin.set_knob_vector(["cla_feh_mag_hvcor_01"], ["horizontal_angle"], [2.0e-4])
     readings_agree("after moving magnets", twin.readings(), observation, info)
 
@@ -125,7 +133,7 @@ def test_fidelity() -> None:
 
 def test_batching_and_gradients() -> None:
     print("\n2. the twin plans in batches and differentiates")
-    twin = CheetahTwin.for_env(SimEnv(RLConfig()), PARTICLES)
+    twin = CheetahTwin.for_env(SimEnv(RLConfig.clara()), PARTICLES)
     size = 128
     values = torch.linspace(-8.0, 8.0, size, requires_grad=True)
     start = time.time()
@@ -166,7 +174,7 @@ def test_screen_measure() -> None:
     print("\n3. the robust screen measure reads the spot the particles made")
     from screen import measure, pixel_size
 
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = PARTICLES
     rl.screen_shape = MBRLConfig().screen_shape
     env = SimEnv(rl)
@@ -202,7 +210,7 @@ def test_no_leakage() -> None:
     the two predictions would differ and both would be right.
     """
     print("\n4. the agent cannot see the machine it has not measured")
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = PARTICLES
     rl.screen_shape = MBRLConfig().screen_shape
     env = SimEnv(rl)
@@ -247,7 +255,7 @@ def test_pipeline() -> None:
     config.cem_iterations = 3
     config.cem_population = 96
 
-    rl = RLConfig()
+    rl = RLConfig.clara()
     rl.num_particles = 2_000
     rl.screen_shape = config.screen_shape
     env = OpticsEnv(rl)

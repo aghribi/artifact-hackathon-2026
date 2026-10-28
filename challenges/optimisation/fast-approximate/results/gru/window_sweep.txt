@@ -1,0 +1,132 @@
+=== L = 8
+GRU, pooled runs               trained on 3 run(s), seed 0: 6 epochs, val L1 2.83 % (hybrid 2.87 %), 8 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 9 epochs, val L1 2.83 % (hybrid 2.87 %), 8 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 12 epochs, val L1 2.83 % (hybrid 2.87 %), 11 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3125   0.0002  0.2992               8.9105
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1404   0.0004  0.1404               2.5796
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1365   0.0001  0.1365               3.4808
+-> results/gru/window_sweep/L8/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L8/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L8/gru_2026-10-08_00-08-19.png
+=== L = 16
+GRU, pooled runs               trained on 3 run(s), seed 0: 6 epochs, val L1 2.82 % (hybrid 2.87 %), 12 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 13 epochs, val L1 2.82 % (hybrid 2.87 %), 24 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 11 epochs, val L1 2.82 % (hybrid 2.87 %), 19 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3120   0.0006  0.2987               9.0432
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1405   0.0003  0.1405               2.5506
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1361   0.0002  0.1362               3.7153
+-> results/gru/window_sweep/L16/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L16/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L16/gru_2026-10-08_00-08-19.png
+=== L = 32
+GRU, pooled runs               trained on 3 run(s), seed 0: 12 epochs, val L1 2.81 % (hybrid 2.87 %), 42 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 13 epochs, val L1 2.81 % (hybrid 2.87 %), 41 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 9 epochs, val L1 2.81 % (hybrid 2.87 %), 29 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3121   0.0006  0.2988               9.0100
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1404   0.0001  0.1404               2.5994
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1359   0.0002  0.1359               3.8999
+-> results/gru/window_sweep/L32/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L32/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L32/gru_2026-10-08_00-08-19.png
+=== L = 64
+GRU, pooled runs               trained on 3 run(s), seed 0: 15 epochs, val L1 2.82 % (hybrid 2.87 %), 91 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 11 epochs, val L1 2.82 % (hybrid 2.87 %), 53 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 13 epochs, val L1 2.82 % (hybrid 2.87 %), 49 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3130   0.0008  0.2997               8.7572
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1403   0.0003  0.1403               2.6677
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1358   0.0001  0.1358               3.9672
+-> results/gru/window_sweep/L64/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L64/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L64/gru_2026-10-08_00-08-19.png
+=== L = 128
+GRU, pooled runs               trained on 3 run(s), seed 0: 9 epochs, val L1 2.82 % (hybrid 2.87 %), 76 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 9 epochs, val L1 2.82 % (hybrid 2.87 %), 75 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 15 epochs, val L1 2.82 % (hybrid 2.87 %), 106 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3123   0.0008  0.2990               8.9677
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1402   0.0002  0.1402               2.7623
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1361   0.0002  0.1361               3.7682
+-> results/gru/window_sweep/L128/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L128/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L128/gru_2026-10-08_00-08-19.png
+=== L = 256
+GRU, pooled runs               trained on 3 run(s), seed 0: 23 epochs, val L1 2.83 % (hybrid 2.88 %), 535 s
+GRU, pooled runs               trained on 3 run(s), seed 1: 11 epochs, val L1 2.83 % (hybrid 2.88 %), 347 s
+GRU, pooled runs               trained on 3 run(s), seed 2: 8 epochs, val L1 2.83 % (hybrid 2.88 %), 334 s
+
+next-shot MAE (nC) on each run's test region (last 10 %); GRU = mean of 3 seeds' forecasts, seed std = spread of the single-seed MAEs
+                run                       forecast  test MAE seed std  stable after change  dMAE %
+2026-10-09_07-46-07         9-shot mean (baseline)    0.3430           0.3096               0.0000
+2026-10-09_07-46-07          hybrid (z=6, wmax=20)    0.3156           0.3023               7.9980
+2026-10-09_07-46-07 combined, ridge on pooled runs    0.3132           0.2999               8.6932
+2026-10-09_07-46-07               GRU, pooled runs    0.3133    0.001  0.3000               8.6803
+2026-10-08_21-11-47         9-shot mean (baseline)    0.1442           0.1442               0.0000
+2026-10-08_21-11-47          hybrid (z=6, wmax=20)    0.1414           0.1414               1.9255
+2026-10-08_21-11-47 combined, ridge on pooled runs    0.1398           0.1398               3.0145
+2026-10-08_21-11-47               GRU, pooled runs    0.1403   0.0002  0.1403               2.6905
+2026-10-08_00-08-19         9-shot mean (baseline)    0.1414           0.1414               0.0000
+2026-10-08_00-08-19          hybrid (z=6, wmax=20)    0.1392           0.1392               1.5851
+2026-10-08_00-08-19 combined, ridge on pooled runs    0.1356           0.1355               4.1364
+2026-10-08_00-08-19               GRU, pooled runs    0.1359   0.0002  0.1359               3.8800
+-> results/gru/window_sweep/L256/gru_2026-10-09_07-46-07.png
+-> results/gru/window_sweep/L256/gru_2026-10-08_21-11-47.png
+-> results/gru/window_sweep/L256/gru_2026-10-08_00-08-19.png

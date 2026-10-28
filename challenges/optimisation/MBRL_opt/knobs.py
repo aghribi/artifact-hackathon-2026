@@ -26,8 +26,11 @@ PROPERTIES = {
     "Sextupole": (("k2", ""),),
     "CombinedCorrector": (("horizontal_angle", "_h"), ("vertical_angle", "_v")),
     "Cavity": (("phase", ""),),
-    # The VBC chicane is one knob driving four dipoles, and SimEnv names it itself.
+    # Knobs that drive several magnets at once, named by the machine spec and
+    # behaving like one magnet of the type they are made of: the VBC chicane is
+    # four dipoles on one supply, the FEA sextupole pair is two on one.
     "Chicane": (("angle", ""),),
+    "SextupolePair": (("k2", ""),),
 }
 VBC_CHICANE = "cla_vbc_chicane"
 

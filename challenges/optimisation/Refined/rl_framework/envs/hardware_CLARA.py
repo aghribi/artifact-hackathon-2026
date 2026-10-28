@@ -1,0 +1,799 @@
+"""`hardware.py` for CLARA, through CATAP. The real implementation.
+
+    from rl_framework.envs import hardware_CLARA
+    env = RealEnv(config, hardware=hardware_CLARA)
+
+`USE_VIRTUAL` picks the virtual accelerator over the real one, and is the only
+switch that matters here: with it `True` nothing in this file can move a magnet
+on CLARA. Leave it `True` until a run is intended.
+
+**Units in, units out.** Everything crossing this boundary is in the units the
+lattice file uses — quadrupole `k1` in 1/m², corrector and dipole `angle` in
+rad, sextupole `k2` in 1/m³, positions and extents in metres. CATAP works in
+amps and millimetres, and the conversions live here so that nothing above this
+line knows a power supply exists. They are the same calibrations the Cheetah
+model is built from (`data/clara/lattice_data/utils.py`), which matters more
+than it sounds: a tuner plans against the model and applies through here, so a
+disagreement between the two shows up as model error that no amount of tuning
+removes.
+
+**Names.** The environment works in lattice names, lower case with underscores,
+and *with the plane on the end for a corrector* — `cla_s02_mag_hvcor_01_h`,
+because the model's one element is two magnets on the machine. `_catap_name`
+turns that into CATAP's `CLA-S02-MAG-HCOR-01`.
+
+**pyCATAP is incomplete and buggy.** So: every wait has a timeout rather than a
+bare `while`, every readback that can come back empty is checked before it is
+believed, and the frame shape is taken from the camera rather than assumed. The
+places where that caution is load-bearing are commented individually.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+
+# Use the virtual accelerator. **This is the safety switch.** It is read when a
+# factory is first built, not at import, so flipping it in a session before
+# touching anything still takes effect.
+USE_VIRTUAL = True
+
+if USE_VIRTUAL:
+    os.environ["EPICS_CA_ADDR_LIST"] = "192.168.83.246"
+    os.environ["EPICS_CA_SERVER_PORT"] = "6040"
+    os.environ["EPICS_CA_AUTO_ADDR_LIST"] = "NO"
+    os.environ["EPICS_CA_MAX_ARRAY_BYTES"] = "1000000"
+
+# The lattice's own magnet calibrations, so the machine and the model agree.
+#
+# The one thing `Refined/` still reaches outside itself for, deliberately:
+# `data/clara/lattice_data/utils.py` is shared calibration data that `score.py`
+# — the benchmark this pipeline is graded against — also imports. Copying it in
+# would give the model and the scorer two tables that could drift apart, which
+# is the exact failure this module exists to avoid. Found by walking up, as
+# `MachineSpec.load` finds the lattice the specs point at.
+_LATTICE_DATA = next(
+    (parent / "data" / "clara" / "lattice_data"
+     for parent in Path(__file__).resolve().parents
+     if (parent / "data" / "clara" / "lattice_data" / "utils.py").exists()),
+    None,
+)
+if _LATTICE_DATA is None:
+    raise ImportError(
+        "cannot find data/clara/lattice_data/utils.py, which holds CLARA's "
+        "magnet calibrations. It is shared with score.py and is not copied "
+        "into Refined/; this module needs it above the package somewhere."
+    )
+if str(_LATTICE_DATA) not in sys.path:
+    sys.path.insert(0, str(_LATTICE_DATA))
+from utils import (  # noqa: E402
+    beam_energy,
+    corrector_angle_from_current,
+    corrector_current_from_angle,
+    dipole_angle_from_current,
+    dipole_current_from_angle,
+    quadrupole_current_from_k,
+    quadrupole_k_from_current,
+    sextupole_current_from_k2,
+    sextupole_k2_from_current,
+)
+
+# How long a screen takes to move, in seconds. A driver that measures something
+# different for its own machine should say so here; the default is the spec's,
+# so there is one number rather than one per module.
+from machine_spec import SCREEN_SWITCH_SECONDS  # noqa: F401
+
+def _momentum(name: str) -> float:
+    """Reference momentum at a magnet, MeV/c.
+
+    **Not one number for the machine.** The linacs accelerate, so the beam is
+    32.8 MeV/c at S02 and 250 at FEBE — a factor of seven. A single constant
+    would have set every S02 magnet about seven times too strong, and the
+    symptom is a machine that looks healthy and is simply mistuned.
+
+    `utils.beam_energy` is the per-section table the Cheetah model is built
+    from, keyed by the section code in the element name, and
+    `utils.update_cheetah_element` keys it exactly this way. Using the same
+    table is the point rather than a convenience: the tuner plans against the
+    model and applies through here, so if the two disagreed about the momentum
+    at a magnet the difference would appear as model error that no amount of
+    tuning could remove.
+
+    Cross-checked against the virtual accelerator's tracked momentum, which it
+    reports per element: the table agrees to within 8 % everywhere. It is a
+    *reference* energy, so that is about what one would expect; it is not a
+    measurement of today's machine.
+    """
+    section = name[4:7]
+    try:
+        return float(beam_energy[section])
+    except KeyError:
+        raise KeyError(
+            f"no reference energy for section {section!r} (from {name!r}). "
+            f"`utils.beam_energy` has {sorted(beam_energy)}."
+        ) from None
+
+# How long to wait for mechanisms before giving up, in seconds. A bare
+# `while thing.moving:` is an infinite loop the first time a status PV sticks,
+# and these PVs do stick.
+MAGNET_SETTLE_TIMEOUT = 30.0
+SCREEN_SETTLE_TIMEOUT = 60.0
+POLL_SECONDS = 0.5
+# How close a readback has to be to its demand to count as arrived, in amps.
+CURRENT_TOLERANCE_A = 0.05
+
+# Charge either end of the modelled stretch, for transmission. Both must be
+# *non-intercepting*: a Faraday cup stops the beam, so using one as the
+# denominator of a transmission measured during tuning would end the run.
+#
+# `CLA-S01-DIA-WCM-01` is the wall-current monitor at the start, and reads.
+# `CLA-FEH-DIA-ICT-01` is the FEBE-hutch ICT, which is in the lattice but **not
+# in CATAP's charge factory** at the time of writing, so transmission currently
+# falls back to 1.0 — see GET_REAL_TRANSMISSION.
+UPSTREAM_CHARGE_MONITOR = "CLA-S01-DIA-WCM-01"
+READOUT_CHARGE_MONITOR = "CLA-FEH-DIA-ICT-01"
+# Below this the upstream monitor is reporting no beam, and a ratio against it
+# is a division by noise rather than a transmission.
+MIN_CHARGE = 1e-3
+
+# ---- the VBC translation stage ----
+#
+# The chicane's bend is set by the dipole currents, but the magnets themselves
+# sit on a translation stage, and the two have to agree: the dipoles bend the
+# beam off axis and the stage is what puts the middle of the chicane where the
+# beam now goes. Setting one without the other is not a mistuned chicane, it is
+# a chicane the beam does not thread.
+VBC_STAGE_TARGET_PV = "CLA-VBC-MAG-TRANS-01:TGTPOS"   # mm
+VBC_STAGE_MOVING_PV = "CLA-VBC-MAG-TRANS-01:MOVING"
+# Where the stage reads when the chicane is straight, and how far it may travel
+# from there. Offset from the axis is `VBC_STAGE_ZERO_MM - TGTPOS`, so a larger
+# offset is a *smaller* TGTPOS, and 330 is the floor.
+VBC_STAGE_ZERO_MM = 372.98
+VBC_STAGE_FLOOR_MM = 330.0
+VBC_STAGE_MAX_OFFSET_MM = VBC_STAGE_ZERO_MM - VBC_STAGE_FLOOR_MM   # 42.98
+VBC_STAGE_TIMEOUT = 120.0
+# Lever arm from dipole 1 to dipole 2, mm, read off the lattice (`vbc_drift_1`).
+VBC_LEVER_MM = 1506.7474
+
+
+# ---------------------------------------------------------------- plumbing
+
+_factories: dict[str, object] = {}
+# Current last commanded to each magnet, by CATAP name. See the note in
+# `SET_REAL_MAGNET_POWER`: a write takes a moment to come back through EPICS,
+# and this is what tells us whether it has.
+_commanded: dict[str, float] = {}
+
+
+def _factory(kind: str):
+    """A CATAP factory, built on first use.
+
+    Lazily, because building one connects to the control system, and importing
+    a module should not do that — `rl_framework` imports `real_env`, so an
+    eager factory here would mean that merely importing the package talks to an
+    accelerator. It also means `USE_VIRTUAL` can be set by a caller before the
+    first call and still be honoured.
+    """
+    if kind not in _factories:
+        if kind == "magnet":
+            from CATAP.magnet import MagnetFactory
+
+            _factories[kind] = MagnetFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "screen":
+            from CATAP.diagnostics.screen import ScreenFactory
+
+            _factories[kind] = ScreenFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "camera":
+            from CATAP.diagnostics.camera import CameraFactory
+
+            _factories[kind] = CameraFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "charge":
+            from CATAP.diagnostics.charge import ChargeFactory
+
+            _factories[kind] = ChargeFactory(is_virtual=USE_VIRTUAL)
+        elif kind == "bpm":
+            from CATAP.diagnostics.bpm import BPMFactory
+
+            _factories[kind] = BPMFactory(is_virtual=USE_VIRTUAL)
+        else:
+            raise KeyError(kind)
+    return _factories[kind]
+
+
+def _catap_name(lattice_name: str) -> str:
+    """`cla_s02_mag_hvcor_01_h` -> `CLA-S02-MAG-HCOR-01`.
+
+    CATAP wants upper case with hyphens, always, for every kind of device —
+    magnets, screens, cameras, charge monitors alike. Everything that crosses
+    into CATAP goes through here.
+
+    Two things happen. The style changes, lower-underscore to upper-hyphen. And
+    a corrector's plane, which arrives as a suffix because the model has one
+    element where the machine has two magnets, is folded into the name: the
+    combined `HVCOR` becomes `HCOR` or `VCOR` and the suffix comes off. An
+    element that is already single-plane (`cla_vbc_mag_vcor_01_v`) keeps the
+    name it has, rather than becoming `VVCOR`.
+
+    Idempotent, so a name already written the CATAP way passes through
+    unchanged — which is what lets the charge monitors above be spelled the way
+    an operator would spell them.
+    """
+    name, plane = lattice_name, ""
+    if name.endswith(("_h", "_v")):
+        name, plane = name[:-2], name[-1]
+    if plane and "hvcor" in name:
+        name = name.replace("hvcor", "hcor" if plane == "h" else "vcor")
+    return name.upper().replace("_", "-")
+
+
+def _kind(lattice_name: str) -> str:
+    """Which calibration a magnet takes, from the lattice name.
+
+    Read off the name we were given rather than CATAP's `type`/`subtype`,
+    because this has to agree with `data/clara/lattice_data/utils.py`, whose
+    tables are keyed by name. Asking CATAP what kind of magnet it is and then
+    looking the answer up in a table keyed by something else is how the two
+    drift apart.
+    """
+    for tag, kind in (("cor", "corrector"), ("quad", "quadrupole"),
+                      ("sext", "sextupole"), ("dip", "dipole"),
+                      ("cav", "cavity")):
+        if tag in lattice_name:
+            return kind
+    raise ValueError(
+        f"cannot tell what kind of magnet {lattice_name!r} is. The name is "
+        f"expected to contain one of quad, cor, dip, sext or cav."
+    )
+
+
+def _magnet(lattice_name: str):
+    """The CATAP magnet for a lattice name, or a useful error."""
+    catap = _catap_name(lattice_name)
+    magnet = _factory("magnet").get_magnet(catap)
+    if magnet is None:
+        # `get_magnet` returns None for a name it does not know rather than
+        # raising, so an unmapped name would otherwise surface as an
+        # AttributeError on None several lines later.
+        raise KeyError(
+            f"CATAP has no magnet {catap!r} (from {lattice_name!r}). Either the "
+            f"name mapping in `_catap_name` is wrong for this one, or it is not "
+            f"on this machine."
+        )
+    return magnet
+
+
+def _wait_until(predicate, timeout: float, what: str) -> None:
+    """Poll until `predicate()` or the timeout, then say which it was."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            if predicate():
+                return
+        except Exception as error:  # a status PV that is not connected yet
+            print(f"  waiting for {what}: {type(error).__name__}: {error}")
+        time.sleep(POLL_SECONDS)
+    # Not an exception: a timeout here means a mechanism is slow or a status PV
+    # is stuck, and the shot that follows is still worth taking — but it has to
+    # be said out loud, because the reading may be of a machine mid-move.
+    print(f"  WARNING: gave up waiting for {what} after {timeout:.0f} s; "
+          f"the next reading may not be of a settled machine.")
+
+
+# ------------------------------------------------- the VBC translation stage
+
+
+def _raw_pv(pv: str):
+    """Read a PV CATAP does not model. Virtual PVs carry a `VM-` prefix."""
+    import epics
+
+    return epics.caget(("VM-" if USE_VIRTUAL else "") + pv, timeout=5)
+
+
+def GET_REAL_VBC_STAGE() -> float | None:
+    """Where the VBC stage is, in mm, or None if the PV is not there."""
+    return _raw_pv(VBC_STAGE_TARGET_PV)
+
+
+def VBC_STAGE_IS_MOVING() -> bool:
+    return bool(_raw_pv(VBC_STAGE_MOVING_PV))
+
+
+def SET_REAL_VBC_STAGE(position_mm: float) -> None:
+    """Move the stage, in mm, refusing anything outside its safe travel.
+
+    The floor is a hard limit and is checked here rather than trusted to the
+    caller: this is the one actuator in the system whose range is bounded by
+    something mechanical rather than by an optics choice.
+    """
+    position = float(position_mm)
+    if not (VBC_STAGE_FLOOR_MM <= position <= VBC_STAGE_ZERO_MM):
+        raise ValueError(
+            f"VBC stage target {position:.2f} mm is outside the safe travel "
+            f"[{VBC_STAGE_FLOOR_MM}, {VBC_STAGE_ZERO_MM}] mm "
+            f"({VBC_STAGE_MAX_OFFSET_MM:.2f} mm of offset). Refused."
+        )
+    import epics
+
+    epics.caput(("VM-" if USE_VIRTUAL else "") + VBC_STAGE_TARGET_PV, position)
+
+
+def WAIT_FOR_VBC_STAGE() -> None:
+    """Block until the stage has stopped."""
+    time.sleep(1.0)  # `MOVING` lags the command
+    _wait_until(lambda: not VBC_STAGE_IS_MOVING(), VBC_STAGE_TIMEOUT,
+                "the VBC stage to stop")
+
+
+def VBC_STAGE_POSITION(angle_rad: float) -> float:
+    """TGTPOS, in mm, for a chicane bend of `angle_rad`. **Not resolved.**
+
+    The geometry says the middle of the chicane has to sit `L sin(theta)` off
+    the axis, with `L = 1506.7 mm` from the lattice, giving `TGTPOS = 372.98 -
+    1506.7 sin(theta)`. That cannot be right, and the arithmetic says so
+    plainly:
+
+        angle 0.1215 rad (family minimum) -> 182.6 mm offset -> TGTPOS 190.4
+        angle 0.1317 rad (lattice maximum) -> 197.9 mm offset -> TGTPOS 175.1
+
+    against a floor of 330. Every tune in the shipped family would drive the
+    stage about 150 mm past its limit, and the safe travel of 42.98 mm
+    corresponds to a bend of only 0.0285 rad — a factor of 4.3 short of the
+    range the optics use.
+
+    So one of three things is wrong, and guessing between them is not worth a
+    chicane the beam does not thread:
+
+    - the stage does not carry the full `L sin(theta)` beam offset (most
+      likely: it may move the dipoles longitudinally, or carry only part of the
+      geometry);
+    - the lattice's angle is not the quantity the stage tracks;
+    - the zero or the floor is not what we think.
+
+    Until it is settled, the chicane is not set on a real machine at all; see
+    `SET_REAL_MAGNET_POWER`.
+    """
+    offset = VBC_LEVER_MM * np.sin(abs(float(angle_rad)))
+    raise NotImplementedError(
+        f"the chicane angle -> VBC stage mapping is not established. "
+        f"{angle_rad:+.5f} rad needs {offset:.1f} mm of offset by the lattice "
+        f"geometry, against {VBC_STAGE_MAX_OFFSET_MM:.2f} mm of safe travel — "
+        f"off by {offset / VBC_STAGE_MAX_OFFSET_MM:.1f}x, so the geometry is "
+        f"not what the stage does. See VBC_STAGE_POSITION in hardware_CLARA.py."
+    )
+
+
+# ---------------------------------------------------------------- magnets
+
+
+def SET_REAL_MAGNET_POWER(magnet_name: str, value: float) -> None:
+    """Set one magnet to `value` in **native lattice units**.
+
+    `value` is a quadrupole's `k1` in 1/m², a corrector's `angle` in rad, or a
+    dipole's `angle` in rad — whatever property the spec declares for that knob.
+    Converting to a power-supply current happens in here.
+
+    Called once per element, so a coupled group (the four VBC chicane dipoles on
+    one supply) arrives as four calls with the signs already applied. Nothing
+    above this knows about currents, interlocks or ramp rates.
+    """
+    kind = _kind(magnet_name)
+    if kind == "cavity":
+        # The tune carries three cavity phases and they are not magnets. Loudly
+        # unimplemented rather than quietly skipped: a tuner that thinks it has
+        # set a phase and has not is planning against a machine it is not on.
+        raise NotImplementedError(
+            f"{magnet_name} is a cavity phase, not a magnet, and setting RF is "
+            f"not wired up. Either implement it here or keep cavities out of "
+            f"`config.controllable_magnets`."
+        )
+    if kind == "dipole" and "vbc" in magnet_name:
+        # The chicane bend and the translation stage are one setting in two
+        # places, and only one of them is wired. Bending without moving the
+        # stage is not an approximation of the right chicane, it is a chicane
+        # the beam misses — so it is refused rather than half-applied.
+        VBC_STAGE_POSITION(value)  # raises, and explains why
+
+    magnet = _magnet(magnet_name)
+    convert = {
+        "dipole": dipole_current_from_angle,
+        "quadrupole": quadrupole_current_from_k,
+        "corrector": corrector_current_from_angle,
+        "sextupole": sextupole_current_from_k2,
+    }[kind]
+    # The calibration tables are keyed by CATAP's name, and normalise case and
+    # separators themselves — so the plane-resolved name is what they want.
+    current = convert(_catap_name(magnet_name), float(value),
+                      _momentum(magnet_name))
+    if not np.isfinite(current):
+        raise ValueError(
+            f"{magnet_name}: {value} gives a current of {current}. The "
+            f"conversion has gone out of range rather than the magnet."
+        )
+    magnet.seti = float(current)
+    # Remembered so `WAIT_FOR_MAGNETS_SETTLED` knows what it is waiting *for*.
+    # A caput takes about half a second to come back round through EPICS, and
+    # until it does `seti` still reads the previous value — so without this the
+    # readback after a write is the setting before it.
+    _commanded[_catap_name(magnet_name)] = float(current)
+
+
+def GET_REAL_MAGNET_POWER(magnet_name: str) -> float:
+    """What a magnet is actually at, in **native lattice units**.
+
+    A readback, not a set point, if the two can differ. `RealEnv` caches this
+    for the duration of a shot, so it is called at most once per magnet per
+    acquisition even though the optimisers ask for all of them every shot.
+    """
+    kind = _kind(magnet_name)
+    if kind == "cavity":
+        raise NotImplementedError(
+            f"{magnet_name} is a cavity phase, not a magnet; reading RF is not "
+            f"wired up. See SET_REAL_MAGNET_POWER."
+        )
+
+    magnet = _magnet(magnet_name)
+    # The virtual accelerator does not drive the readback PV, so `readi` sits at
+    # zero there however the magnet is set — which would read as an untuned
+    # machine on every shot.
+    current = magnet.seti if USE_VIRTUAL else magnet.readi
+    if current is None or not np.isfinite(float(current)):
+        raise ValueError(
+            f"{magnet_name}: CATAP gave a current of {current!r}. Not treated "
+            f"as zero, because zero is a plausible-looking setting and a tuner "
+            f"would build a response matrix out of it."
+        )
+
+    convert = {
+        "dipole": dipole_angle_from_current,
+        "quadrupole": quadrupole_k_from_current,
+        "corrector": corrector_angle_from_current,
+        "sextupole": sextupole_k2_from_current,
+    }[kind]
+    return float(convert(_catap_name(magnet_name), float(current),
+                         _momentum(magnet_name)))
+
+
+def WAIT_FOR_MAGNETS_SETTLED(magnet_names: list[str]) -> None:
+    """Block until these magnets have reached their new set points.
+
+    Returning early is the expensive failure mode here: the shot that follows
+    reads a machine mid-ramp and the optimiser books it as the response to a
+    setting that was never applied.
+
+    Two separate things have to happen, and the first one bites even on the
+    virtual accelerator, where nothing physically ramps. A caput takes roughly
+    half a second to come back round through EPICS, so for that long `seti`
+    still reports the *previous* demand. `Refined` takes its next step from the
+    settings it read back, so a stale one is not a cosmetic error: it steps
+    from the wrong place. So wait for the demand to land first, and then — on
+    the real machine, where there is iron to move — for the current to reach
+    it.
+    """
+    magnets = {name: _magnet(name) for name in magnet_names
+               if _kind(name) != "cavity"}
+    if not magnets:
+        return
+
+    def landed() -> bool:
+        """The control system is reporting back the demand we sent."""
+        for name, magnet in magnets.items():
+            wanted = _commanded.get(_catap_name(name))
+            if wanted is None:
+                continue                 # never written, nothing to wait for
+            echo = magnet.seti
+            if echo is None or abs(float(echo) - wanted) > CURRENT_TOLERANCE_A:
+                return False
+        return True
+
+    _wait_until(landed, MAGNET_SETTLE_TIMEOUT,
+                f"{len(magnets)} magnet demand(s) to register")
+    if USE_VIRTUAL:
+        return  # no iron, so once the demand has landed it is there
+
+    def arrived() -> bool:
+        for magnet in magnets.values():
+            # `is_current_steady` is the direct answer, when the PV exists.
+            # Where it does not, fall back to comparing the readback with the
+            # demand, which is the thing it is supposed to be telling us.
+            steady = getattr(magnet, "is_current_steady", None)
+            if steady is not None:
+                if not steady:
+                    return False
+                continue
+            readback, demand = magnet.readi, magnet.seti
+            if readback is None or demand is None:
+                return False
+            if abs(float(readback) - float(demand)) > CURRENT_TOLERANCE_A:
+                return False
+        return True
+
+    _wait_until(arrived, MAGNET_SETTLE_TIMEOUT,
+                f"{len(magnets)} magnet(s) to settle")
+
+
+# ---------------------------------------------------------------- screens
+
+
+def _screen_and_camera(screen_name: str):
+    """The CATAP screen and its camera, for a lattice screen name."""
+    catap = _catap_name(screen_name)
+    screen = _factory("screen").get_screen(catap)
+    if screen is None:
+        raise KeyError(f"CATAP has no screen {catap!r} (from {screen_name!r})")
+    # Ask the screen which camera is on it rather than rewriting the name.
+    # `SCR`->`CAM` is right for most of CLARA and wrong for enough of it to be
+    # worth not guessing.
+    camera_name = getattr(screen, "camera_name", None) or catap.replace("SCR", "CAM")
+    camera = _factory("camera").get_camera(camera_name)
+    if camera is None:
+        raise KeyError(
+            f"CATAP has no camera {camera_name!r} for screen {catap!r}"
+        )
+    return screen, camera
+
+
+def INSERT_REAL_SCREEN(screen_name: str) -> None:
+    """Put this screen into the beam."""
+    screen, camera = _screen_and_camera(screen_name)
+    screen.insert_yag()
+    if not camera.is_acquiring:
+        camera.start_acquiring()
+
+
+def RETRACT_REAL_SCREEN(screen_name: str) -> None:
+    """Take this screen out of the beam.
+
+    `RealEnv` retracts the screen it was looking at before inserting another,
+    because only one may be in at a time and an intercepting screen blinds
+    everything downstream of it.
+    """
+    screen, camera = _screen_and_camera(screen_name)
+    if camera.is_acquiring:
+        camera.stop_acquiring()
+    screen.remove_yag()
+
+
+def WAIT_FOR_SCREEN_SETTLED(screen_name: str) -> None:
+    """Block until the screen has finished moving."""
+    screen, _ = _screen_and_camera(screen_name)
+    # A moment first: `moving` reads False for a beat after the command, before
+    # the mechanism starts, and polling it immediately returns "settled" on a
+    # screen that has not begun to move.
+    time.sleep(1.0)
+    _wait_until(lambda: not screen.moving, SCREEN_SETTLE_TIMEOUT,
+                f"screen {screen_name} to stop moving")
+
+
+def GET_REAL_SCREEN_IMAGE(screen_name: str) -> np.ndarray:
+    """One camera frame, as a 2-D array of intensities.
+
+    **Orientation matters.** Rows are y increasing *upward* and columns are x
+    increasing right, with the origin at the bottom left — which is how `SimEnv`
+    lays its images out and what the moment measure assumes. A frame handed over
+    flipped or transposed gives a correct-looking spot size at a mirrored
+    position, which reads as a steering error that no corrector can fix.
+
+    Background subtraction is welcome but not required: the measure applies its
+    own floor at 5 % of the brightest pixel.
+    """
+    _, camera = _screen_and_camera(screen_name)
+    if not camera.is_acquiring:
+        camera.start_acquiring()
+        time.sleep(1.0)  # let a frame arrive before asking for one
+
+    try:
+        raw = camera.get_array_data()
+    except Exception as error:
+        # CATAP raises a bare "not acquiring" from inside the getter, naming the
+        # camera but not the screen, and giving no hint that the request is
+        # unanswerable rather than merely slow. Both of those matter when this
+        # happens on shot one of an episode.
+        raise RuntimeError(
+            f"no image from {screen_name} (camera {camera.name}): {error}. "
+            f"`start_acquiring()` was called and did not take, which on a "
+            f"virtual accelerator usually means the camera PVs are not served; "
+            f"on the real machine, check the camera is on and not in use "
+            f"elsewhere."
+        ) from error
+
+    frame = np.asarray(raw, dtype=float)
+    if frame.size == 0:
+        raise ValueError(
+            f"{screen_name}: the camera returned an empty frame. Not passed on "
+            f"as a blank image, because that measures as 'no beam' and a tuner "
+            f"will spend its budget steering away from a camera fault."
+        )
+
+    if frame.ndim == 1:
+        # `get_array_data` hands back the raw waveform; the shape is the
+        # camera's business and it knows it.
+        height, width = int(camera.image_height), int(camera.image_width)
+        if height * width != frame.size:
+            raise ValueError(
+                f"{screen_name}: {frame.size} pixels does not fit the camera's "
+                f"{width} x {height}. Reshaping on a guess would transpose the "
+                f"beam rather than fail."
+            )
+        frame = frame.reshape(height, width)
+    elif frame.ndim != 2:
+        raise ValueError(f"{screen_name}: expected a 2-D frame, got {frame.shape}")
+
+    # Cameras index from the top-left, the convention here is bottom-left. Only
+    # the row order differs; flipping it is the difference between a beam
+    # measured above the axis and below it.
+    return np.flipud(frame)
+
+
+def GET_REAL_SCREEN_EXTENT(screen_name: str) -> tuple[float, float, float, float]:
+    """(x_min, x_max, y_min, y_max) in **metres** that this camera's frame covers.
+
+    The calibration: pixel count times metres per pixel, about the chip centre.
+    Asked for rather than taken from the lattice model on purpose — a model's
+    idea of a field of view is not a measurement, and every spot size the
+    optimiser is scored on is this number times a pixel count.
+
+    Taken from the camera's own `pixel_to_mm` where it has one, and from the
+    measured table in `image_processing.camera_conversions` where it does not.
+    The two are cross-checked when both exist: they are the same physical
+    quantity from different sources, so a disagreement means one of them is
+    wrong and it matters which.
+
+    Asks the camera for its dimensions rather than grabbing a frame where it
+    can, and falls back to a frame where it cannot — `image_width` and
+    `image_height` come back as None on a camera whose PVs are not served, and
+    on the virtual accelerator that is all of them. `RealEnv` only asks about a
+    screen it is actually going to read, so a fallback frame here costs one
+    acquisition on one camera rather than twenty-two.
+    """
+    _, camera = _screen_and_camera(screen_name)
+    width, height = camera.image_width, camera.image_height
+    if not width or not height:
+        height, width = GET_REAL_SCREEN_IMAGE(screen_name).shape
+    width, height = int(width), int(height)
+    if not height or not width:
+        raise ValueError(
+            f"{screen_name}: the camera reports a {width} x {height} frame."
+        )
+
+    measured = _conversion_table().get(screen_name)
+    from_camera = getattr(camera, "pixel_to_mm", None)
+    if from_camera:
+        metres_per_pixel = float(from_camera) / 1000.0
+        if measured and abs(metres_per_pixel - measured[0]) > 0.1 * measured[0]:
+            print(f"  WARNING: {screen_name} pixel size is "
+                  f"{metres_per_pixel * 1e6:.2f} um from the camera and "
+                  f"{measured[0] * 1e6:.2f} um from the measured table — "
+                  f"a 10 % disagreement scales every spot size on this screen.")
+        x_per_pixel = y_per_pixel = metres_per_pixel
+    elif measured:
+        x_per_pixel, y_per_pixel = measured
+    else:
+        raise KeyError(
+            f"no pixel calibration for {screen_name}: the camera has no "
+            f"`pixel_to_mm` and it is not in `camera_conversions`. Add it "
+            f"rather than falling back on the model, which would make every "
+            f"spot size on this screen a guess."
+        )
+
+    half_x, half_y = width * x_per_pixel / 2, height * y_per_pixel / 2
+    return (-half_x, half_x, -half_y, half_y)
+
+
+def _conversion_table() -> dict[str, list[float]]:
+    """The measured metres-per-pixel table, keyed by lattice screen name."""
+    refined = Path(__file__).resolve().parents[2]
+    if str(refined) not in sys.path:
+        sys.path.insert(0, str(refined))
+    from image_processing import camera_conversions
+
+    return camera_conversions
+
+
+# ---------------------------------------------------------------- BPMs
+
+
+def GET_REAL_BPM_READING(bpm_name: str) -> tuple[float, float, bool]:
+    """(x, y, valid) for one BPM: metres off its electrical centre, and whether
+    there was enough charge for the reading to mean anything.
+
+    CLARA's BPMs are not working at the time of writing, which is what
+    `machines/clara_febe_no_bpms.json` is for: with `bpms: []` in the spec this
+    is never called and the optimiser steers on screens instead. Populate it when
+    they come back and the BPM path lights up again with no other change.
+
+    Reports *invalid* rather than zero whenever the reading cannot be believed.
+    A BPM claiming a confident 0.0 is a BPM saying the beam is perfectly on
+    axis, and `steer` would correct a real orbit towards that fiction;
+    `valid=False` makes it skip that BPM entirely, which is the truth.
+
+    **Caveat for when they come back.** CATAP's `BPM` offers `x` and `y` but no
+    charge or data-quality flag, so a *stale* reading — a BPM still publishing
+    the last position it saw after the beam went away — is indistinguishable
+    from a live one here. If that turns out to happen, the electrode sums
+    (`north`/`south`/`east`/`west`) are the thing to threshold on.
+    """
+    bpm = _factory("bpm").get_bpm(_catap_name(bpm_name))
+    if bpm is None:
+        return 0.0, 0.0, False
+    x, y = bpm.x, bpm.y
+    if x is None or y is None:
+        return 0.0, 0.0, False          # not connected
+    x, y = float(x), float(y)
+    if not (np.isfinite(x) and np.isfinite(y)):
+        return 0.0, 0.0, False
+    if x == 0.0 and y == 0.0:
+        # Both planes exactly zero is a PV sitting at its default, not a beam.
+        # A real BPM with beam on it has micron-level noise and never reports a
+        # clean 0.0 twice over; a connected BPM with *no* beam reports exactly
+        # this, and CATAP offers no quality flag to tell the two apart. Seen on
+        # the virtual accelerator, where every BPM reads (0.0, 0.0) and would
+        # otherwise have been believed — `steer` would then have corrected a
+        # real orbit towards a fictional perfect one.
+        return 0.0, 0.0, False
+    # CATAP reports BPM position in mm; everything above this line is metres.
+    return x / 1000.0, y / 1000.0, True
+
+
+# ---------------------------------------------------------------- charge
+
+
+_charge_warning_given = False
+
+
+def _charge(monitor: str) -> float | None:
+    """Charge at one monitor, or None if it cannot be read."""
+    try:
+        device = _factory("charge").get_charge_diagnostic(_catap_name(monitor))
+    except Exception:
+        return None                      # CATAP does not have this one
+    if device is None:
+        return None
+    value = getattr(device, "q", None)
+    if value is None or not np.isfinite(float(value)):
+        return None
+    return float(value)
+
+
+def GET_REAL_TRANSMISSION() -> float:
+    """The fraction of the bunch that reaches the readout, in [0, 1].
+
+    The benchmark charges two spot sizes for a bunch half lost, so this is not a
+    decoration: a tune that delivers a beautiful spot with a third of the charge
+    scores worse than a mediocre spot with all of it.
+
+    The ratio of charge at `READOUT_CHARGE_MONITOR` to charge at
+    `UPSTREAM_CHARGE_MONITOR`. Units cancel, so it does not matter whether CATAP
+    reports pC or nC, as long as both monitors agree — which they should, being
+    the same kind of measurement.
+
+    **This currently falls back to 1.0, and the reason is worth knowing.**
+    `CLA-FEH-DIA-ICT-01` is in the lattice but is not in CATAP's charge factory,
+    so there is nothing to read at the FEBE end. Returning 1.0 means the score
+    loses its transmission term: a tune that throws charge away is scored as
+    though it did not, and will look better than it is. Everything else works
+    without it. The warning is printed once per session rather than per shot.
+    """
+    global _charge_warning_given
+
+    launched = _charge(UPSTREAM_CHARGE_MONITOR)
+    arrived = _charge(READOUT_CHARGE_MONITOR)
+
+    if launched is None or arrived is None or launched <= MIN_CHARGE:
+        if not _charge_warning_given:
+            _charge_warning_given = True
+            missing = [name for name, value in
+                       ((UPSTREAM_CHARGE_MONITOR, launched),
+                        (READOUT_CHARGE_MONITOR, arrived)) if value is None]
+            reason = (f"{', '.join(missing)} cannot be read" if missing
+                      else f"{UPSTREAM_CHARGE_MONITOR} reports no beam "
+                           f"({launched})")
+            print(f"  WARNING: transmission is not being measured — {reason}. "
+                  f"Reporting 1.0, so the score will not charge for lost "
+                  f"charge and every tune will look better than it is.")
+        return 1.0
+
+    return float(np.clip(arrived / launched, 0.0, 1.0))

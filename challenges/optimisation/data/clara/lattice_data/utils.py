@@ -8,6 +8,22 @@ C_MEV_PER_T_M = 299.792458
 # Converts RF power (MW) to cavity voltage: V = sqrt(P * 1e6 * R)
 CAVITY_SHUNT_IMPEDANCE = 130_693_000.0
 
+# reference beam energy for each section in MeV
+beam_energy = {
+    "s01":4.2,
+    "s02":32.8,
+    "s03":120,
+    "s04":180,
+    "s05":196.6,
+    "vbc":196.6,
+    "s06":196.6,
+    "s07":250,
+    "fea":250,
+    "feh":250,
+    "fed":250
+}
+
+
 # slope_tmm_per_a
 CORRECTOR_CAL = {
     'CLA-S01-MAG-VCOR-01': 0.0237975668380952, 
@@ -100,23 +116,6 @@ CORRECTOR_CAL = {
     'CLA-S07-MAG-VCOR-08': 0.31731009090909, 
 }
 
-beam_energy = {
-    "s01":4.2,
-    "s02":32.8,
-    "s03":120,
-    "s04":180,
-    "s05":196.6,
-    "vbc":196.6,
-    "s06":196.6,
-    "s07":250,
-    "fea":250,
-    "feh":250,
-    "fed":250
-}
-# Paste below your existing CORRECTOR_CAL / beam_energy / corrector_angle_from_current.
-# Requires: import math, and C_MEV_PER_T_M, CORRECTOR_CAL defined above.
-# Replace your stub quadrupole_k_from_current with everything here.
-
 # slope [T/A], threshold [A], f [T/A^3], a [T/A^2], I0 [A], d [T], magnetic length [mm]
 QUAD_CAL = {
     'CLA-S02-MAG-QUAD-01': (0.025500836847330708, 15.575435287034225, 0.0, -1.3755963213967208e-05, 942.4766071889139, 12.215564413215553, 128.68477053001592),
@@ -201,7 +200,34 @@ DIPOLE_CAL = {
     'CLA-FED-MAG-DIP-01': (2.038671, 164.2963, 0.0, -0.00045, 2458.77, 2692.044, 610.23),
 }
 
-import math
+
+# slope [T/m per A], threshold [A], f [T/m/A^3], a [T/m/A^2], I0 [A], d [T/m], magnetic length [mm]
+# (integrated strength = int B'' dl in T/m)
+SEXTUPOLE_CAL = {
+    'CLA-FEA-MAG-SEXT-01': (2.0401495184312686, 6.965341584257828, 0.0, -0.0021545212209506297, 480.42308676513437, 497.1726336929927, 85.6),
+    'CLA-FEA-MAG-SEXT-02': (2.042607538590013, 5.040055367699523, 0.0, -0.0020449881298032313, 504.45800034778915, 520.3522847507057, 85.6),
+}
+
+ 
+ 
+def _sextupole_params(magnet_name):
+    try:
+        return SEXTUPOLE_CAL[magnet_name.upper().replace("_", "-")]
+    except KeyError:
+        raise KeyError(f"No sextupole calibration for {magnet_name!r}")
+ 
+def sextupole_k2_from_current(magnet_name, current_a, momentum_mevc):
+    """Sextupole K2 [m^-3] for a given current [A] and beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, length_mm = _sextupole_params(magnet_name)
+    b_int = _quad_strength_from_current(current_a, slope, thr, f, a, i0, d)  # integrated B'' [T/m]
+    return C_MEV_PER_T_M * (1000.0 / length_mm) * b_int / momentum_mevc
+ 
+def sextupole_current_from_k2(magnet_name, k2, momentum_mevc):
+    """Current [A] needed for sextupole K2 [m^-3] at beam momentum [MeV/c]."""
+    slope, thr, f, a, i0, d, length_mm = _sextupole_params(magnet_name)
+    b_int = k2 * momentum_mevc * (length_mm / 1000.0) / C_MEV_PER_T_M          # T/m
+    return _quad_current_from_strength(b_int, slope, thr, f, a, i0, d)
+
 
 def _quad_params(magnet_name):
     try:
@@ -364,6 +390,8 @@ def update_cheetah_element(
         value = quadrupole_k_from_current(element.name, value, energy)
     elif isinstance(element, cheetah.Dipole):
         value = dipole_angle_from_current(element.name, value, energy)
+    elif isinstance(element, cheetah.Sextupole):
+        value = sextupole_k2_from_current(element.name, value, energy)
 
     prev = getattr(element, prop)
     setattr(element, prop, torch.tensor(value, dtype=torch.float, device=device))

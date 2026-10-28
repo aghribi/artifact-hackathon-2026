@@ -50,6 +50,7 @@ CHALLENGE_DIR = Path(__file__).resolve().parents[1]
 # environment reads; there is no version of this that is worth a stale copy.
 LATTICE_JSON = CHALLENGE_DIR / "data" / "clara" / "lattice_data" / "CLARA_cheetah.json"
 DISTRIBUTION_NPZ = CHALLENGE_DIR / "nominal_model" / "initial_distribution.npz"
+APERTURES_JSON = CHALLENGE_DIR / "data" / "clara" / "lattice_data" / "apertures.json"
 
 LATTICE_START = "cla_s02_sim_aper_01"
 READOUT_SCREEN = "cla_feh_dia_scr_01"
@@ -80,6 +81,39 @@ VBC_SIGNS = (1.0, -1.0, -1.0, 1.0)
 # `score.VBC_EDGE`: the chicane's outer faces stay square to the beamline and the
 # inner ones follow the bend. Setting the angle without the face is a different
 # magnet — the edge focusing is what the vertical plane sees.
+# What a group of each element type is called, so `knob_property` can name its
+# property. A group behaves like one magnet of the type it is made of.
+_GROUP_KIND = {"Dipole": "Chicane", "Sextupole": "SextupolePair"}
+
+
+def _spec_groups(elements):
+    """Coupled knobs from the machine spec: {knob: ((element, sign, faces), ...)}.
+
+    Only groups whose magnets are all present in this segment, so a twin of a
+    shorter stretch simply does not have them.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    root = _Path(__file__).resolve().parents[1]
+    if str(root) not in _sys.path:
+        _sys.path.insert(0, str(root))
+    from machine_spec import MachineSpec
+
+    spec = MachineSpec.load(root / "machines" / "clara_febe.json")
+    groups = {}
+    for knob in spec.knobs:
+        if len(knob.elements) < 2:
+            continue
+        if not all(name in elements for name in knob.elements):
+            continue
+        groups[knob.name] = tuple(
+            (name, sign, tuple(knob.follow.get(name, ())))
+            for name, sign in zip(knob.elements, knob.signs)
+        )
+    return groups
+
+
 VBC_EDGE = {
     "cla_vbc_mag_dip_01": "dipole_e2",
     "cla_vbc_mag_dip_02": "dipole_e1",
@@ -384,21 +418,22 @@ class CheetahTwin:
         millimetre or more at the readout with nothing obviously wrong. Deriving
         from the config means the next such change arrives here too.
         """
-        from rl_framework.envs import sim_env as _sim
-
         config = env.config
-        lattice = config.nominal_lattice_json or env.model.LATTICE_JSON
-        if getattr(config, "l4h_off", False):
-            lattice = _sim._without_l4h(lattice)
+        # From the environment's own machine description, which is the whole
+        # point: the lattice, the stretch, the chamber and the elements that are
+        # switched off are all one object now, so the twin cannot read a
+        # different machine than the environment is running.
+        spec = env.spec
         return cls(
-            lattice_json=lattice,
-            distribution=config.distribution_path or DISTRIBUTION_NPZ,
-            start=config.lattice_start,
-            end=config.lattice_end,
+            lattice_json=spec.lattice,
+            distribution=spec.beam or DISTRIBUTION_NPZ,
+            start=spec.start,
+            end=spec.end,
             num_particles=num_particles or config.num_particles or 10_000,
-            beam_pipe_radius=config.beam_pipe_radius,
-            min_screen_fraction=config.min_screen_fraction,
-            apertures=getattr(config, "apertures", True),
+            beam_pipe_radius=spec.pipe_radius,
+            min_screen_fraction=spec.min_fraction,
+            apertures=bool(spec.apertures),
+            disabled=tuple(spec.disabled),
         )
 
     def __init__(
@@ -411,17 +446,22 @@ class CheetahTwin:
         beam_pipe_radius: float | None = BEAM_PIPE_RADIUS,
         min_screen_fraction: float = MIN_SCREEN_FRACTION,
         apertures: bool = True,
+        disabled: tuple[str, ...] = (),
     ):
-        # Built through the nominal model's own `cheetah_segment` rather than by
-        # partitioning the file here. The two are the same lattice, and the moment
-        # they are assembled by two different pieces of code they can stop being so:
-        # `apertures` adds CLARA's real vacuum chamber on top of the file, SimEnv
-        # turns it on by default, and a twin that quietly left it off disagreed with
-        # the machine by a millimetre and a half at every BPM. Deferring to the model
-        # means the next thing it learns about the lattice arrives here too.
-        self.segment = _nominal_model().cheetah_segment(
-            str(lattice_json), start, end, apertures
-        )
+        # Built by the shared loader the environment uses, not by partitioning
+        # the file here. The two are the same lattice, and the moment they are
+        # assembled by two different pieces of code they can stop being so: the
+        # chamber is added on top of the file, SimEnv has it on by default, and a
+        # twin that quietly left it off disagreed with the machine by a
+        # millimetre and a half at every BPM. One builder means the next thing
+        # either of them learns about the lattice arrives in both.
+        from machine_spec import MachineSpec, lattice_io
+
+        self.segment = lattice_io.build_segment(MachineSpec(
+            lattice=str(lattice_json), start=start, end=end,
+            apertures=str(APERTURES_JSON) if apertures else None,
+            disabled=list(disabled),
+        ))
         self._elements = {element.name: element for element in self.segment.elements}
         self.readout_screen = end
         self._radius = beam_pipe_radius
@@ -486,9 +526,14 @@ class CheetahTwin:
         self.element_types = {
             name: type(element).__name__ for name, element in self._elements.items()
         }
-        # SimEnv offers the chicane as one knob; the twin has to know the name too.
-        if all(name in self._elements for name in VBC_DIPOLES):
-            self.element_types[VBC_CHICANE] = "Chicane"
+        # Knobs that drive several magnets at once are one name here as they are
+        # on the machine: {knob: ((element, sign, (faces...)), ...)}. The chicane
+        # was hard-coded for years; it now comes from the spec, along with the
+        # paired sextupoles and anything else a machine wires together.
+        self._groups = _spec_groups(self._elements)
+        for name, members in self._groups.items():
+            kind = type(self._elements[members[0][0]]).__name__
+            self.element_types[name] = _GROUP_KIND.get(kind, kind)
 
         # The strengths the lattice file carries, taken once, before anything has been
         # written. They cannot be read back off the elements later: by then they hold
@@ -497,10 +542,10 @@ class CheetahTwin:
         for name, element in self._elements.items():
             for prop, _ in KNOB_PROPERTIES.get(type(element).__name__, ()):
                 self._nominal_knob[(name, prop)] = float(getattr(element, prop))
-        if VBC_CHICANE in self.element_types:
-            self._nominal_knob[(VBC_CHICANE, "angle")] = float(
-                getattr(self._elements[VBC_DIPOLES[0]], "angle")
-            )
+        for name, members in self._groups.items():
+            prop = self.knob_property(name)
+            lead, sign, _ = members[0]
+            self._nominal_knob[(name, prop)] = float(getattr(self._elements[lead], prop)) / sign
 
         with np.load(distribution, allow_pickle=False) as data:
             coordinates = data["particles"][:num_particles]
@@ -530,6 +575,7 @@ class CheetahTwin:
             "Sextupole": "k2",
             "Cavity": "phase",
             "Chicane": "angle",
+            "SextupolePair": "k2",
         }[kind]
 
     def nominal_setting(self, element: str, prop: str) -> float:
@@ -556,10 +602,12 @@ class CheetahTwin:
             # stays where it was, rather than taking the run down with it.
             value = torch.full_like(value, float(self.setting(element, prop)))
         self._written.add((element, prop))
-        if element == VBC_CHICANE:
-            for dipole, sign in zip(VBC_DIPOLES, VBC_SIGNS):
-                setattr(self._elements[dipole], prop, sign * value)
-                setattr(self._elements[dipole], VBC_EDGE[dipole], sign * value)
+        members = self._groups.get(element)
+        if members is not None:
+            for name, sign, faces in members:
+                setattr(self._elements[name], prop, sign * value)
+                for face in faces:
+                    setattr(self._elements[name], face, sign * value)
             return
         setattr(self._elements[element], prop, value)
 

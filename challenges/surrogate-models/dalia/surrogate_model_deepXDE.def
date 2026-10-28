@@ -1,0 +1,37 @@
+Bootstrap: localimage
+From: /lustre/work/pdl18409/shared/containers/surrogate_models.sif
+
+# The challenge's image plus what train.py and hpo.py need on top of it, at the versions of
+# ../requirements.txt: the hopsworks client's [python] extra (reads the offline feature store
+# without Spark), wandb, deepxde for models/MO_DeepOnet.py and optuna for hpo.py. Built on an
+# ARM compute node by `dalia.sh build`, never on the x86 login node.
+#
+# The [python] extra is installed package by package, without hops-deltalake: it has no aarch64
+# wheel and its Rust source build fails to link here. hsfs imports it only to read or write Delta
+# tables directly; train.py reads through the Feature Query Service and runs without it.
+
+%labels
+    Author plasma_pirates
+    Description surrogate_models.sif + hopsworks[python]==5.1.1 (no hops-deltalake), wandb==0.30.0, deepxde==1.15.0, optuna==5.0.0
+
+%environment
+    export DDE_BACKEND=pytorch
+
+%post
+    unset PIP_CONSTRAINT
+    # Keep what the base ships -- NGC's CUDA build of torch and the challenge's pins -- so the
+    # packages pickled in a model bundle stay the versions a laptop has.
+    python3 -m pip list --format=freeze \
+        | grep -iE '^(torch|torchvision|torchaudio|triton|numpy|pandas|pyarrow|scikit-learn|scipy|matplotlib|nvidia-[a-z0-9-]+)==' \
+        > /tmp/base-pins.txt
+    python3 -m pip install --no-cache-dir --only-binary=:all: -c /tmp/base-pins.txt \
+        hopsworks==5.1.1 \
+        "confluent-kafka<=2.11.1" \
+        "fastavro>=1.4.11,<=1.12.0" \
+        "pyiceberg>=0.11.0,<0.12.0" \
+        "httpx<=0.28.1" \
+        tqdm \
+        wandb==0.30.0 \
+        deepxde==1.15.0 \
+        optuna==5.0.0
+    rm /tmp/base-pins.txt

@@ -1,0 +1,5 @@
+# Optional Python dependencies for generating or extending presentation figures.
+# The current interactive example uses Plotly.js in the browser, so these are not
+# required merely to preview the existing HTML deck.
+plotly>=5.18,<7
+pandas>=2.0,<3

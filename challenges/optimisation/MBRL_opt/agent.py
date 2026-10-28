@@ -168,7 +168,17 @@ class MBRLAgent:
         machine — so the only cost here is the one shot it takes to set 46
         quadrupoles, and it buys most of the tune.
         """
-        optics = env.optics_for_target(float(target[2]), float(target[3]))
+        # The two SVDs are 208 of the lookup's tracks and are only worth paying
+        # for if a ranking is going to be read: the quadrupole modes choose the
+        # focus set, the corrector modes choose the steering set.
+        wants_modes = bool(
+            self.config.use_svd_ranking
+            and (self.config.focus_quads or self.config.steering_shots
+                 or self.config.focus_correctors)
+        )
+        optics = env.optics_for_target(
+            float(target[2]), float(target[3]), modes=wants_modes
+        )
         self.twin.set_knobs(dict(optics.k1))
         observation, _, _, _, info = env.step(env.optics_action(optics))
         history.append(self._shot(env, observation, info))
@@ -199,6 +209,8 @@ class MBRLAgent:
         which the twin gives for nothing. The orbit is linear in the kicks, so one
         shot usually does it.
         """
+        if not self.config.steering_shots or optics.correctors is None:
+            return 0
         knobs = KnobSet.from_knob_names(
             optics.correctors.ranked(self.config.steering_correctors),
             self.twin.element_types,
@@ -259,8 +271,16 @@ class MBRLAgent:
         not independent once the beam is off axis in a quadrupole, so the two sets
         are optimised coupled rather than one after the other.
         """
-        names = list(optics.quadrupoles.ranked(self.config.focus_quads))
-        names += list(optics.correctors.ranked(self.config.focus_correctors))
+        if optics.quadrupoles is not None:
+            names = list(optics.quadrupoles.ranked(self.config.focus_quads))
+        else:
+            # `optics_for_target(modes=False)` skips the SVDs for a tenth of the
+            # time and returns no ranking with them. The final-focus quadrupoles
+            # are the ones it would almost always have picked anyway — they are
+            # what the matched family itself varies with the request.
+            names = list(self.config.fallback_focus_quads)[: self.config.focus_quads]
+        if optics.correctors is not None:
+            names += list(optics.correctors.ranked(self.config.focus_correctors))
         names += [n for n in self.config.focus_extra if n in env.magnet_limits]
         return KnobSet.from_knob_names(names, self.twin.element_types, env.magnet_limits)
 
